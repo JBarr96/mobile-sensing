@@ -8,27 +8,26 @@
 
 import UIKit
 
-class ViewController: UIViewController, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate {
 
     @IBOutlet weak var searchField: UITextField!
     @IBOutlet weak var searchButton: UIImageView!
     @IBOutlet weak var articleCountLabel: UILabel!
     @IBOutlet weak var dateRangePicker: UIPickerView!
-
+    
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
+    var response = ""
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
-        dateRangePicker.dataSource = self
-        dateRangePicker.delegate = self
+        self.dateRangePicker.dataSource = self
+        self.dateRangePicker.delegate = self
+        self.searchField.delegate = self
 
         let UITapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedImage))
         view.addGestureRecognizer(UITapRecognizer)
-//        UITapRecognizer.delegate = self
-//        self.searchButton.addGestureRecognizer(UITapRecognizer)
-//        self.searchButton.isUserInteractionEnabled = true
     }
 
     var previousValue = 0
@@ -46,7 +45,54 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @objc func tappedImage() {
+        var selectedVal = pickerView(self.dateRangePicker, titleForRow: self.dateRangePicker.selectedRow(inComponent: 0), forComponent: 0)
+
+        var selectedDate = Date()
+        switch selectedVal {
+            case "Today":
+                selectedDate = Date()
+            case "Past Week":
+                selectedDate = Date(timeIntervalSinceNow: -604800)
+            case "Past 2 Weeks":
+                selectedDate = Date(timeIntervalSinceNow: -1209600)
+            case "Past Month":
+                selectedDate = Date(timeIntervalSinceNow: -2592000)
+            default:
+                selectedDate = Date()
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        let dateString = dateFormatter.string(from: selectedDate)
+        
+        let requestUrl = "https://newsapi.org/v2/everything?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines))&from=\(dateString)&sortBy=publishedAt&country=us&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
+        print(requestUrl)
+        
+        self.response = makeUrlRequest(requestString: requestUrl)
+        
         print("Button tapped")
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    // TODO: return JSON serialized object instead of string
+    func makeUrlRequest(requestString: String) -> String {
+        let url = URL(string: requestString)!
+        var responseString = ""
+        
+        let semaphore = DispatchSemaphore(value: 0)
+        let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
+            guard let data = data else { return }
+            responseString = String(data: data, encoding: .utf8)!
+            semaphore.signal()
+        }
+        
+        task.resume()
+        semaphore.wait()
+        return responseString
     }
     
 }
