@@ -17,7 +17,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
     
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
-    var response = ""
+    var response = [String: Any]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,12 +65,11 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         dateFormatter.dateFormat = "yyyy-MM-dd"
         let dateString = dateFormatter.string(from: selectedDate)
         
-        let requestUrl = "https://newsapi.org/v2/everything?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines))&from=\(dateString)&sortBy=publishedAt&country=us&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
-        print(requestUrl)
+        let requestUrl = "https://newsapi.org/v2/top-headlines?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines))&from=\(dateString)&sortBy=publishedAt&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
         
-        self.response = makeUrlRequest(requestString: requestUrl)
-        
-        print("Button tapped")
+        self.response = makeUrlRequest(requestString: requestUrl)!
+
+        print(self.response)
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -79,7 +78,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
     }
     
     // TODO: return JSON serialized object instead of string
-    func makeUrlRequest(requestString: String) -> String {
+    func makeUrlRequest(requestString: String) -> [String: Any]? {
         let url = URL(string: requestString)!
         var responseString = ""
         
@@ -92,7 +91,18 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         
         task.resume()
         semaphore.wait()
-        return responseString
+        return convertToDictionary(text: responseString)
+    }
+    
+    func convertToDictionary(text: String) -> [String: Any]? {
+        if let data = text.data(using: .utf8) {
+            do {
+                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
+        return nil
     }
     
 }
