@@ -8,16 +8,15 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizerDelegate {
+class ViewController: UIViewController, UITextFieldDelegate {
 
     @IBOutlet weak var searchField: UITextField!
-    @IBOutlet weak var searchButton: UIImageView!
     @IBOutlet weak var articleCountLabel: UILabel!
     @IBOutlet weak var dateRangePicker: UIPickerView!
     
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
-//    var response
+    var articles = [Article]()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -25,9 +24,6 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         self.dateRangePicker.dataSource = self
         self.dateRangePicker.delegate = self
         self.searchField.delegate = self
-
-        let UITapRecognizer = UITapGestureRecognizer(target: self, action: #selector(tappedImage))
-        view.addGestureRecognizer(UITapRecognizer)
     }
 
     var previousValue = 0
@@ -44,22 +40,22 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
     }
     
-    @objc func tappedImage() {
+    @IBAction func searchGo(_ sender: Any) {
         if (self.searchField!.text != nil && self.searchField!.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""){
-            var selectedVal = pickerView(self.dateRangePicker, titleForRow: self.dateRangePicker.selectedRow(inComponent: 0), forComponent: 0)
-
+            let selectedVal = pickerView(self.dateRangePicker, titleForRow: self.dateRangePicker.selectedRow(inComponent: 0), forComponent: 0)
+            
             var selectedDate = Date()
             switch selectedVal {
-                case "Today":
-                    selectedDate = Date()
-                case "Past Week":
-                    selectedDate = Date(timeIntervalSinceNow: -604800)
-                case "Past 2 Weeks":
-                    selectedDate = Date(timeIntervalSinceNow: -1209600)
-                case "Past Month":
-                    selectedDate = Date(timeIntervalSinceNow: -2592000)
-                default:
-                    selectedDate = Date()
+            case "Today":
+                selectedDate = Date()
+            case "Past Week":
+                selectedDate = Date(timeIntervalSinceNow: -604800)
+            case "Past 2 Weeks":
+                selectedDate = Date(timeIntervalSinceNow: -1209600)
+            case "Past Month":
+                selectedDate = Date(timeIntervalSinceNow: -2592000)
+            default:
+                selectedDate = Date()
             }
             
             let dateFormatter = DateFormatter()
@@ -68,11 +64,9 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
             
             let requestUrl = "https://newsapi.org/v2/top-headlines?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: " ", with: "+"))&from=\(dateString)&sortBy=publishedAt&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
             
-//            self.response = makeUrlRequest(requestString: requestUrl)!
-            makeUrlRequest(requestString: requestUrl)
-
-
-//            print(self.response)
+            self.articles = makeUrlRequest(requestString: requestUrl)
+            
+            self.performSegue(withIdentifier: "testSegue", sender: self)
         }
         else{
             // pop up module prompting search terms
@@ -85,8 +79,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         return true
     }
     
-    // TODO: return JSON serialized object instead of string
-    func makeUrlRequest(requestString: String) -> Void {
+    func makeUrlRequest(requestString: String) -> [Article] {
         let url = URL(string: requestString)!
         var responseData = Data()
         
@@ -94,20 +87,81 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
             guard let data = data else { return }
             responseData = data
-            //            responseString = String(data: data, encoding: .utf8)!
             semaphore.signal()
         }
         
         task.resume()
         semaphore.wait()
-        var json = try? JSONSerialization.jsonObject(with: responseData, options: [])
+        let responseJson = try? JSONSerialization.jsonObject(with: responseData, options: [])
         
-        if let recipe = json as? [String: Any] {
-            if let articles = recipe["articles"] as! [Any]? {
-                print((articles[1] as! [String: Any])["author"]!)
+        var articleArray = [Article]()
+        
+        if let responseDict = responseJson as? [String: Any] {
+            if let articles = responseDict["articles"] as! [Any]? {
+                for article in articles {
+                    let articleDict = article as! [String: Any]
+                    let source: String = {
+                        if !(articleDict["source"]! is NSNull) {
+                            return ((articleDict["source"]! as! Dictionary)["name"]!) as String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let author: String = {
+                        if !(articleDict["author"]! is NSNull) {
+                            return articleDict["author"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let title: String = {
+                        if !(articleDict["title"]! is NSNull) {
+                            return articleDict["title"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let description: String = {
+                        if !(articleDict["description"]! is NSNull) {
+                            return articleDict["description"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let url: String = {
+                        if !(articleDict["url"]! is NSNull) {
+                            return articleDict["url"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let urlToImage: String = {
+                        if !(articleDict["urlToImage"]! is NSNull) {
+                            return articleDict["urlToImage"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let publishedAt: String = {
+                        if !(articleDict["publishedAt"]! is NSNull) {
+                            return articleDict["publishedAt"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+                    let content: String = {
+                        if !(articleDict["content"]! is NSNull) {
+                            return articleDict["content"]! as! String
+                        } else {
+                            return ""
+                        }
+                    }()
+
+                    articleArray.append(Article(source: source, author: author, title: title, description: description, url: url, urlToImage: urlToImage, publishedAt: publishedAt, content: content))
+                }
             }
         }
-        return
+        return articleArray
     }
     
     func convertToDictionary(text: String) -> Any? {
@@ -121,6 +175,13 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
         return nil
     }
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "testSegue"{
+            let vc = segue.destination as! TableViewController
+            vc.articles = self.articles
+        }
+    }
+        
 }
 
 extension ViewController: UIPickerViewDelegate, UIPickerViewDataSource{
