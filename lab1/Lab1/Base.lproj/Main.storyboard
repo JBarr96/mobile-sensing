@@ -10,10 +10,10 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
-        <!--My View Controller-->
+        <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="MyViewController" customModule="Lab1" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="Lab1" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -95,9 +95,10 @@
                     </view>
                     <navigationItem key="navigationItem" id="dkv-6H-1OG"/>
                     <connections>
-                        <outlet property="articleCountLabel" destination="mX7-TV-IVV" id="E8s-OL-umk"/>
+                        <outlet property="articleCountLabel" destination="mX7-TV-IVV" id="gJj-tL-04x"/>
                         <outlet property="dateRangePicker" destination="Y6b-VK-eta" id="Egc-lQ-aux"/>
                         <outlet property="searchField" destination="1tC-Bf-2pc" id="9ge-jI-82N"/>
+                        <segue destination="SAd-P5-LFW" kind="show" identifier="segueToTableView" id="67R-U7-q2Z"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

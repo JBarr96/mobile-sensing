@@ -10,8 +10,8 @@ import UIKit
 
 class ViewController: UIViewController, UITextFieldDelegate {
 
-    @IBOutlet weak var searchField: UITextField!
     @IBOutlet weak var articleCountLabel: UILabel!
+    @IBOutlet weak var searchField: UITextField!
     @IBOutlet weak var dateRangePicker: UIPickerView!
     
     var articleCount = 10
@@ -66,7 +66,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             self.articles = makeUrlRequest(requestString: requestUrl)
             
-            self.performSegue(withIdentifier: "testSegue", sender: self)
+            self.performSegue(withIdentifier: "segueToTableView", sender: self)
         }
         else{
             // pop up module prompting search terms
@@ -176,7 +176,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "testSegue"{
+        if segue.identifier == "segueToTableView"{
             let vc = segue.destination as! TableViewController
             vc.articles = self.articles
         }
