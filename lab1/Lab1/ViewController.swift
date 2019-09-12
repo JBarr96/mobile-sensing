@@ -17,7 +17,7 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
     
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
-    var response = [String: Any]()
+//    var response
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,31 +45,39 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
     }
     
     @objc func tappedImage() {
-        var selectedVal = pickerView(self.dateRangePicker, titleForRow: self.dateRangePicker.selectedRow(inComponent: 0), forComponent: 0)
+        if (self.searchField!.text != nil && self.searchField!.text!.trimmingCharacters(in: .whitespacesAndNewlines) != ""){
+            var selectedVal = pickerView(self.dateRangePicker, titleForRow: self.dateRangePicker.selectedRow(inComponent: 0), forComponent: 0)
 
-        var selectedDate = Date()
-        switch selectedVal {
-            case "Today":
-                selectedDate = Date()
-            case "Past Week":
-                selectedDate = Date(timeIntervalSinceNow: -604800)
-            case "Past 2 Weeks":
-                selectedDate = Date(timeIntervalSinceNow: -1209600)
-            case "Past Month":
-                selectedDate = Date(timeIntervalSinceNow: -2592000)
-            default:
-                selectedDate = Date()
+            var selectedDate = Date()
+            switch selectedVal {
+                case "Today":
+                    selectedDate = Date()
+                case "Past Week":
+                    selectedDate = Date(timeIntervalSinceNow: -604800)
+                case "Past 2 Weeks":
+                    selectedDate = Date(timeIntervalSinceNow: -1209600)
+                case "Past Month":
+                    selectedDate = Date(timeIntervalSinceNow: -2592000)
+                default:
+                    selectedDate = Date()
+            }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateString = dateFormatter.string(from: selectedDate)
+            
+            let requestUrl = "https://newsapi.org/v2/top-headlines?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines).replacingOccurrences(of: " ", with: "+"))&from=\(dateString)&sortBy=publishedAt&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
+            
+//            self.response = makeUrlRequest(requestString: requestUrl)!
+            makeUrlRequest(requestString: requestUrl)
+
+
+//            print(self.response)
         }
-        
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        let dateString = dateFormatter.string(from: selectedDate)
-        
-        let requestUrl = "https://newsapi.org/v2/top-headlines?q=\(self.searchField.text!.trimmingCharacters(in: .whitespacesAndNewlines))&from=\(dateString)&sortBy=publishedAt&apiKey=3df038d929f24dbabf7bdf5b22fd38c8"
-        
-        self.response = makeUrlRequest(requestString: requestUrl)!
-
-        print(self.response)
+        else{
+            // pop up module prompting search terms
+            print("No search terms provided")
+        }
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -78,26 +86,34 @@ class ViewController: UIViewController, UITextFieldDelegate, UIGestureRecognizer
     }
     
     // TODO: return JSON serialized object instead of string
-    func makeUrlRequest(requestString: String) -> [String: Any]? {
+    func makeUrlRequest(requestString: String) -> Void {
         let url = URL(string: requestString)!
-        var responseString = ""
+        var responseData = Data()
         
         let semaphore = DispatchSemaphore(value: 0)
         let task = URLSession.shared.dataTask(with: url) {(data, response, error) in
             guard let data = data else { return }
-            responseString = String(data: data, encoding: .utf8)!
+            responseData = data
+            //            responseString = String(data: data, encoding: .utf8)!
             semaphore.signal()
         }
         
         task.resume()
         semaphore.wait()
-        return convertToDictionary(text: responseString)
+        var json = try? JSONSerialization.jsonObject(with: responseData, options: [])
+        
+        if let recipe = json as? [String: Any] {
+            if let articles = recipe["articles"] as! [Any]? {
+                print((articles[1] as! [String: Any])["author"]!)
+            }
+        }
+        return
     }
     
-    func convertToDictionary(text: String) -> [String: Any]? {
+    func convertToDictionary(text: String) -> Any? {
         if let data = text.data(using: .utf8) {
             do {
-                return try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+                return try JSONSerialization.jsonObject(with: data, options: [])
             } catch {
                 print(error.localizedDescription)
             }
