@@ -13,6 +13,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var articleCountLabel: UILabel!
     @IBOutlet weak var searchField: UITextField!
     @IBOutlet weak var dateRangePicker: UIPickerView!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var darkModeSwitch: UISwitch!
     
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
@@ -21,9 +23,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
+        self.darkModeSwitch.setOn(false, animated: true)
         self.dateRangePicker.dataSource = self
         self.dateRangePicker.delegate = self
         self.searchField.delegate = self
+        
+        _ = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(self.changeTitleColor), userInfo: nil, repeats: true)
     }
 
     var previousValue = 0
@@ -38,6 +43,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
         sender.value = 0.0
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
+    }
+    
+    @IBAction func darkModeDidChange(_ sender: UISwitch) {
+        if sender.isOn {
+            self.view.backgroundColor = UIColor(red: 1, green: 0.9843, blue: 0.9373, alpha: 1.0)
+        }
+        else{
+            self.view.backgroundColor = .white
+        }
     }
     
     @IBAction func searchGo(_ sender: Any) {
@@ -72,6 +86,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
             // pop up module prompting search terms
             print("No search terms provided")
         }
+    }
+    
+    @objc func changeTitleColor(){
+        self.titleLabel.shadowColor = .random
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
@@ -182,6 +200,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
         
+}
+
+extension UIColor {
+    static var random: UIColor {
+        return UIColor(red: .random(in: 0...1),
+                       green: .random(in: 0...1),
+                       blue: .random(in: 0...1),
+                       alpha: 1.0)
+    }
 }
 
 extension ViewController: UIPickerViewDelegate, UIPickerViewDataSource{
