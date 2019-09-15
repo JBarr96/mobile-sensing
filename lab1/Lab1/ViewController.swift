@@ -83,8 +83,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
             self.performSegue(withIdentifier: "segueToTableView", sender: self)
         }
         else{
-            // pop up module prompting search terms
-            print("No search terms provided")
+            let modal = Modal()
+            self.view.addSubview(modal)
         }
     }
     
