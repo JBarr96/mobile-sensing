@@ -14,17 +14,19 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var searchField: UITextField!
     @IBOutlet weak var dateRangePicker: UIPickerView!
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var darkModeSwitch: UISwitch!
+    @IBOutlet weak var collectionViewSwitch: UISwitch!
+    
     
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
     var articles = [Article]()
     var sliderValue = 0.0;
+    var collectionView = false;
 
     override func viewDidLoad() {
         super.viewDidLoad()
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
-        self.darkModeSwitch.setOn(false, animated: true)
+        self.collectionViewSwitch.setOn(false, animated: true)
         self.dateRangePicker.dataSource = self
         self.dateRangePicker.delegate = self
         self.searchField.delegate = self
@@ -46,12 +48,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
     }
     
-    @IBAction func darkModeDidChange(_ sender: UISwitch) {
+    @IBAction func collectionViewSwitchDidChange(_ sender: UISwitch) {
         if sender.isOn {
-            self.view.backgroundColor = UIColor(red: 1, green: 0.9843, blue: 0.9373, alpha: 1.0)
+            self.collectionView = true
         }
         else{
-            self.view.backgroundColor = .white
+            self.collectionView = false
         }
     }
     
@@ -86,7 +88,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
             
             self.articles = makeUrlRequest(requestString: requestUrl)
             
-            self.performSegue(withIdentifier: "segueToTableView", sender: self)
+            if collectionView{
+                self.performSegue(withIdentifier: "segueToCollectionView", sender: self)
+            }
+            else {
+                self.performSegue(withIdentifier: "segueToTableView", sender: self)
+            }
         }
         else{
             let modal = Modal()
@@ -203,6 +210,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         if segue.identifier == "segueToTableView"{
             let vc = segue.destination as! TableViewController
             vc.articles = self.articles
+            vc.articleCount = Double(self.articleCount)
+        }
+        else if segue.identifier == "segueToCollectionView"{
+            let vc = segue.destination as! CollectionViewController
+            vc.articles = self.articles
+            vc.articleCount = Double(self.articleCount)
         }
     }
         
