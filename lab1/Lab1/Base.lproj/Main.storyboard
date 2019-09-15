@@ -617,6 +617,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AfI-vI-7oh" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1413.5999999999999" y="1492.6108374384237"/>
+        </scene>
         <!--News View Controller-->
         <scene sceneID="Eb4-Sr-V85">
             <objects>
