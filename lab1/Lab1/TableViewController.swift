@@ -11,7 +11,8 @@ import UIKit
 class TableViewController: UITableViewController {
     
     var articles = [Article]()
-
+    var articleCount = Double()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -31,16 +32,35 @@ class TableViewController: UITableViewController {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 1
+        print(articleCount)
+        return self.articles.count + 1
     }
 
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TableHeader", for: indexPath)
-
-        // Configure the cell...
-
-        return cell
+        if indexPath.row == 0 {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "TableHeader", for: indexPath)
+            cell.textLabel!.text = "\(self.articles.count) news articles found:"
+            
+            return cell
+        }
+            
+        let imageUrl = URL(string: articles[indexPath.row - 1].urlToImage)
+        let data = try? Data(contentsOf: imageUrl!)
+        
+        if let imageData = data {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageTableRow", for: indexPath)
+            cell.imageView!.image = UIImage(data: imageData)
+            cell.textLabel!.text = self.articles[indexPath.row - 1].title
+            
+            return cell
+        }
+        else {
+            let cell = tableView.dequeueReusableCell(withIdentifier: "SimpleTableRow", for: indexPath)
+            cell.textLabel!.text = self.articles[indexPath.row - 1].title
+            
+            return cell
+        }
     }
 
     /*
