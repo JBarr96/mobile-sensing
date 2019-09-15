@@ -46,7 +46,11 @@ class TableViewController: UITableViewController {
         }
             
         let imageUrl = URL(string: articles[indexPath.row - 1].urlToImage)
-        let data = try? Data(contentsOf: imageUrl!)
+        var data : Data? = nil
+        
+        if let imageUrl = imageUrl {
+            data = try? Data(contentsOf: imageUrl)
+        }
         
         if let imageData = data {
             let cell = tableView.dequeueReusableCell(withIdentifier: "ImageTableRow", for: indexPath)
