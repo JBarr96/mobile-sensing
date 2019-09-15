@@ -19,6 +19,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
     var articleCount = 10
     let dataSource = ["Today", "Past Week", "Past 2 Weeks", "Past Month"]
     var articles = [Article]()
+    var sliderValue = 0.0;
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -52,6 +53,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
         else{
             self.view.backgroundColor = .white
         }
+    }
+    
+    @IBAction func sliderDidChange(_ sender: UISlider) {
+        self.sliderValue = Double(sender.value)
+        self.titleLabel.textColor = UIColor(hue: CGFloat(self.sliderValue), saturation: 1, brightness: 1, alpha: 1.0)
     }
     
     @IBAction func searchGo(_ sender: Any) {
