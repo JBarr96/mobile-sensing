@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		6F299FCB232AF1C400BE3AF4 /* TableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F299FCA232AF1C400BE3AF4 /* TableViewController.swift */; };
+		6F322447232ED6D00082AF8B /* NewsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F322446232ED6D00082AF8B /* NewsViewController.swift */; };
 		B85E2124232ABD7700DE5BC6 /* Article.swift in Sources */ = {isa = PBXBuildFile; fileRef = B85E2123232ABD7700DE5BC6 /* Article.swift */; };
 		B87E9EED231F141500E31D01 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87E9EEC231F141500E31D01 /* AppDelegate.swift */; };
 		B87E9EEF231F141500E31D01 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87E9EEE231F141500E31D01 /* ViewController.swift */; };
@@ -21,6 +22,7 @@
 
 /* Begin PBXFileReference section */
 		6F299FCA232AF1C400BE3AF4 /* TableViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewController.swift; sourceTree = "<group>"; };
+		6F322446232ED6D00082AF8B /* NewsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewsViewController.swift; sourceTree = "<group>"; };
 		B85E2123232ABD7700DE5BC6 /* Article.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Article.swift; sourceTree = "<group>"; };
 		B87E9EE9231F141500E31D01 /* Lab1.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lab1.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B87E9EEC231F141500E31D01 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				B87E9EF5231F141600E31D01 /* LaunchScreen.storyboard */,
 				B87E9EF8231F141600E31D01 /* Info.plist */,
 				6F299FCA232AF1C400BE3AF4 /* TableViewController.swift */,
+				6F322446232ED6D00082AF8B /* NewsViewController.swift */,
 				B8EF9BC4232DB95C00AD4ACE /* Modal.swift */,
 			);
 			path = Lab1;
@@ -155,6 +158,7 @@
 				B8EF9BC5232DB95C00AD4ACE /* Modal.swift in Sources */,
 				B8A2531F232EF2A900960602 /* CollectionViewCell.swift in Sources */,
 				B87E9EED231F141500E31D01 /* AppDelegate.swift in Sources */,
+				6F322447232ED6D00082AF8B /* NewsViewController.swift in Sources */,
 				B85E2124232ABD7700DE5BC6 /* Article.swift in Sources */,
 				6F299FCB232AF1C400BE3AF4 /* TableViewController.swift in Sources */,
 			);

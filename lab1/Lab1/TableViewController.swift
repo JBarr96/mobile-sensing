@@ -23,23 +23,17 @@ class TableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
     }
 
-    // MARK: - Table view data source
-
     override func numberOfSections(in tableView: UITableView) -> Int {
-        // #warning Incomplete implementation, return the number of sections
         return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        // #warning Incomplete implementation, return the number of rows
-        print(articleCount)
         return self.articles.count + 1
     }
 
-
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "TableHeader", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "tableHeader", for: indexPath)
             cell.textLabel!.text = "\(self.articles.count) news articles found:"
             
             return cell
@@ -53,17 +47,28 @@ class TableViewController: UITableViewController {
         }
         
         if let imageData = data {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "ImageTableRow", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "imageTableRow", for: indexPath)
             cell.imageView!.image = UIImage(data: imageData)
             cell.textLabel!.text = self.articles[indexPath.row - 1].title
             
             return cell
         }
         else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: "SimpleTableRow", for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: "simpleTableRow", for: indexPath)
             cell.textLabel!.text = self.articles[indexPath.row - 1].title
             
             return cell
+        }
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "segueToNews"{
+            let cell = sender as! UITableViewCell
+            let indexPath = tableView.indexPathForSelectedRow
+            
+            let vc = segue.destination as! NewsViewController
+            vc.image = cell.imageView!.image
+            vc.article = self.articles[indexPath!.row - 1]
         }
     }
 
@@ -99,16 +104,6 @@ class TableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
         // Return false if you do not want the item to be re-orderable.
         return true
-    }
-    */
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destination.
-        // Pass the selected object to the new view controller.
     }
     */
 
