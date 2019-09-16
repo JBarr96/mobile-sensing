@@ -106,8 +106,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
     }
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
+        searchField.resignFirstResponder()
         return true
+    }
+    
+    @IBAction func didTapMainView(_ sender: UITapGestureRecognizer) {
+        self.searchField.resignFirstResponder()
     }
     
     func makeUrlRequest(requestString: String) -> [Article] {
