@@ -462,7 +462,7 @@
                                         <label opaque="NO" multipleTouchEnabled="YES" contentMode="left" insetsLayoutMarginsFromSafeArea="NO" text="Title" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="UGc-RT-rjL">
                                             <rect key="frame" x="16" y="0.0" width="343" height="43.666666666666664"/>
                                             <autoresizingMask key="autoresizingMask"/>
-                                            <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                            <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
                                             <nil key="textColor"/>
                                             <nil key="highlightedColor"/>
                                         </label>
@@ -561,6 +561,7 @@
                                 <connections>
                                     <outlet property="cellImage" destination="dtg-WK-HQe" id="JU0-GB-3P8"/>
                                     <outlet property="tileLabel" destination="HOC-mR-YLg" id="yKN-ka-rxD"/>
+                                    <segue destination="tsj-bf-cvm" kind="show" identifier="segueToNewsFromCollection" id="6WN-cZ-dkk"/>
                                 </connections>
                             </collectionViewCell>
                         </cells>
@@ -588,8 +589,8 @@
                                     <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="200" id="NZQ-rB-AMp"/>
                                 </constraints>
                             </scrollView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VLp-Zw-qxS">
-                                <rect key="frame" x="16" y="336" width="343" height="20.333333333333314"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VLp-Zw-qxS">
+                                <rect key="frame" x="16" y="336" width="343" height="20"/>
                                 <fontDescription key="fontDescription" style="UICTFontTextStyleHeadline"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
@@ -630,25 +631,50 @@
                                     <action selector="segmentedControlPressed:" destination="tsj-bf-cvm" eventType="valueChanged" id="uSK-lX-IM4"/>
                                 </connections>
                             </segmentedControl>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hCi-4m-O4F">
+                                <rect key="frame" x="16" y="364" width="343" height="414"/>
+                                <subviews>
+                                    <textView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" editable="NO" textAlignment="justified" translatesAutoresizingMaskIntoConstraints="NO" id="yx1-mk-C6c">
+                                        <rect key="frame" x="0.0" y="0.0" width="343" height="414"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <string key="text">Lorem ipsum dolor sit er elit lamet, consectetaur cillium adipisicing pecu, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Nam liber te conscient to factor tum poen legum odioque civiuda.</string>
+                                        <fontDescription key="fontDescription" style="UICTFontTextStyleBody"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences"/>
+                                    </textView>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstItem="yx1-mk-C6c" firstAttribute="leading" secondItem="hCi-4m-O4F" secondAttribute="leading" id="6LJ-oA-7cD"/>
+                                    <constraint firstItem="yx1-mk-C6c" firstAttribute="top" secondItem="hCi-4m-O4F" secondAttribute="top" id="79e-MN-bjJ"/>
+                                    <constraint firstAttribute="trailing" secondItem="yx1-mk-C6c" secondAttribute="trailing" id="7kc-R8-Qel"/>
+                                    <constraint firstItem="yx1-mk-C6c" firstAttribute="centerX" secondItem="hCi-4m-O4F" secondAttribute="centerX" id="87q-6j-Xz4"/>
+                                    <constraint firstAttribute="bottom" secondItem="yx1-mk-C6c" secondAttribute="bottom" id="TmC-rE-yXm"/>
+                                    <constraint firstItem="yx1-mk-C6c" firstAttribute="centerY" secondItem="hCi-4m-O4F" secondAttribute="centerY" id="eKz-br-doc"/>
+                                </constraints>
+                            </scrollView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="Aht-lw-gLU" firstAttribute="top" secondItem="toe-Ju-xVF" secondAttribute="top" constant="40" id="0Yp-xs-8ys"/>
                             <constraint firstItem="Cj8-hb-iJl" firstAttribute="trailing" secondItem="VLp-Zw-qxS" secondAttribute="trailing" constant="16" id="2qm-Rg-388"/>
+                            <constraint firstItem="hCi-4m-O4F" firstAttribute="bottom" secondItem="Cj8-hb-iJl" secondAttribute="bottom" id="3uf-tN-rc3"/>
+                            <constraint firstItem="hCi-4m-O4F" firstAttribute="top" secondItem="VLp-Zw-qxS" secondAttribute="bottom" constant="8" symbolic="YES" id="9UB-Kr-qUw"/>
                             <constraint firstItem="UIG-EI-D58" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" constant="16" id="DV9-V8-kRy"/>
                             <constraint firstItem="Cj8-hb-iJl" firstAttribute="trailing" secondItem="UIG-EI-D58" secondAttribute="trailing" constant="16" id="EUs-RQ-Jlp"/>
                             <constraint firstItem="toe-Ju-xVF" firstAttribute="top" secondItem="Cj8-hb-iJl" secondAttribute="top" constant="5" id="Efv-fy-cJM"/>
                             <constraint firstItem="VLp-Zw-qxS" firstAttribute="top" secondItem="jnX-Jd-lsK" secondAttribute="bottom" constant="8" id="GB2-mJ-TE3"/>
                             <constraint firstItem="jnX-Jd-lsK" firstAttribute="trailing" secondItem="Cj8-hb-iJl" secondAttribute="trailing" id="GP3-qa-dwy"/>
                             <constraint firstItem="jnX-Jd-lsK" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" id="IHN-GR-Q5i"/>
+                            <constraint firstItem="hCi-4m-O4F" firstAttribute="trailing" secondItem="VLp-Zw-qxS" secondAttribute="trailing" id="IKL-j8-00r"/>
                             <constraint firstItem="Aht-lw-gLU" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" constant="16" id="JFE-Zv-0BV"/>
                             <constraint firstItem="jnX-Jd-lsK" firstAttribute="top" secondItem="toe-Ju-xVF" secondAttribute="top" constant="35" id="Jzc-DN-wve"/>
                             <constraint firstItem="sMr-T9-ZtQ" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" constant="16" id="Ud5-8P-1cH"/>
+                            <constraint firstItem="hCi-4m-O4F" firstAttribute="leading" secondItem="VLp-Zw-qxS" secondAttribute="leading" id="any-nD-W7a"/>
                             <constraint firstItem="Cj8-hb-iJl" firstAttribute="trailing" secondItem="sMr-T9-ZtQ" secondAttribute="trailing" constant="16" id="c6g-zQ-FmE"/>
                             <constraint firstItem="UIG-EI-D58" firstAttribute="top" secondItem="VLp-Zw-qxS" secondAttribute="bottom" constant="8" id="eUD-f4-1CL"/>
                             <constraint firstItem="UIG-EI-D58" firstAttribute="top" secondItem="sMr-T9-ZtQ" secondAttribute="bottom" constant="8" id="erB-Ge-deR"/>
                             <constraint firstItem="sMr-T9-ZtQ" firstAttribute="top" secondItem="Aht-lw-gLU" secondAttribute="bottom" constant="8" id="f95-uW-nCn"/>
                             <constraint firstItem="toe-Ju-xVF" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" priority="750" constant="88" id="feB-ne-C3g"/>
+                            <constraint firstItem="hCi-4m-O4F" firstAttribute="top" secondItem="B4n-pD-k34" secondAttribute="top" constant="364" id="kLY-nh-kNX"/>
                             <constraint firstItem="Cj8-hb-iJl" firstAttribute="trailing" secondItem="Aht-lw-gLU" secondAttribute="trailing" constant="16" id="tdZ-hs-wJG"/>
                             <constraint firstItem="VLp-Zw-qxS" firstAttribute="leading" secondItem="Cj8-hb-iJl" secondAttribute="leading" constant="16" id="wHa-FV-W4q"/>
                             <constraint firstItem="Cj8-hb-iJl" firstAttribute="trailing" secondItem="toe-Ju-xVF" secondAttribute="trailing" priority="750" constant="88" id="zn3-Dc-aLl"/>
@@ -662,6 +688,7 @@
                     </view>
                     <connections>
                         <outlet property="newsAuthor" destination="sMr-T9-ZtQ" id="QBi-tt-h3j"/>
+                        <outlet property="newsContent" destination="yx1-mk-C6c" id="SOc-ju-G3f"/>
                         <outlet property="newsPublishedAt" destination="UIG-EI-D58" id="OTH-UW-3DD"/>
                         <outlet property="newsSource" destination="Aht-lw-gLU" id="Rxq-ir-Ylb"/>
                         <outlet property="newsTitle" destination="VLp-Zw-qxS" id="B87-9F-JNQ"/>
@@ -692,6 +719,6 @@
         </scene>
     </scenes>
     <inferredMetricsTieBreakers>
-        <segue reference="LAw-yF-7Wa"/>
+        <segue reference="6WN-cZ-dkk"/>
     </inferredMetricsTieBreakers>
 </document>

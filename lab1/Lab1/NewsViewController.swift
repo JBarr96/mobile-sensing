@@ -18,6 +18,7 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var scrollHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var newsTitle: UILabel!
+    @IBOutlet weak var newsContent: UITextView!
     
     @IBOutlet weak var newsSource: UILabel!
     @IBOutlet weak var newsAuthor: UILabel!
@@ -36,18 +37,20 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
         }
         else {
             scrollHeightConstraint.isActive = false
+            self.scrollView.isHidden = true
         }
         
-        self.newsTitle.text = article!.title
+        self.newsTitle.text = self.article!.title
+        self.newsContent.text = self.article!.content
         
-        self.newsSource.text = "Source: \(article!.source)"
-        self.newsPublishedAt.text = "Published: \(article!.publishedAt)"
+        self.newsSource.text = "Source: \(self.article!.source)"
+        self.newsPublishedAt.text = "Published: \(self.article!.publishedAt)"
         
-        if article!.author == "" {
-            self.newsAuthor.text = "Author: \(article!.author)"
+        if self.article!.author.trimmingCharacters(in: .whitespaces).isEmpty {
+            self.newsAuthor.text = "Author: Unkown"
         }
         else {
-            self.newsAuthor.text = "Author: Unkown"
+            self.newsAuthor.text = "Author: \(self.article!.author)"
         }
         
         self.newsSource.isHidden = true
@@ -68,9 +71,11 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
 
             self.scrollView.isHidden = false
             self.newsTitle.isHidden = false
+            self.newsContent.isHidden = false
         case 1:
             self.scrollView.isHidden = true
             self.newsTitle.isHidden = true
+            self.newsContent.isHidden = true
             
             self.newsSource.isHidden = false
             self.newsAuthor.isHidden = false

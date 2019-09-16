@@ -28,13 +28,19 @@ class TableViewController: UITableViewController {
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return self.articles.count + 1
+        if Int(self.articleCount) > self.articles.count {
+            self.articleCount = Double(self.articles.count)
+            return self.articles.count + 1
+        }
+        else {
+            return Int(self.articleCount) + 1
+        }
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if indexPath.row == 0 {
             let cell = tableView.dequeueReusableCell(withIdentifier: "tableHeader", for: indexPath)
-            cell.textLabel!.text = "\(self.articles.count) news articles found:"
+            cell.textLabel!.text = "\(Int(self.articleCount)) news articles found"
             
             return cell
         }
