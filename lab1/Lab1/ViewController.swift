@@ -36,15 +36,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
 
     var previousValue = 0
     @IBAction func articleStepper(_ sender: UIStepper) {
-        if Int(sender.value) > previousValue {
-            articleCount += 1
-        } else {
-            articleCount -= 1
-            if articleCount < 0 {
-                articleCount = 0
-            }
-        }
-        sender.value = 0.0
+        self.articleCount = Int(sender.value)
         self.articleCountLabel.text = "Number of articles: \(articleCount)"
     }
     
