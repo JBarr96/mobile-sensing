@@ -19,6 +19,7 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
     @IBOutlet weak var scrollHeightConstraint: NSLayoutConstraint!
     @IBOutlet weak var newsTitle: UILabel!
     @IBOutlet weak var newsContent: UITextView!
+    @IBOutlet weak var newsUrl: UILabel!
     
     @IBOutlet weak var newsSource: UILabel!
     @IBOutlet weak var newsAuthor: UILabel!
@@ -42,6 +43,7 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
         
         self.newsTitle.text = self.article!.title
         self.newsContent.text = self.article!.content
+        self.newsUrl.text = self.article!.url
         
         self.newsSource.text = "Source: \(self.article!.source)"
         self.newsPublishedAt.text = "Published: \(self.article!.publishedAt)"
