@@ -11,15 +11,17 @@ import UIKit
 class NewsViewController: UIViewController, UIScrollViewDelegate {
     
     var article : Article? = nil
-    
     var image : UIImage? = nil
     var imageView : UIImageView? = nil
     
+    @IBOutlet weak var segmentedControl: UISegmentedControl!
     @IBOutlet weak var scrollView: UIScrollView!
     @IBOutlet weak var scrollHeightConstraint: NSLayoutConstraint!
-    
     @IBOutlet weak var newsTitle: UILabel!
-    @IBOutlet weak var newsTextBody: UILabel!
+    
+    @IBOutlet weak var newsSource: UILabel!
+    @IBOutlet weak var newsAuthor: UILabel!
+    @IBOutlet weak var newsPublishedAt: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,12 +39,45 @@ class NewsViewController: UIViewController, UIScrollViewDelegate {
         }
         
         self.newsTitle.text = article!.title
+        
+        self.newsSource.text = "Source: \(article!.source)"
+        self.newsPublishedAt.text = "Published: \(article!.publishedAt)"
+        
+        if article!.author == "" {
+            self.newsAuthor.text = "Author: \(article!.author)"
+        }
+        else {
+            self.newsAuthor.text = "Author: Unkown"
+        }
+        
+        self.newsSource.isHidden = true
+        self.newsAuthor.isHidden = true
+        self.newsPublishedAt.isHidden = true
     }
     
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return self.imageView
     }
 
+    @IBAction func segmentedControlPressed(_ sender: UISegmentedControl) {
+        switch segmentedControl.selectedSegmentIndex {
+        case 0:
+            self.newsSource.isHidden = true
+            self.newsAuthor.isHidden = true
+            self.newsPublishedAt.isHidden = true
+
+            self.scrollView.isHidden = false
+            self.newsTitle.isHidden = false
+        case 1:
+            self.scrollView.isHidden = true
+            self.newsTitle.isHidden = true
+            
+            self.newsSource.isHidden = false
+            self.newsAuthor.isHidden = false
+            self.newsPublishedAt.isHidden = false
+        default: break
+        }
+    }
     /*
     // MARK: - Navigation
 
