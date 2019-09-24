@@ -1,93 +1,27 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="jtV-os-XCt">
-    <device id="retina5_9" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="10117" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
-        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="10085"/>
     </dependencies>
     <scenes>
-        <!--Module B-->
-        <scene sceneID="Bil-vv-0nH">
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
             <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="owz-Gq-3kJ" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <viewController id="o6F-CH-efg" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
                     <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="P4R-uS-7qd"/>
-                        <viewControllerLayoutGuide type="bottom" id="MvB-hS-5GU"/>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="0Wx-Me-NnY">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC" customClass="GLKView">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Module B: Doppler Effect" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KTT-7b-wiX">
-                                <rect key="frame" x="53" y="52" width="269" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="KTT-7b-wiX" firstAttribute="top" secondItem="P4R-uS-7qd" secondAttribute="bottom" constant="8" id="Hbe-gm-Kld"/>
-                            <constraint firstItem="KTT-7b-wiX" firstAttribute="centerX" secondItem="0Wx-Me-NnY" secondAttribute="centerX" id="hot-YB-Pci"/>
-                        </constraints>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <tabBarItem key="tabBarItem" title="Module B" id="bYZ-PO-prF"/>
                 </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="222" y="852"/>
-        </scene>
-        <!--Module A-->
-        <scene sceneID="aj9-Hx-LSy">
-            <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="o52-ZX-x6d" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <viewController id="SOu-FJ-A5w" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="aMX-Ty-ehQ"/>
-                        <viewControllerLayoutGuide type="bottom" id="hZq-SX-yjf"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="wt3-VX-FYx">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Module A: Tone Detector" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zh8-6B-idu">
-                                <rect key="frame" x="54.666666666666657" y="52" width="266" height="30"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
-                                <nil key="textColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="zh8-6B-idu" firstAttribute="top" secondItem="aMX-Ty-ehQ" secondAttribute="bottom" constant="8" id="1eX-RD-cWZ"/>
-                            <constraint firstItem="zh8-6B-idu" firstAttribute="centerX" secondItem="wt3-VX-FYx" secondAttribute="centerX" id="Fs7-Rd-vmY"/>
-                        </constraints>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="Module A" id="yQZ-3C-pcf"/>
-                </viewController>
-            </objects>
-            <point key="canvasLocation" x="222" y="200"/>
-        </scene>
-        <!--Tab Bar Controller-->
-        <scene sceneID="JQ4-AQ-oBa">
-            <objects>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="6Sf-Ld-L21" userLabel="First Responder" sceneMemberID="firstResponder"/>
-                <tabBarController id="jtV-os-XCt" sceneMemberID="viewController">
-                    <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="1eX-3y-lZC">
-                        <rect key="frame" x="0.0" y="0.0" width="414" height="49"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </tabBar>
-                    <connections>
-                        <segue destination="SOu-FJ-A5w" kind="relationship" relationship="viewControllers" id="Emf-Zh-w5l"/>
-                        <segue destination="o6F-CH-efg" kind="relationship" relationship="viewControllers" id="8bA-pP-aTb"/>
-                    </connections>
-                </tabBarController>
-            </objects>
-            <point key="canvasLocation" x="-866" y="523"/>
+            <point key="canvasLocation" x="370" y="387"/>
         </scene>
     </scenes>
 </document>
