@@ -1,15 +1,14 @@
 //
 //  ViewController.h
-//  AudioLab
+//  ClassExample1
 //
-//  Created by Eric Larson on 8/24/16.
-//  Copyright © 2016 Eric Larson. All rights reserved.
+//  Created by Johnathan Barr on 8/29/19.
+//  Copyright © 2019 Johnathan Barr. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import <GLKit/GLKit.h>
 
-@interface ViewController : GLKViewController
+@interface ViewController : UIViewController
 
 
 @end
