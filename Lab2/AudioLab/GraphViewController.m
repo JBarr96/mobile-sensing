@@ -19,6 +19,9 @@
 @property (strong, nonatomic) CircularBuffer *buffer;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) FFTHelper *fftHelper;
+@property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
+@property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
+@property (nonatomic) float *maxArray;
 @end
 
 
@@ -44,7 +47,7 @@
     if(!_graphHelper){
         _graphHelper = [[SMUGraphHelper alloc]initWithController:self
                                         preferredFramesPerSecond:15
-                                                       numGraphs:2
+                                                       numGraphs:3
                                                        plotStyle:PlotStyleSeparated
                                                maxPointsPerGraph:BUFFER_SIZE];
     }
@@ -59,6 +62,13 @@
     return _fftHelper;
 }
 
+-(float*)maxArray{
+    if(!_maxArray){
+        _maxArray = malloc(sizeof(float)*20);
+    }
+    return _maxArray;
+}
+
 
 #pragma mark VC Life Cycle
 - (void)viewDidLoad {
@@ -66,7 +76,7 @@
     // Do any additional setup after loading the view, typically from a nib.
     
    
-    [self.graphHelper setFullScreenBounds];
+    [self.graphHelper setScreenBoundsBottomHalf];
     
     __block GraphViewController * __weak  weakSelf = self;
     [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
@@ -81,9 +91,10 @@
 - (void)update{
     // just plot the audio stream
     
-    // get audio stream data
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
-    float* fftMagnitude = malloc(sizeof(float)*BUFFER_SIZE/2);
+    int fftSize = (BUFFER_SIZE/2);
+    int step = fftSize/20;
+    float* fftMagnitude = malloc(sizeof(float)*fftSize);
     
     [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
     
@@ -100,6 +111,33 @@
     [self.graphHelper setGraphData:fftMagnitude
                     withDataLength:BUFFER_SIZE/2
                      forGraphIndex:1
+                 withNormalization:64.0
+                     withZeroValue:-60];
+    
+    for(int i = 0; i < 20; i++) {
+        self.maxArray[i] = -1000;
+    }
+
+    
+    //TODO: Convert from iterative loop to sliding window
+    int arrayIndex = 0;
+    int count = 0;
+    for(int i = 0; i < BUFFER_SIZE/2; i++){
+        if (count < step){
+            if (self.maxArray[arrayIndex] < fftMagnitude[i]) {
+                self.maxArray[arrayIndex] = fftMagnitude[i];
+            }
+        } else {
+            arrayIndex++;
+            count = 0;
+        }
+        count++;
+    }
+    
+    // graph the FFT Data
+    [self.graphHelper setGraphData:self.maxArray
+                    withDataLength:20
+                     forGraphIndex:2
                  withNormalization:64.0
                      withZeroValue:-60];
     
