@@ -13,6 +13,7 @@
 #import "FFTHelper.h"
 
 #define BUFFER_SIZE 2048*4
+#define FFTSIZE BUFFER_SIZE/2
 
 @interface GraphViewController ()
 @property (strong, nonatomic) Novocaine *audioManager;
@@ -92,9 +93,9 @@
     // just plot the audio stream
     
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
-    int fftSize = (BUFFER_SIZE/2);
-    int step = fftSize/20;
-    float* fftMagnitude = malloc(sizeof(float)*fftSize);
+    int step = FFTSIZE/20;
+    float* fftMagnitude = malloc(sizeof(float)*FFTSIZE);
+    float df = 44100/FFTSIZE;
     
     [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
     
@@ -109,7 +110,7 @@
     
     // graph the FFT Data
     [self.graphHelper setGraphData:fftMagnitude
-                    withDataLength:BUFFER_SIZE/2
+                    withDataLength:FFTSIZE
                      forGraphIndex:1
                  withNormalization:64.0
                      withZeroValue:-60];
@@ -117,22 +118,50 @@
     for(int i = 0; i < 20; i++) {
         self.maxArray[i] = -1000;
     }
-
     
-    //TODO: Convert from iterative loop to sliding window
-    int arrayIndex = 0;
-    int count = 0;
-    for(int i = 0; i < BUFFER_SIZE/2; i++){
-        if (count < step){
-            if (self.maxArray[arrayIndex] < fftMagnitude[i]) {
-                self.maxArray[arrayIndex] = fftMagnitude[i];
-            }
-        } else {
-            arrayIndex++;
-            count = 0;
+    float* peakfft = malloc(sizeof(float)*BUFFER_SIZE);
+    float* peakInterpol = malloc(sizeof(float)*BUFFER_SIZE);
+    int arrayPtr = 0;
+    
+    float f2 = 0;
+    float m1 = 0;
+    float m2 = 0;
+    float m3 = 0;
+
+    for(int i = 0; i < BUFFER_SIZE/2 - 3; i++){
+        f2 = i*df;
+        m1 = fftMagnitude[i];
+        m2 = fftMagnitude[i+1];
+        m3 = fftMagnitude[i+2];
+        if(m2 > m1 && m2 > m3){
+            peakfft[arrayPtr] = f2;
+            peakInterpol[arrayPtr] = f2 + ((m3-m1)/(m3-2*m2+m1)) * (df/2);
         }
-        count++;
     }
+    
+    float maxActualFFT = 0;
+    float maxActualInterpol = 0;
+    for(int i = 0; i < BUFFER_SIZE; i++){
+        if(peakInterpol[i] > maxActualInterpol){
+            maxActualInterpol = peakInterpol[i];
+            maxActualFFT = peakfft[i];
+        }
+    }
+    
+    self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max  Frequency 1: %f", maxActualInterpol];
+    
+//    int arrayIndex = 0;
+//    for(int i = 0; i < BUFFER_SIZE/2; i++){
+//        if (count < step){
+//            if (self.maxArray[arrayIndex] < fftMagnitude[i]) {
+//                self.maxArray[arrayIndex] = fftMagnitude[i];
+//            }
+//        } else {
+//            arrayIndex++;
+//            count = 0;
+//        }
+//        count++;
+//    }
     
     // graph the FFT Data
     [self.graphHelper setGraphData:self.maxArray
