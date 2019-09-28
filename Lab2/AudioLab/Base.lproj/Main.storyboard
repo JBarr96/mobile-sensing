@@ -116,11 +116,19 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Max  Frequency 2: -1" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j8c-5C-HiS">
+                                <rect key="frame" x="20" y="178" width="242" height="33"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="27"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="WYK-By-wBV" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="2Cl-D7-z9d"/>
+                            <constraint firstItem="j8c-5C-HiS" firstAttribute="top" secondItem="mQv-nX-Sd2" secondAttribute="bottom" constant="8" id="2lM-fb-lWu"/>
                             <constraint firstItem="WYK-By-wBV" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="5Qy-ro-0R2"/>
+                            <constraint firstItem="j8c-5C-HiS" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="7fH-sF-FhA"/>
                             <constraint firstItem="mQv-nX-Sd2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="9fM-Rm-BFv"/>
                             <constraint firstItem="mQv-nX-Sd2" firstAttribute="top" secondItem="WYK-By-wBV" secondAttribute="bottom" constant="8" id="pP9-ep-Xwh"/>
                         </constraints>
@@ -129,6 +137,7 @@
                     <connections>
                         <outlet property="MaxFreq1Label" destination="WYK-By-wBV" id="Xpu-ap-FCB"/>
                         <outlet property="MaxFreq2Label" destination="mQv-nX-Sd2" id="Emy-fA-J8C"/>
+                        <outlet property="MaxFreq3Label" destination="j8c-5C-HiS" id="PBj-is-Unf"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

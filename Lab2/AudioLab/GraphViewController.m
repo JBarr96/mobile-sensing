@@ -22,6 +22,7 @@
 @property (strong, nonatomic) FFTHelper *fftHelper;
 @property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
 @property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
+@property (weak, nonatomic) IBOutlet UILabel *MaxFreq3Label;
 @property (nonatomic) float *maxArray;
 @end
 
@@ -120,35 +121,55 @@
     }
     
     float* peakfft = malloc(sizeof(float)*BUFFER_SIZE);
-    float* peakInterpol = malloc(sizeof(float)*BUFFER_SIZE);
+//    float* peakInterpol = malloc(sizeof(float)*BUFFER_SIZE);
     int arrayPtr = 0;
     
     float f2 = 0;
     float m1 = 0;
     float m2 = 0;
     float m3 = 0;
+    
+    float maxActualFFT = -1000;
+    float maxFreq = 0;
+    
+    for(int i = 0; i < BUFFER_SIZE/2; i++){
+        if(fftMagnitude[i] > maxActualFFT){
+            maxActualFFT = fftMagnitude[i];
+            maxFreq = i*df;
+            m1 = fftMagnitude[i-1];
+            m3 = fftMagnitude[i+1];
+        }
+    }
+    
+    float interpol = maxFreq + ((m3-m1)/(m3-2*maxActualFFT+m1)) * (df/2);
 
-    for(int i = 0; i < BUFFER_SIZE/2 - 3; i++){
-        f2 = i*df;
-        m1 = fftMagnitude[i];
-        m2 = fftMagnitude[i+1];
-        m3 = fftMagnitude[i+2];
-        if(m2 > m1 && m2 > m3){
-            peakfft[arrayPtr] = f2;
-            peakInterpol[arrayPtr] = f2 + ((m3-m1)/(m3-2*m2+m1)) * (df/2);
-        }
-    }
+
+//    //sliding window of 3 fft points
+//    for(int i = 0; i < BUFFER_SIZE/2 - 3; i++){
+//        // calculate
+//        f2 = (i+1)*df;
+//        m1 = fftMagnitude[i];
+//        m2 = fftMagnitude[i+1];
+//        m3 = fftMagnitude[i+2];
+//        if(m2 > m1 && m2 > m3){
+//            peakfft[arrayPtr] = f2;
+//            arrayPtr += 1;
+////            peakInterpol[arrayPtr] = f2 + ((m3-m1)/(m3-2*m2+m1)) * (df/2);
+//        }
+//    }
+//
+//    float maxActualFFT = 0;
+////    float maxActualInterpol = 0;
+//    for(int i = 0; i < BUFFER_SIZE; i++){
+//        if(peakfft[i] > maxActualFFT){
+////            maxActualInterpol = peakInterpol[i];
+//            maxActualFFT = peakfft[i];
+//        }
+//    }
     
-    float maxActualFFT = 0;
-    float maxActualInterpol = 0;
-    for(int i = 0; i < BUFFER_SIZE; i++){
-        if(peakInterpol[i] > maxActualInterpol){
-            maxActualInterpol = peakInterpol[i];
-            maxActualFFT = peakfft[i];
-        }
-    }
-    
-    self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max  Frequency 1: %f", maxActualInterpol];
+    self.MaxFreq1Label.text = [NSString stringWithFormat:@"%f", maxActualFFT];
+    self.MaxFreq2Label.text = [NSString stringWithFormat:@"%f", maxFreq];
+    self.MaxFreq3Label.text = [NSString stringWithFormat:@"%f", interpol];
     
 //    int arrayIndex = 0;
 //    for(int i = 0; i < BUFFER_SIZE/2; i++){
