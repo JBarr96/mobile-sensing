@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -59,7 +61,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Khs-bM-a8o"/>
                             <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Sit-Tz-Tmn"/>
@@ -81,16 +83,29 @@
                         <viewControllerLayoutGuide type="top" id="qcL-3k-yyy"/>
                         <viewControllerLayoutGuide type="bottom" id="lPF-1g-a80"/>
                     </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="huM-3m-xfA">
+                    <view key="view" contentMode="scaleToFill" id="huM-3m-xfA" customClass="GLKView">
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="17500" minValue="15000" maxValue="20000" translatesAutoresizingMaskIntoConstraints="NO" id="gKO-hO-YWz">
+                                <rect key="frame" x="18" y="433" width="378" height="30"/>
+                                <connections>
+                                    <action selector="changeFrequency:" destination="LrM-kv-qvh" eventType="valueChanged" id="oYE-Q9-ovy"/>
+                                </connections>
+                            </slider>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="gKO-hO-YWz" firstAttribute="trailing" secondItem="huM-3m-xfA" secondAttribute="trailingMargin" id="3DO-Fz-68J"/>
+                            <constraint firstItem="gKO-hO-YWz" firstAttribute="centerY" secondItem="huM-3m-xfA" secondAttribute="centerY" id="GZ2-WM-SgB"/>
+                            <constraint firstItem="gKO-hO-YWz" firstAttribute="leading" secondItem="huM-3m-xfA" secondAttribute="leadingMargin" id="HEw-Ev-i4q"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="JMH-sE-zgg"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8ga-Qk-mf2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-412" y="829"/>
+            <point key="canvasLocation" x="-413.04347826086962" y="828.34821428571422"/>
         </scene>
         <!--Graph View Controller-->
         <scene sceneID="tne-QT-ifu">

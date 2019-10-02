@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 
-@interface DopplerViewController: UIViewController
+@interface DopplerViewController: GLKViewController
 
 @end
