@@ -11,19 +11,19 @@
 #import "CircularBuffer.h"
 #import "SMUGraphHelper.h"
 #import "FFTHelper.h"
+#import "MaxCalculator.h"
 
 #define BUFFER_SIZE 16384
 #define FFTSIZE BUFFER_SIZE/2
-#define SAMPLING_RATE 44100.0
 
 @interface GraphViewController ()
 @property (strong, nonatomic) Novocaine *audioManager;
 @property (strong, nonatomic) CircularBuffer *buffer;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) FFTHelper *fftHelper;
+@property (strong, nonatomic) MaxCalculator *maxCalculator;
 @property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
 @property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
-@property (nonatomic) float *maxArray;
 @end
 
 
@@ -64,12 +64,15 @@
     return _fftHelper;
 }
 
--(float*)maxArray{
-    if(!_maxArray){
-        _maxArray = malloc(sizeof(float)*20);
+-(MaxCalculator*)maxCalculator{
+    if(!_maxCalculator){
+        _maxCalculator = [MaxCalculator alloc];
     }
-    return _maxArray;
+    
+    return _maxCalculator;
 }
+
+
 
 
 #pragma mark VC Life Cycle
@@ -91,12 +94,9 @@
 #pragma mark GLK Inherited Functions
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
-    // just plot the audio stream
-    
     float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
     float* fftMagnitude = malloc(sizeof(float)*FFTSIZE);
-    float df;
-    df = (float)SAMPLING_RATE/(float)BUFFER_SIZE;
+
     
     [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
     
@@ -116,77 +116,18 @@
                  withNormalization:64.0
                      withZeroValue:-60];
     
-    for(int i = 0; i < 20; i++) {
-        self.maxArray[i] = -1000;
-    }
-    
-    float* peakfft = malloc(sizeof(float)*BUFFER_SIZE);
-    float* peakfftpos = malloc(sizeof(float)*BUFFER_SIZE);
-    int arrayPtr = 0;
-
-    int windowsize = 5;
-
-
-    //sliding window
-    for(int i = 50; i < BUFFER_SIZE/2 - windowsize; i++){
-        float windowmax = -1000;
-        int maxpos = 0;
-        for(int j = i; j < i + windowsize; j++){
-            if(fftMagnitude[j] > windowmax){
-                windowmax = fftMagnitude[j];
-                maxpos = j;
-            }
-        }
-        if(maxpos == i + windowsize/2){
-            peakfft[arrayPtr] = windowmax;
-            peakfftpos[arrayPtr] = maxpos;
-            arrayPtr += 1;
-        }
-    }
-    
-    float maxActualFFT1 = -1000;
-    float maxActualFFT2 = -1000;
-    float maxActualPos1 = -1;
-    float maxActualPos2 = -1;
-    
-    // calculate the max of the max
-    for(int i = 0; i < BUFFER_SIZE; i++){
-        // if the current item is larger than the first max
-        if(peakfft[i] > maxActualFFT1){
-            // set the second max to the previous first max
-            maxActualFFT2 = maxActualFFT1;
-            maxActualPos2 = maxActualPos1;
-            
-            // set the first max to the current item
-            maxActualFFT1 = peakfft[i];
-            maxActualPos1 = peakfftpos[i];
-        }
-        // otherwise, if the current item is larger than the second max
-        else if (peakfft[i] > maxActualFFT2){
-            // simply set the second max to the current item (does not affect first max at all)
-            maxActualFFT2 = peakfft[i];
-            maxActualPos2 = peakfftpos[i];
-        }
-    }
-    
-    // calculate the the actual frequencies of the maximum FFTs
-    int maxFreq1 = (int)(maxActualPos1 * df);
-    int maxFreq2 = (int)(maxActualPos2 * df);
+    // make call to MaxCalculator object to get the maximum magnitudes and store them
+    int* maxFreqs = malloc(sizeof(int)*2);
+    maxFreqs = [self.maxCalculator calcMax: fftMagnitude];
     
     // update the labels
-    self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreq1];
-    self.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreq2];
-    
-    // graph the FFT Data
-    [self.graphHelper setGraphData:self.maxArray
-                    withDataLength:20
-                     forGraphIndex:2
-                 withNormalization:64.0
-                     withZeroValue:-60];
+    self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreqs[0]];
+    self.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreqs[1]];
     
     [self.graphHelper update]; // update the graph
     free(arrayData);
     free(fftMagnitude);
+    free(maxFreqs);
 }
 
 //  override the GLKView draw function, from OpenGLES
@@ -194,5 +135,10 @@
     [self.graphHelper draw]; // draw the graph
 }
 
+-(void)viewWillDisappear:(BOOL)animated{
+    [self.audioManager pause];
+    [self.audioManager setOutputBlock:nil];
+    [self.audioManager setInputBlock:nil];
+}
 
 @end
