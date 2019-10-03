@@ -8,20 +8,60 @@
 
 #import <Foundation/Foundation.h>
 #import "MaxCalculator.h"
+#import "GraphViewController.h"
 
 #define BUFFER_SIZE 16384
 #define FFTSIZE BUFFER_SIZE/2
 #define SAMPLING_RATE 44100.0
 #define DF (float)SAMPLING_RATE/(float)BUFFER_SIZE
-#define WINDOW_SIZE 5
+#define WINDOW_SIZE 7
 
 @interface MaxCalculator ()
-
+@property (strong, nonatomic) GraphViewController *graphview;
+-(void)refreshData;
 @end
+
 
 @implementation MaxCalculator
 
--(int*)calcMax: (float*)fftMagnitude{
+-(float*)arrayData{
+    if(!_arrayData){
+        _arrayData = malloc(sizeof(float)*BUFFER_SIZE);
+    }
+    return _arrayData;
+}
+
+-(float*)fftMagnitude{
+    if(!_fftMagnitude){
+        _fftMagnitude = malloc(sizeof(float)*FFTSIZE);
+    }
+    return _fftMagnitude;
+}
+
+- (id)initWithView: (GraphViewController*)view
+{
+    if (self = [super init])
+    {
+        _graphview = view;
+        [self refreshData];
+        return self;
+    }
+    return nil;
+}
+
+// function to refresh both the arrayData buffer and FFT data
+-(void)refreshData{
+    // refresh array data
+    [self.graphview.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
+    // take forward FFT
+    [self.graphview.fftHelper performForwardFFTWithData:self.arrayData
+                   andCopydBMagnitudeToBuffer:self.fftMagnitude];
+}
+
+
+-(void)calcMax{
+    [self refreshData];
+    
     float* peakfft = malloc(sizeof(float)*BUFFER_SIZE);
     float* peakfftpos = malloc(sizeof(float)*BUFFER_SIZE);
     int arrayPtr = 0;
@@ -32,8 +72,8 @@
         float windowmax = -1000;
         int maxpos = 0;
         for(int j = i; j < i + WINDOW_SIZE; j++){
-            if(fftMagnitude[j] > WINDOW_SIZE){
-                windowmax = fftMagnitude[j];
+            if(self.fftMagnitude[j] > WINDOW_SIZE){
+                windowmax = self.fftMagnitude[j];
                 maxpos = j;
             }
         }
@@ -77,11 +117,9 @@
     free(peakfft);
     free(peakfftpos);
     
-    int* result = malloc(sizeof(int)*2);
-    result[0] = maxFreq1;
-    result[1] = maxFreq2;
-    
-    return result;
+    // update the labels
+    self.graphview.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreq1];
+    self.graphview.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreq2];
 }
 
 @end

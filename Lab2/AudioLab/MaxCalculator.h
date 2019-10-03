@@ -6,6 +6,12 @@
 //  Copyright © 2019 Eric Larson. All rights reserved.
 //
 
+#import "GraphViewController.h"
+
 @interface MaxCalculator: NSObject
--(int*) calcMax: (float*)fftMagnitude;
+//- (int*) calcMax: (float*)fftMagnitude;
+- (id)initWithView: (GraphViewController*)view;
+- (void) calcMax;
+@property (nonatomic) float* arrayData;
+@property (nonatomic) float* fftMagnitude;
 @end

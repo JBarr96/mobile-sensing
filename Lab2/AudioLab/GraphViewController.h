@@ -8,9 +8,13 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
+#import "CircularBuffer.h"
+#import "FFTHelper.h"
 
 @interface GraphViewController : GLKViewController
-
-
+@property (strong, nonatomic) CircularBuffer *buffer;
+@property (strong, nonatomic) FFTHelper *fftHelper;
+@property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
+@property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
 @end
 

@@ -8,9 +8,7 @@
 
 #import "GraphViewController.h"
 #import "Novocaine.h"
-#import "CircularBuffer.h"
 #import "SMUGraphHelper.h"
-#import "FFTHelper.h"
 #import "MaxCalculator.h"
 
 #define BUFFER_SIZE 16384
@@ -18,12 +16,8 @@
 
 @interface GraphViewController ()
 @property (strong, nonatomic) Novocaine *audioManager;
-@property (strong, nonatomic) CircularBuffer *buffer;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
-@property (strong, nonatomic) FFTHelper *fftHelper;
 @property (strong, nonatomic) MaxCalculator *maxCalculator;
-@property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
-@property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
 @end
 
 
@@ -66,7 +60,7 @@
 
 -(MaxCalculator*)maxCalculator{
     if(!_maxCalculator){
-        _maxCalculator = [MaxCalculator alloc];
+        _maxCalculator = [[MaxCalculator alloc]initWithView: self];
     }
     
     return _maxCalculator;
@@ -94,40 +88,28 @@
 #pragma mark GLK Inherited Functions
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
-    float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
-    float* fftMagnitude = malloc(sizeof(float)*FFTSIZE);
+    
+    [self.maxCalculator calcMax];
 
-    
-    [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
-    
     //send off for graphing
-    [self.graphHelper setGraphData:arrayData
+    [self.graphHelper setGraphData:self.maxCalculator.arrayData
                     withDataLength:BUFFER_SIZE
                      forGraphIndex:0];
-    
-    // take forward FFT
-    [self.fftHelper performForwardFFTWithData:arrayData
-                   andCopydBMagnitudeToBuffer:fftMagnitude];
-    
+
     // graph the FFT Data
-    [self.graphHelper setGraphData:fftMagnitude
+    [self.graphHelper setGraphData:self.maxCalculator.fftMagnitude
                     withDataLength:FFTSIZE
                      forGraphIndex:1
                  withNormalization:64.0
                      withZeroValue:-60];
     
-    // make call to MaxCalculator object to get the maximum magnitudes and store them
-    int* maxFreqs = malloc(sizeof(int)*2);
-    maxFreqs = [self.maxCalculator calcMax: fftMagnitude];
-    
-    // update the labels
-    self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreqs[0]];
-    self.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreqs[1]];
+
+
     
     [self.graphHelper update]; // update the graph
-    free(arrayData);
-    free(fftMagnitude);
-    free(maxFreqs);
+//    free(arrayData);
+//    free(fftMagnitude);
+//    free(maxFreqs);
 }
 
 //  override the GLKView draw function, from OpenGLES
