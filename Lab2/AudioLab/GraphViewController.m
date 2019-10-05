@@ -8,20 +8,16 @@
 
 #import "GraphViewController.h"
 #import "Novocaine.h"
-#import "CircularBuffer.h"
 #import "SMUGraphHelper.h"
-#import "FFTHelper.h"
+#import "MaxCalculator.h"
 
-#define BUFFER_SIZE 2048*4
+#define BUFFER_SIZE 16384
+#define FFTSIZE BUFFER_SIZE/2
 
 @interface GraphViewController ()
 @property (strong, nonatomic) Novocaine *audioManager;
-@property (strong, nonatomic) CircularBuffer *buffer;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
-@property (strong, nonatomic) FFTHelper *fftHelper;
-@property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
-@property (weak, nonatomic) IBOutlet UILabel *MaxFreq2Label;
-@property (nonatomic) float *maxArray;
+@property (strong, nonatomic) MaxCalculator *maxCalculator;
 @end
 
 
@@ -62,12 +58,15 @@
     return _fftHelper;
 }
 
--(float*)maxArray{
-    if(!_maxArray){
-        _maxArray = malloc(sizeof(float)*20);
+-(MaxCalculator*)maxCalculator{
+    if(!_maxCalculator){
+        _maxCalculator = [[MaxCalculator alloc]initWithView: self];
     }
-    return _maxArray;
+    
+    return _maxCalculator;
 }
+
+
 
 
 #pragma mark VC Life Cycle
@@ -89,61 +88,24 @@
 #pragma mark GLK Inherited Functions
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
-    // just plot the audio stream
     
-    float* arrayData = malloc(sizeof(float)*BUFFER_SIZE);
-    int fftSize = (BUFFER_SIZE/2);
-    int step = fftSize/20;
-    float* fftMagnitude = malloc(sizeof(float)*fftSize);
-    
-    [self.buffer fetchFreshData:arrayData withNumSamples:BUFFER_SIZE];
-    
+    // call on the maxCalculator model to perform audio analysis
+    [self.maxCalculator calcMax];
+
     //send off for graphing
-    [self.graphHelper setGraphData:arrayData
+    [self.graphHelper setGraphData:self.maxCalculator.arrayData
                     withDataLength:BUFFER_SIZE
                      forGraphIndex:0];
-    
-    // take forward FFT
-    [self.fftHelper performForwardFFTWithData:arrayData
-                   andCopydBMagnitudeToBuffer:fftMagnitude];
-    
+
     // graph the FFT Data
-    [self.graphHelper setGraphData:fftMagnitude
-                    withDataLength:BUFFER_SIZE/2
+    [self.graphHelper setGraphData:self.maxCalculator.fftMagnitude
+                    withDataLength:FFTSIZE
                      forGraphIndex:1
                  withNormalization:64.0
                      withZeroValue:-60];
-    
-    for(int i = 0; i < 20; i++) {
-        self.maxArray[i] = -1000;
-    }
 
-    
-    //TODO: Convert from iterative loop to sliding window
-    int arrayIndex = 0;
-    int count = 0;
-    for(int i = 0; i < BUFFER_SIZE/2; i++){
-        if (count < step){
-            if (self.maxArray[arrayIndex] < fftMagnitude[i]) {
-                self.maxArray[arrayIndex] = fftMagnitude[i];
-            }
-        } else {
-            arrayIndex++;
-            count = 0;
-        }
-        count++;
-    }
-    
-    // graph the FFT Data
-    [self.graphHelper setGraphData:self.maxArray
-                    withDataLength:20
-                     forGraphIndex:2
-                 withNormalization:64.0
-                     withZeroValue:-60];
-    
-    [self.graphHelper update]; // update the graph
-    free(arrayData);
-    free(fftMagnitude);
+    // update the graph
+    [self.graphHelper update];
 }
 
 //  override the GLKView draw function, from OpenGLES
@@ -151,5 +113,11 @@
     [self.graphHelper draw]; // draw the graph
 }
 
+// pause the audiomanager and set all blocks to nil for switching between modules
+-(void)viewWillDisappear:(BOOL)animated{
+    [self.audioManager pause];
+    [self.audioManager setOutputBlock:nil];
+    [self.audioManager setInputBlock:nil];
+}
 
 @end

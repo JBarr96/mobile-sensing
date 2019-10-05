@@ -22,6 +22,7 @@
 		B6BD9E641D6F4BA90009AB3F /* FFTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B6BD9E631D6F4BA90009AB3F /* FFTHelper.m */; };
 		B8F65173233D8AE600AFE6DF /* DopplerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F65172233D8AE600AFE6DF /* DopplerViewController.m */; };
 		B8F65176233D8AF500AFE6DF /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F65175233D8AF400AFE6DF /* GraphViewController.m */; };
+		B8F651792344180D00AFE6DF /* MaxCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = B8F651782344180D00AFE6DF /* MaxCalculator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,8 @@
 		B8F65172233D8AE600AFE6DF /* DopplerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DopplerViewController.m; sourceTree = "<group>"; };
 		B8F65174233D8AF400AFE6DF /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
 		B8F65175233D8AF400AFE6DF /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
+		B8F65177234417F500AFE6DF /* MaxCalculator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MaxCalculator.h; sourceTree = "<group>"; };
+		B8F651782344180D00AFE6DF /* MaxCalculator.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MaxCalculator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +140,8 @@
 				B6BD9E1D1D6E384A0009AB3F /* Supporting Files */,
 				B6BD9E5C1D6E59880009AB3F /* SMUGraphHelper.h */,
 				B6BD9E5D1D6E59880009AB3F /* SMUGraphHelper.m */,
+				B8F65177234417F500AFE6DF /* MaxCalculator.h */,
+				B8F651782344180D00AFE6DF /* MaxCalculator.m */,
 			);
 			path = AudioLab;
 			sourceTree = "<group>";
@@ -316,6 +321,7 @@
 			files = (
 				B6BD9E5E1D6E59880009AB3F /* SMUGraphHelper.m in Sources */,
 				B6BD9E591D6E43140009AB3F /* CircularBuffer.m in Sources */,
+				B8F651792344180D00AFE6DF /* MaxCalculator.m in Sources */,
 				B6BD9E641D6F4BA90009AB3F /* FFTHelper.m in Sources */,
 				B6BD9E531D6E398F0009AB3F /* Novocaine.m in Sources */,
 				B6BD9E251D6E384A0009AB3F /* ViewController.m in Sources */,
