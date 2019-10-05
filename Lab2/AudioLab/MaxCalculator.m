@@ -24,6 +24,9 @@
 
 @implementation MaxCalculator
 
+#pragma mark Lazy Instantiation
+
+// array for the raw data being read in from the microphone
 -(float*)arrayData{
     if(!_arrayData){
         _arrayData = malloc(sizeof(float)*BUFFER_SIZE);
@@ -31,6 +34,7 @@
     return _arrayData;
 }
 
+// array for the FFT magnitude data
 -(float*)fftMagnitude{
     if(!_fftMagnitude){
         _fftMagnitude = malloc(sizeof(float)*FFTSIZE);
@@ -38,6 +42,8 @@
     return _fftMagnitude;
 }
 
+// function to initialize with a GraphViewController
+// this is needed to allow for updating of the labels
 - (id)initWithView: (GraphViewController*)view
 {
     if (self = [super init])
@@ -58,33 +64,44 @@
                    andCopydBMagnitudeToBuffer:self.fftMagnitude];
 }
 
-
+// function for actually processing the FFT and updating the view
 -(void)calcMax{
+    // pull in the most recent data into the array and FFT
     [self refreshData];
     
+    // array to be populated with local FFT magnitude maxima
     float* peakfft = malloc(sizeof(float)*BUFFER_SIZE);
+    // array to be populated with the array indices of the local maxima within the FFT array
     float* peakfftpos = malloc(sizeof(float)*BUFFER_SIZE);
+    // pointer to keep track of where in the previous arrays to insert the next value
     int arrayPtr = 0;
 
 
     //sliding window over the the f
+    // start at 50 to eliminate the erronious low end frequencies and stop when the end of the last window would reach the end of the buffer
     for(int i = 50; i < FFTSIZE - WINDOW_SIZE; i++){
+        // variables for the maximum of the window and its array index
         float windowmax = -1000;
         int maxpos = 0;
+        // iterate over the window...
         for(int j = i; j < i + WINDOW_SIZE; j++){
+            // if the current magnitude is greater than the current maximum...
             if(self.fftMagnitude[j] > WINDOW_SIZE){
+                // store the magnitude and array position
                 windowmax = self.fftMagnitude[j];
                 maxpos = j;
             }
         }
+        // if the maximum is in the middle of the window, it is a local maximum
         if(maxpos == i + WINDOW_SIZE/2){
+            // and thus save it and its index to the maxima array and increment the pointer
             peakfft[arrayPtr] = windowmax;
             peakfftpos[arrayPtr] = maxpos;
             arrayPtr += 1;
         }
     }
     
-    // create variables to be used to find the two maxima
+    // create variables to be used to find the two absolute maxima
     float maxActualFFT1 = -1000;
     float maxActualFFT2 = -1000;
     float maxActualPos1 = -1;
@@ -114,6 +131,7 @@
     int maxFreq1 = (int)(maxActualPos1 * DF);
     int maxFreq2 = (int)(maxActualPos2 * DF);
     
+    // free up local arrays to prevent memory leak
     free(peakfft);
     free(peakfftpos);
     

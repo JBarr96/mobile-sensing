@@ -89,6 +89,7 @@
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
     
+    // call on the maxCalculator model to perform audio analysis
     [self.maxCalculator calcMax];
 
     //send off for graphing
@@ -102,14 +103,9 @@
                      forGraphIndex:1
                  withNormalization:64.0
                      withZeroValue:-60];
-    
 
-
-    
-    [self.graphHelper update]; // update the graph
-//    free(arrayData);
-//    free(fftMagnitude);
-//    free(maxFreqs);
+    // update the graph
+    [self.graphHelper update];
 }
 
 //  override the GLKView draw function, from OpenGLES
@@ -117,6 +113,7 @@
     [self.graphHelper draw]; // draw the graph
 }
 
+// pause the audiomanager and set all blocks to nil for switching between modules
 -(void)viewWillDisappear:(BOOL)animated{
     [self.audioManager pause];
     [self.audioManager setOutputBlock:nil];

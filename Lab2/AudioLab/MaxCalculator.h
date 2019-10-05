@@ -9,7 +9,6 @@
 #import "GraphViewController.h"
 
 @interface MaxCalculator: NSObject
-//- (int*) calcMax: (float*)fftMagnitude;
 - (id)initWithView: (GraphViewController*)view;
 - (void) calcMax;
 @property (nonatomic) float* arrayData;
