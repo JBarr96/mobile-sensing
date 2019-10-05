@@ -15,6 +15,8 @@
 #define FFTSIZE BUFFER_SIZE/2
 
 @interface GraphViewController ()
+@property (weak, nonatomic) IBOutlet UISwitch *LockInSwitch;
+@property (nonatomic) Boolean lockin;
 @property (strong, nonatomic) Novocaine *audioManager;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) MaxCalculator *maxCalculator;
@@ -66,14 +68,22 @@
     return _maxCalculator;
 }
 
-
-
+- (IBAction)LockInSwitchDidChange:(UISwitch *)sender {
+    if ([sender isOn]) {
+        self.lockin = true;
+    }
+    else{
+        self.lockin = false;
+    }
+}
 
 #pragma mark VC Life Cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    [self.LockInSwitch setOn: false animated: true];
+    self.lockin = false;
    
     [self.graphHelper setScreenBoundsBottomHalf];
     
@@ -89,8 +99,10 @@
 //  override the GLKViewController update function, from OpenGLES
 - (void)update{
     
-    // call on the maxCalculator model to perform audio analysis
-    [self.maxCalculator calcMax];
+    if(self.lockin == false){
+        // call on the maxCalculator model to perform audio analysis
+        [self.maxCalculator calcMax];
+    }
 
     //send off for graphing
     [self.graphHelper setGraphData:self.maxCalculator.arrayData

@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
-    <device id="retina6_1" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -63,11 +61,42 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="InT-Yi-cO8"/>
                             <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Khs-bM-a8o"/>
+                            <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="87" id="MWv-Bl-NcU"/>
+                            <constraint firstItem="K3W-YU-MEz" firstAttribute="top" secondItem="hmY-EF-KFu" secondAttribute="bottom" constant="71" id="R6R-Sq-7om"/>
                             <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Sit-Tz-Tmn"/>
-                            <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="174" id="cBz-ut-yJS"/>
-                            <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="180" id="nMD-8t-jq3"/>
+                            <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="TlJ-10-hpu"/>
+                            <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="107" id="WaC-aG-GZU"/>
+                            <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="174" id="cBz-ut-yJS">
+                                <variation key="heightClass=compact-widthClass=regular" constant="97"/>
+                            </constraint>
+                            <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="180" id="nMD-8t-jq3">
+                                <variation key="heightClass=compact-widthClass=regular" constant="104"/>
+                            </constraint>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="MWv-Bl-NcU"/>
+                                <exclude reference="TlJ-10-hpu"/>
+                                <exclude reference="InT-Yi-cO8"/>
+                                <exclude reference="R6R-Sq-7om"/>
+                                <exclude reference="WaC-aG-GZU"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=compact-widthClass=regular">
+                            <mask key="constraints">
+                                <exclude reference="Khs-bM-a8o"/>
+                                <include reference="MWv-Bl-NcU"/>
+                                <include reference="TlJ-10-hpu"/>
+                                <exclude reference="cBz-ut-yJS"/>
+                                <include reference="InT-Yi-cO8"/>
+                                <include reference="R6R-Sq-7om"/>
+                                <exclude reference="Sit-Tz-Tmn"/>
+                                <include reference="WaC-aG-GZU"/>
+                                <exclude reference="nMD-8t-jq3"/>
+                            </mask>
+                        </variation>
                     </view>
                     <navigationItem key="navigationItem" id="goS-sW-UZK"/>
                 </viewController>
@@ -131,17 +160,34 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="i3c-Nz-MMp">
+                                <rect key="frame" x="347" y="98" width="49" height="31"/>
+                                <connections>
+                                    <action selector="LockInSwitchDidChange:" destination="BYZ-38-t0r" eventType="valueChanged" id="SnS-zz-r95"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Lock In" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6cN-ld-wbs">
+                                <rect key="frame" x="339" y="137" width="55" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="WYK-By-wBV" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="2Cl-D7-z9d"/>
+                            <constraint firstAttribute="trailing" secondItem="6cN-ld-wbs" secondAttribute="trailing" constant="20" id="5Bh-7z-R1N"/>
                             <constraint firstItem="WYK-By-wBV" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="8" id="5Qy-ro-0R2"/>
                             <constraint firstItem="mQv-nX-Sd2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" constant="20" id="9fM-Rm-BFv"/>
+                            <constraint firstItem="6cN-ld-wbs" firstAttribute="top" secondItem="i3c-Nz-MMp" secondAttribute="bottom" constant="8" id="Wzx-TY-f2L"/>
+                            <constraint firstItem="i3c-Nz-MMp" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="10" id="oI9-38-TEc"/>
                             <constraint firstItem="mQv-nX-Sd2" firstAttribute="top" secondItem="WYK-By-wBV" secondAttribute="bottom" constant="8" id="pP9-ep-Xwh"/>
+                            <constraint firstAttribute="trailing" secondItem="i3c-Nz-MMp" secondAttribute="trailing" constant="20" id="xWS-as-sxG"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="JRi-ch-8n2"/>
                     <connections>
+                        <outlet property="LockInSwitch" destination="i3c-Nz-MMp" id="VKm-AK-VPP"/>
                         <outlet property="MaxFreq1Label" destination="WYK-By-wBV" id="Xpu-ap-FCB"/>
                         <outlet property="MaxFreq2Label" destination="mQv-nX-Sd2" id="Emy-fA-J8C"/>
                     </connections>
