@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
-    <device id="retina6_1" orientation="portrait" appearance="light"/>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="13M-E9-HHg">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -118,19 +120,44 @@
                         <subviews>
                             <slider opaque="NO" contentMode="scaleToFill" misplaced="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" value="17500" minValue="15000" maxValue="20000" translatesAutoresizingMaskIntoConstraints="NO" id="gKO-hO-YWz">
                                 <rect key="frame" x="18" y="433" width="378" height="30"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <connections>
                                     <action selector="changeFrequency:" destination="LrM-kv-qvh" eventType="valueChanged" id="oYE-Q9-ovy"/>
                                 </connections>
                             </slider>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Not Gesturing" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0DM-f7-km1">
+                                <rect key="frame" x="20" y="108" width="374" height="21"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1r6-vq-LmV">
+                                <rect key="frame" x="20" y="156" width="374" height="21"/>
+                                <color key="backgroundColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="gKO-hO-YWz" firstAttribute="trailing" secondItem="huM-3m-xfA" secondAttribute="trailingMargin" id="3DO-Fz-68J"/>
+                            <constraint firstItem="1r6-vq-LmV" firstAttribute="trailing" secondItem="0DM-f7-km1" secondAttribute="trailing" id="6bu-x0-abx"/>
                             <constraint firstItem="gKO-hO-YWz" firstAttribute="centerY" secondItem="huM-3m-xfA" secondAttribute="centerY" id="GZ2-WM-SgB"/>
                             <constraint firstItem="gKO-hO-YWz" firstAttribute="leading" secondItem="huM-3m-xfA" secondAttribute="leadingMargin" id="HEw-Ev-i4q"/>
+                            <constraint firstItem="1r6-vq-LmV" firstAttribute="leading" secondItem="0DM-f7-km1" secondAttribute="leading" id="OS8-rV-tvN"/>
+                            <constraint firstItem="0DM-f7-km1" firstAttribute="leading" secondItem="huM-3m-xfA" secondAttribute="leadingMargin" id="ZsD-aX-mse"/>
+                            <constraint firstItem="1r6-vq-LmV" firstAttribute="top" secondItem="0DM-f7-km1" secondAttribute="bottom" constant="27" id="gSZ-Mn-PYf"/>
+                            <constraint firstItem="0DM-f7-km1" firstAttribute="trailing" secondItem="huM-3m-xfA" secondAttribute="trailingMargin" id="sMZ-Jm-1dt"/>
+                            <constraint firstItem="0DM-f7-km1" firstAttribute="top" secondItem="qcL-3k-yyy" secondAttribute="bottom" constant="20" id="ySM-8b-dRd"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="JMH-sE-zgg"/>
+                    <connections>
+                        <outlet property="frequencyLabel" destination="1r6-vq-LmV" id="SQs-nH-Q8k"/>
+                        <outlet property="motionIndicatorLabel" destination="0DM-f7-km1" id="MgI-hC-XpE"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8ga-Qk-mf2" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
