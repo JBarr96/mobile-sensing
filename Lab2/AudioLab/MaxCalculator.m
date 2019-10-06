@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "MaxCalculator.h"
 #import "GraphViewController.h"
+#import "Novocaine.h"
+#import "CircularBuffer.h"
+#import "FFTHelper.h"
 
 #define BUFFER_SIZE 16384
 #define FFTSIZE BUFFER_SIZE/2
@@ -18,7 +21,12 @@
 
 @interface MaxCalculator ()
 @property (strong, nonatomic) GraphViewController *graphview;
+@property (strong, nonatomic) CircularBuffer *buffer;
+@property (strong, nonatomic) Novocaine *audioManager;
+@property (strong, nonatomic) FFTHelper *fftHelper;
 -(void)refreshData;
+-(void)refreshArrayData;
+-(void)refreshFFTData;
 @end
 
 
@@ -42,6 +50,28 @@
     return _fftMagnitude;
 }
 
+-(Novocaine*)audioManager{
+    if(!_audioManager){
+        _audioManager = [Novocaine audioManager];
+    }
+    return _audioManager;
+}
+
+-(CircularBuffer*)buffer{
+    if(!_buffer){
+        _buffer = [[CircularBuffer alloc]initWithNumChannels:1 andBufferSize:BUFFER_SIZE];
+    }
+    return _buffer;
+}
+
+-(FFTHelper*)fftHelper{
+    if(!_fftHelper){
+        _fftHelper = [[FFTHelper alloc]initWithFFTSize:BUFFER_SIZE];
+    }
+    
+    return _fftHelper;
+}
+
 // function to initialize with a GraphViewController
 // this is needed to allow for updating of the labels
 - (id)initWithView: (GraphViewController*)view
@@ -49,19 +79,45 @@
     if (self = [super init])
     {
         _graphview = view;
+//        __block MaxCalculator * __weak  weakSelf = self;
+//        [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
+//            [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
+//        }];
+//
+//        [self.audioManager play];
         [self refreshData];
         return self;
     }
     return nil;
 }
 
-// function to refresh both the arrayData buffer and FFT data
--(void)refreshData{
+
+
+-(void)refreshArrayData{
     // refresh array data
     [self.graphview.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
+}
+
+-(float*)getArrayData{
+    self.refreshArrayData;
+    return self.arrayData;
+}
+
+-(void)refreshFFTData{
     // take forward FFT
-    [self.graphview.fftHelper performForwardFFTWithData:self.arrayData
+    [self.fftHelper performForwardFFTWithData:self.arrayData
                    andCopydBMagnitudeToBuffer:self.fftMagnitude];
+}
+
+-(float*)getFFTData{
+    self.refreshFFTData;
+    return self.fftMagnitude;
+}
+
+// function to refresh both the arrayData buffer and FFT data
+-(void)refreshData{
+    self.refreshArrayData;
+    self.refreshFFTData;
 }
 
 // function for actually processing the FFT and updating the view

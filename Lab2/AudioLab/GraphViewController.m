@@ -52,14 +52,6 @@
     return _graphHelper;
 }
 
--(FFTHelper*)fftHelper{
-    if(!_fftHelper){
-        _fftHelper = [[FFTHelper alloc]initWithFFTSize:BUFFER_SIZE];
-    }
-    
-    return _fftHelper;
-}
-
 -(MaxCalculator*)maxCalculator{
     if(!_maxCalculator){
         _maxCalculator = [[MaxCalculator alloc]initWithView: self];
@@ -105,12 +97,12 @@
     
 
         //send off for graphing
-        [self.graphHelper setGraphData:self.maxCalculator.arrayData
+        [self.graphHelper setGraphData:self.maxCalculator.getArrayData
                         withDataLength:BUFFER_SIZE
                          forGraphIndex:0];
 
         // graph the FFT Data
-        [self.graphHelper setGraphData:self.maxCalculator.fftMagnitude
+        [self.graphHelper setGraphData:self.maxCalculator.getFFTData
                         withDataLength:FFTSIZE
                          forGraphIndex:1
                      withNormalization:64.0

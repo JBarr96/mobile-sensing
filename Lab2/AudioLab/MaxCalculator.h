@@ -11,6 +11,8 @@
 @interface MaxCalculator: NSObject
 - (id)initWithView: (GraphViewController*)view;
 - (int*) calcMax;
+-(float*)getArrayData;
+-(float*)getFFTData;
 @property (nonatomic) float* arrayData;
 @property (nonatomic) float* fftMagnitude;
 @end
