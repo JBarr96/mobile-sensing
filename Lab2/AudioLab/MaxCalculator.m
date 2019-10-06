@@ -50,6 +50,7 @@
     return _fftMagnitude;
 }
 
+// Novocaine audioManager for processing audio
 -(Novocaine*)audioManager{
     if(!_audioManager){
         _audioManager = [Novocaine audioManager];
@@ -57,6 +58,7 @@
     return _audioManager;
 }
 
+// circular buffer for filling with
 -(CircularBuffer*)buffer{
     if(!_buffer){
         _buffer = [[CircularBuffer alloc]initWithNumChannels:1 andBufferSize:BUFFER_SIZE];
@@ -79,12 +81,12 @@
     if (self = [super init])
     {
         _graphview = view;
-//        __block MaxCalculator * __weak  weakSelf = self;
-//        [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
-//            [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
-//        }];
-//
-//        [self.audioManager play];
+        __block MaxCalculator * __weak  weakSelf = self;
+        [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
+            [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
+        }];
+
+        [self.audioManager play];
         [self refreshData];
         return self;
     }
@@ -95,7 +97,7 @@
 
 -(void)refreshArrayData{
     // refresh array data
-    [self.graphview.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
+    [self.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
 }
 
 -(float*)getArrayData{
@@ -197,6 +199,12 @@
     
     return maxFreqs;
 
+}
+
+-(void)pauseAudioManager{
+    [self.audioManager pause];
+    [self.audioManager setOutputBlock:nil];
+    [self.audioManager setInputBlock:nil];
 }
 
 @end

@@ -13,6 +13,7 @@
 - (int*) calcMax;
 -(float*)getArrayData;
 -(float*)getFFTData;
+-(void)pauseAudioManager;
 @property (nonatomic) float* arrayData;
 @property (nonatomic) float* fftMagnitude;
 @end

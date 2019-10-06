@@ -17,7 +17,6 @@
 @interface GraphViewController ()
 @property (weak, nonatomic) IBOutlet UISwitch *LockInSwitch;
 @property (nonatomic) Boolean lockin;
-@property (strong, nonatomic) Novocaine *audioManager;
 @property (strong, nonatomic) SMUGraphHelper *graphHelper;
 @property (strong, nonatomic) MaxCalculator *maxCalculator;
 @end
@@ -27,20 +26,6 @@
 @implementation GraphViewController
 
 #pragma mark Lazy Instantiation
--(Novocaine*)audioManager{
-    if(!_audioManager){
-        _audioManager = [Novocaine audioManager];
-    }
-    return _audioManager;
-}
-
--(CircularBuffer*)buffer{
-    if(!_buffer){
-        _buffer = [[CircularBuffer alloc]initWithNumChannels:1 andBufferSize:BUFFER_SIZE];
-    }
-    return _buffer;
-}
-
 -(SMUGraphHelper*)graphHelper{
     if(!_graphHelper){
         _graphHelper = [[SMUGraphHelper alloc]initWithController:self
@@ -74,17 +59,12 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     
+    // set the initial position of the lock switch to false
     [self.LockInSwitch setOn: false animated: true];
     self.lockin = false;
    
+    // set the graphs to only be on the bottom half of the screen
     [self.graphHelper setScreenBoundsBottomHalf];
-    
-    __block GraphViewController * __weak  weakSelf = self;
-    [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
-        [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
-    }];
-    
-    [self.audioManager play];
 }
 
 #pragma mark GLK Inherited Functions
@@ -92,7 +72,7 @@
 - (void)update{
     
     if(self.lockin == false){
-        // call on the maxCalculator model to perform audio analysis
+        // call on the maxCalculator model to perform audio analysis and store results
         int* maxFreqs = [self.maxCalculator calcMax];
     
 
@@ -124,9 +104,7 @@
 
 // pause the audiomanager and set all blocks to nil for switching between modules
 -(void)viewWillDisappear:(BOOL)animated{
-    [self.audioManager pause];
-    [self.audioManager setOutputBlock:nil];
-    [self.audioManager setInputBlock:nil];
+    self.maxCalculator.pauseAudioManager;
 }
 
 @end
