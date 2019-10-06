@@ -20,9 +20,9 @@
 		B6BD9E5B1D6E46790009AB3F /* satisfaction.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = B6BD9E5A1D6E46790009AB3F /* satisfaction.mp3 */; };
 		B6BD9E5E1D6E59880009AB3F /* SMUGraphHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B6BD9E5D1D6E59880009AB3F /* SMUGraphHelper.m */; };
 		B6BD9E641D6F4BA90009AB3F /* FFTHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = B6BD9E631D6F4BA90009AB3F /* FFTHelper.m */; };
-		B8D845BA2349081700115F2E /* DopplerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8D845B52349081700115F2E /* DopplerViewController.m */; };
-		B8D845BB2349081700115F2E /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8D845B82349081700115F2E /* GraphViewController.m */; };
-		B8D845BC2349081700115F2E /* MaxCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = B8D845B92349081700115F2E /* MaxCalculator.m */; };
+		B8E6DD68234A9E5900D1F2AD /* DopplerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD62234A9E5900D1F2AD /* DopplerViewController.m */; };
+		B8E6DD69234A9E5900D1F2AD /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD65234A9E5900D1F2AD /* GraphViewController.m */; };
+		B8E6DD6A234A9E5900D1F2AD /* MaxCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD67234A9E5900D1F2AD /* MaxCalculator.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -68,12 +68,12 @@
 		B6BD9E5D1D6E59880009AB3F /* SMUGraphHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SMUGraphHelper.m; sourceTree = "<group>"; };
 		B6BD9E621D6F4BA90009AB3F /* FFTHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = FFTHelper.h; path = AudioDSPUtils/FFTHelper.h; sourceTree = "<group>"; };
 		B6BD9E631D6F4BA90009AB3F /* FFTHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = FFTHelper.m; path = AudioDSPUtils/FFTHelper.m; sourceTree = "<group>"; };
-		B8D845B42349081700115F2E /* MaxCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaxCalculator.h; sourceTree = "<group>"; };
-		B8D845B52349081700115F2E /* DopplerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DopplerViewController.m; sourceTree = "<group>"; };
-		B8D845B62349081700115F2E /* DopplerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DopplerViewController.h; sourceTree = "<group>"; };
-		B8D845B72349081700115F2E /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
-		B8D845B82349081700115F2E /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
-		B8D845B92349081700115F2E /* MaxCalculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaxCalculator.m; sourceTree = "<group>"; };
+		B8E6DD62234A9E5900D1F2AD /* DopplerViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DopplerViewController.m; sourceTree = "<group>"; };
+		B8E6DD63234A9E5900D1F2AD /* GraphViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphViewController.h; sourceTree = "<group>"; };
+		B8E6DD64234A9E5900D1F2AD /* DopplerViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DopplerViewController.h; sourceTree = "<group>"; };
+		B8E6DD65234A9E5900D1F2AD /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
+		B8E6DD66234A9E5900D1F2AD /* MaxCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaxCalculator.h; sourceTree = "<group>"; };
+		B8E6DD67234A9E5900D1F2AD /* MaxCalculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaxCalculator.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,12 +125,12 @@
 		B6BD9E1C1D6E384A0009AB3F /* AudioLab */ = {
 			isa = PBXGroup;
 			children = (
-				B8D845B62349081700115F2E /* DopplerViewController.h */,
-				B8D845B52349081700115F2E /* DopplerViewController.m */,
-				B8D845B72349081700115F2E /* GraphViewController.h */,
-				B8D845B82349081700115F2E /* GraphViewController.m */,
-				B8D845B42349081700115F2E /* MaxCalculator.h */,
-				B8D845B92349081700115F2E /* MaxCalculator.m */,
+				B8E6DD64234A9E5900D1F2AD /* DopplerViewController.h */,
+				B8E6DD62234A9E5900D1F2AD /* DopplerViewController.m */,
+				B8E6DD63234A9E5900D1F2AD /* GraphViewController.h */,
+				B8E6DD65234A9E5900D1F2AD /* GraphViewController.m */,
+				B8E6DD66234A9E5900D1F2AD /* MaxCalculator.h */,
+				B8E6DD67234A9E5900D1F2AD /* MaxCalculator.m */,
 				B6BD9E201D6E384A0009AB3F /* AppDelegate.h */,
 				B6BD9E211D6E384A0009AB3F /* AppDelegate.m */,
 				B6BD9E231D6E384A0009AB3F /* ViewController.h */,
@@ -321,14 +321,14 @@
 			files = (
 				B6BD9E5E1D6E59880009AB3F /* SMUGraphHelper.m in Sources */,
 				B6BD9E591D6E43140009AB3F /* CircularBuffer.m in Sources */,
-				B8D845BC2349081700115F2E /* MaxCalculator.m in Sources */,
+				B8E6DD6A234A9E5900D1F2AD /* MaxCalculator.m in Sources */,
 				B6BD9E641D6F4BA90009AB3F /* FFTHelper.m in Sources */,
 				B6BD9E531D6E398F0009AB3F /* Novocaine.m in Sources */,
 				B6BD9E251D6E384A0009AB3F /* ViewController.m in Sources */,
-				B8D845BB2349081700115F2E /* GraphViewController.m in Sources */,
+				B8E6DD69234A9E5900D1F2AD /* GraphViewController.m in Sources */,
 				B6BD9E221D6E384A0009AB3F /* AppDelegate.m in Sources */,
 				B6BD9E1F1D6E384A0009AB3F /* main.m in Sources */,
-				B8D845BA2349081700115F2E /* DopplerViewController.m in Sources */,
+				B8E6DD68234A9E5900D1F2AD /* DopplerViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

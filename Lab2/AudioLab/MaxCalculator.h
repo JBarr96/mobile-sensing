@@ -6,11 +6,12 @@
 //  Copyright © 2019 Eric Larson. All rights reserved.
 //
 
-#import "GraphViewController.h"
-
 @interface MaxCalculator: NSObject
-- (id)initWithView: (GraphViewController*)view;
-- (void) calcMax;
+- (id)init;
+- (int*) calcMax;
+-(float*)getArrayData;
+-(float*)getFFTData;
+-(void)pauseAudioManager;
 @property (nonatomic) float* arrayData;
 @property (nonatomic) float* fftMagnitude;
 @end

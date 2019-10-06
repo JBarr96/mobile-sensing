@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "MaxCalculator.h"
 #import "GraphViewController.h"
+#import "Novocaine.h"
+#import "CircularBuffer.h"
+#import "FFTHelper.h"
 
 #define BUFFER_SIZE 16384
 #define FFTSIZE BUFFER_SIZE/2
@@ -17,8 +20,12 @@
 #define WINDOW_SIZE 7
 
 @interface MaxCalculator ()
-@property (strong, nonatomic) GraphViewController *graphview;
+@property (strong, nonatomic) CircularBuffer *buffer;
+@property (strong, nonatomic) Novocaine *audioManager;
+@property (strong, nonatomic) FFTHelper *fftHelper;
 -(void)refreshData;
+-(void)refreshArrayData;
+-(void)refreshFFTData;
 @end
 
 
@@ -42,30 +49,81 @@
     return _fftMagnitude;
 }
 
+// Novocaine audioManager for processing audio
+-(Novocaine*)audioManager{
+    if(!_audioManager){
+        _audioManager = [Novocaine audioManager];
+    }
+    return _audioManager;
+}
+
+// circular buffer for filling with
+-(CircularBuffer*)buffer{
+    if(!_buffer){
+        _buffer = [[CircularBuffer alloc]initWithNumChannels:1 andBufferSize:BUFFER_SIZE];
+    }
+    return _buffer;
+}
+
+-(FFTHelper*)fftHelper{
+    if(!_fftHelper){
+        _fftHelper = [[FFTHelper alloc]initWithFFTSize:BUFFER_SIZE];
+    }
+    
+    return _fftHelper;
+}
+
 // function to initialize with a GraphViewController
 // this is needed to allow for updating of the labels
-- (id)initWithView: (GraphViewController*)view
-{
+- (id)init{
     if (self = [super init])
     {
-        _graphview = view;
+        __block MaxCalculator * __weak  weakSelf = self;
+        [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
+            [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
+        }];
+
+        [self.audioManager play];
         [self refreshData];
         return self;
     }
     return nil;
 }
 
-// function to refresh both the arrayData buffer and FFT data
--(void)refreshData{
+
+// function to refresh the array data
+-(void)refreshArrayData{
     // refresh array data
-    [self.graphview.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
+    [self.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
+}
+
+// function to refresh and return the array data
+-(float*)getArrayData{
+    self.refreshArrayData;
+    return self.arrayData;
+}
+
+// function to refresh the FFT data
+-(void)refreshFFTData{
     // take forward FFT
-    [self.graphview.fftHelper performForwardFFTWithData:self.arrayData
+    [self.fftHelper performForwardFFTWithData:self.arrayData
                    andCopydBMagnitudeToBuffer:self.fftMagnitude];
 }
 
+// function to refresh and return the FFT data
+-(float*)getFFTData{
+    self.refreshFFTData;
+    return self.fftMagnitude;
+}
+
+// function to refresh both the arrayData buffer and FFT data
+-(void)refreshData{
+    self.refreshArrayData;
+    self.refreshFFTData;
+}
+
 // function for actually processing the FFT and updating the view
--(void)calcMax{
+-(int*)calcMax{
     // pull in the most recent data into the array and FFT
     [self refreshData];
     
@@ -127,17 +185,28 @@
         }
     }
     
-    // calculate the the actual frequencies of the maximum FFTs
-    int maxFreq1 = (int)(maxActualPos1 * DF);
-    int maxFreq2 = (int)(maxActualPos2 * DF);
-    
     // free up local arrays to prevent memory leak
     free(peakfft);
     free(peakfftpos);
     
-    // update the labels
-    self.graphview.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreq1];
-    self.graphview.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreq2];
+    // calculate the the actual frequencies of the maximum FFTs
+    int maxFreq1 = (int)(maxActualPos1 * DF);
+    int maxFreq2 = (int)(maxActualPos2 * DF);
+    
+    // create an array of the maximums to return
+    int* maxFreqs = malloc(sizeof(int)*2);
+    maxFreqs[0] = maxFreq1;
+    maxFreqs[1] = maxFreq2;
+    
+    // return the array
+    return maxFreqs;
+}
+
+// funciton to pause the audiomanager and set all blocks to nil
+-(void)pauseAudioManager{
+    [self.audioManager pause];
+    [self.audioManager setOutputBlock:nil];
+    [self.audioManager setInputBlock:nil];
 }
 
 @end
