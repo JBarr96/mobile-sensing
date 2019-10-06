@@ -65,7 +65,7 @@
 }
 
 // function for actually processing the FFT and updating the view
--(void)calcMax{
+-(int*)calcMax{
     // pull in the most recent data into the array and FFT
     [self refreshData];
     
@@ -127,17 +127,20 @@
         }
     }
     
-    // calculate the the actual frequencies of the maximum FFTs
-    int maxFreq1 = (int)(maxActualPos1 * DF);
-    int maxFreq2 = (int)(maxActualPos2 * DF);
-    
     // free up local arrays to prevent memory leak
     free(peakfft);
     free(peakfftpos);
     
-    // update the labels
-    self.graphview.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreq1];
-    self.graphview.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreq2];
+    // calculate the the actual frequencies of the maximum FFTs
+    int maxFreq1 = (int)(maxActualPos1 * DF);
+    int maxFreq2 = (int)(maxActualPos2 * DF);
+    
+    int* maxFreqs = malloc(sizeof(int)*2);
+    maxFreqs[0] = maxFreq1;
+    maxFreqs[1] = maxFreq2;
+    
+    return maxFreqs;
+
 }
 
 @end

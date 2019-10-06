@@ -101,23 +101,28 @@
     
     if(self.lockin == false){
         // call on the maxCalculator model to perform audio analysis
-        [self.maxCalculator calcMax];
+        int* maxFreqs = [self.maxCalculator calcMax];
+    
+
+        //send off for graphing
+        [self.graphHelper setGraphData:self.maxCalculator.arrayData
+                        withDataLength:BUFFER_SIZE
+                         forGraphIndex:0];
+
+        // graph the FFT Data
+        [self.graphHelper setGraphData:self.maxCalculator.fftMagnitude
+                        withDataLength:FFTSIZE
+                         forGraphIndex:1
+                     withNormalization:64.0
+                         withZeroValue:-60];
+
+        // update the labels
+        self.MaxFreq1Label.text = [NSString stringWithFormat:@"Max Freq 1: %d", maxFreqs[0]];
+        self.MaxFreq2Label.text = [NSString stringWithFormat:@"Max Freq 2: %d", maxFreqs[1]];
+        
+        // update the graph
+        [self.graphHelper update];
     }
-
-    //send off for graphing
-    [self.graphHelper setGraphData:self.maxCalculator.arrayData
-                    withDataLength:BUFFER_SIZE
-                     forGraphIndex:0];
-
-    // graph the FFT Data
-    [self.graphHelper setGraphData:self.maxCalculator.fftMagnitude
-                    withDataLength:FFTSIZE
-                     forGraphIndex:1
-                 withNormalization:64.0
-                     withZeroValue:-60];
-
-    // update the graph
-    [self.graphHelper update];
 }
 
 //  override the GLKView draw function, from OpenGLES
