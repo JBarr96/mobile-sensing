@@ -20,7 +20,6 @@
 #define WINDOW_SIZE 7
 
 @interface MaxCalculator ()
-@property (strong, nonatomic) GraphViewController *graphview;
 @property (strong, nonatomic) CircularBuffer *buffer;
 @property (strong, nonatomic) Novocaine *audioManager;
 @property (strong, nonatomic) FFTHelper *fftHelper;
@@ -76,11 +75,9 @@
 
 // function to initialize with a GraphViewController
 // this is needed to allow for updating of the labels
-- (id)initWithView: (GraphViewController*)view
-{
+- (id)init{
     if (self = [super init])
     {
-        _graphview = view;
         __block MaxCalculator * __weak  weakSelf = self;
         [self.audioManager setInputBlock:^(float *data, UInt32 numFrames, UInt32 numChannels){
             [weakSelf.buffer addNewFloatData:data withNumSamples:numFrames];
@@ -94,23 +91,26 @@
 }
 
 
-
+// function to refresh the array data
 -(void)refreshArrayData{
     // refresh array data
     [self.buffer fetchFreshData:self.arrayData withNumSamples:BUFFER_SIZE];
 }
 
+// function to refresh and return the array data
 -(float*)getArrayData{
     self.refreshArrayData;
     return self.arrayData;
 }
 
+// function to refresh the FFT data
 -(void)refreshFFTData{
     // take forward FFT
     [self.fftHelper performForwardFFTWithData:self.arrayData
                    andCopydBMagnitudeToBuffer:self.fftMagnitude];
 }
 
+// function to refresh and return the FFT data
 -(float*)getFFTData{
     self.refreshFFTData;
     return self.fftMagnitude;
@@ -193,14 +193,16 @@
     int maxFreq1 = (int)(maxActualPos1 * DF);
     int maxFreq2 = (int)(maxActualPos2 * DF);
     
+    // create an array of the maximums to return
     int* maxFreqs = malloc(sizeof(int)*2);
     maxFreqs[0] = maxFreq1;
     maxFreqs[1] = maxFreq2;
     
+    // return the array
     return maxFreqs;
-
 }
 
+// funciton to pause the audiomanager and set all blocks to nil
 -(void)pauseAudioManager{
     [self.audioManager pause];
     [self.audioManager setOutputBlock:nil];

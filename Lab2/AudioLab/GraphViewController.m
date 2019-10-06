@@ -7,7 +7,6 @@
 //
 
 #import "GraphViewController.h"
-#import "Novocaine.h"
 #import "SMUGraphHelper.h"
 #import "MaxCalculator.h"
 
@@ -39,7 +38,7 @@
 
 -(MaxCalculator*)maxCalculator{
     if(!_maxCalculator){
-        _maxCalculator = [[MaxCalculator alloc]initWithView: self];
+        _maxCalculator = [[MaxCalculator alloc]init];
     }
     
     return _maxCalculator;

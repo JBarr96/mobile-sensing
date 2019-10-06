@@ -8,7 +8,6 @@
 
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
-#import "CircularBuffer.h"
 
 @interface GraphViewController : GLKViewController
 @property (weak, nonatomic) IBOutlet UILabel *MaxFreq1Label;
