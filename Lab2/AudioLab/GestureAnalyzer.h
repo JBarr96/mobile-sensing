@@ -12,7 +12,5 @@
 @interface GestureAnalyzer : NSObject
 -(int)getGesture:(float)frequency;
 -(void)pauseAudioManager;
-
-@property (nonatomic) float* arrayData;
 @property (nonatomic) float* fftMagnitude;
 @end
