@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import "MaxCalculator.h"
-#import "GraphViewController.h"
 #import "Novocaine.h"
 #import "CircularBuffer.h"
 #import "FFTHelper.h"
@@ -73,8 +72,7 @@
     return _fftHelper;
 }
 
-// function to initialize with a GraphViewController
-// this is needed to allow for updating of the labels
+// function to initialize MaxCalculator
 - (id)init{
     if (self = [super init])
     {
@@ -202,11 +200,19 @@
     return maxFreqs;
 }
 
-// funciton to pause the audiomanager and set all blocks to nil
+// function to pause the audiomanager and set all blocks to nil
 -(void)pauseAudioManager{
     [self.audioManager pause];
     [self.audioManager setOutputBlock:nil];
     [self.audioManager setInputBlock:nil];
+}
+
+-(void)dealloc {
+    free(self.fftMagnitude);
+    self.fftMagnitude = nil;
+    
+    free(self.arrayData);
+    self.arrayData = nil;
 }
 
 @end

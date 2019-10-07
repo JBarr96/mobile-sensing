@@ -93,6 +93,7 @@
         
         // update the graph
         [self.graphHelper update];
+        free(maxFreqs);
     }
 }
 
