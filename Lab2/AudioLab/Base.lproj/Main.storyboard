@@ -63,40 +63,44 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="InT-Yi-cO8"/>
+                            <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="107" id="5cc-n8-pQa"/>
+                            <constraint firstItem="K3W-YU-MEz" firstAttribute="top" secondItem="hmY-EF-KFu" secondAttribute="bottom" constant="71" id="9oN-Zt-yVM"/>
                             <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Khs-bM-a8o"/>
-                            <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="87" id="MWv-Bl-NcU"/>
-                            <constraint firstItem="K3W-YU-MEz" firstAttribute="top" secondItem="hmY-EF-KFu" secondAttribute="bottom" constant="71" id="R6R-Sq-7om"/>
                             <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="Sit-Tz-Tmn"/>
-                            <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="TlJ-10-hpu"/>
-                            <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="107" id="WaC-aG-GZU"/>
+                            <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="87" id="YHx-EJ-Bpb"/>
                             <constraint firstItem="hmY-EF-KFu" firstAttribute="top" secondItem="82k-Uu-nX8" secondAttribute="bottom" constant="174" id="cBz-ut-yJS">
                                 <variation key="heightClass=compact-widthClass=regular" constant="97"/>
                             </constraint>
+                            <constraint firstItem="K3W-YU-MEz" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="n6e-2G-VzU"/>
                             <constraint firstItem="5Dp-MZ-Tc0" firstAttribute="top" secondItem="K3W-YU-MEz" secondAttribute="bottom" constant="180" id="nMD-8t-jq3">
                                 <variation key="heightClass=compact-widthClass=regular" constant="104"/>
                             </constraint>
+                            <constraint firstItem="hmY-EF-KFu" firstAttribute="centerX" secondItem="zWk-gd-4gQ" secondAttribute="centerX" id="pCS-Vp-Ahy"/>
                         </constraints>
                         <variation key="default">
                             <mask key="constraints">
-                                <exclude reference="MWv-Bl-NcU"/>
-                                <exclude reference="TlJ-10-hpu"/>
-                                <exclude reference="InT-Yi-cO8"/>
-                                <exclude reference="R6R-Sq-7om"/>
-                                <exclude reference="WaC-aG-GZU"/>
+                                <exclude reference="YHx-EJ-Bpb"/>
+                                <exclude reference="pCS-Vp-Ahy"/>
+                                <exclude reference="5cc-n8-pQa"/>
+                                <exclude reference="9oN-Zt-yVM"/>
+                                <exclude reference="n6e-2G-VzU"/>
+                            </mask>
+                        </variation>
+                        <variation key="heightClass=compact">
+                            <mask key="constraints">
+                                <include reference="YHx-EJ-Bpb"/>
+                                <include reference="pCS-Vp-Ahy"/>
+                                <include reference="5cc-n8-pQa"/>
+                                <exclude reference="9oN-Zt-yVM"/>
+                                <include reference="n6e-2G-VzU"/>
                             </mask>
                         </variation>
                         <variation key="heightClass=compact-widthClass=regular">
                             <mask key="constraints">
                                 <exclude reference="Khs-bM-a8o"/>
-                                <include reference="MWv-Bl-NcU"/>
-                                <include reference="TlJ-10-hpu"/>
                                 <exclude reference="cBz-ut-yJS"/>
-                                <include reference="InT-Yi-cO8"/>
-                                <include reference="R6R-Sq-7om"/>
-                                <exclude reference="Sit-Tz-Tmn"/>
-                                <include reference="WaC-aG-GZU"/>
                                 <exclude reference="nMD-8t-jq3"/>
+                                <exclude reference="Sit-Tz-Tmn"/>
                             </mask>
                         </variation>
                     </view>
