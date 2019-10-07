@@ -23,6 +23,7 @@
 		B8E6DD68234A9E5900D1F2AD /* DopplerViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD62234A9E5900D1F2AD /* DopplerViewController.m */; };
 		B8E6DD69234A9E5900D1F2AD /* GraphViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD65234A9E5900D1F2AD /* GraphViewController.m */; };
 		B8E6DD6A234A9E5900D1F2AD /* MaxCalculator.m in Sources */ = {isa = PBXBuildFile; fileRef = B8E6DD67234A9E5900D1F2AD /* MaxCalculator.m */; };
+		BD646C1E234ACD1600E70343 /* GestureAnalyzer.m in Sources */ = {isa = PBXBuildFile; fileRef = BD646C1D234ACD1600E70343 /* GestureAnalyzer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,6 +75,8 @@
 		B8E6DD65234A9E5900D1F2AD /* GraphViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GraphViewController.m; sourceTree = "<group>"; };
 		B8E6DD66234A9E5900D1F2AD /* MaxCalculator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MaxCalculator.h; sourceTree = "<group>"; };
 		B8E6DD67234A9E5900D1F2AD /* MaxCalculator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MaxCalculator.m; sourceTree = "<group>"; };
+		BD646C1C234ACD1600E70343 /* GestureAnalyzer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GestureAnalyzer.h; sourceTree = "<group>"; };
+		BD646C1D234ACD1600E70343 /* GestureAnalyzer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GestureAnalyzer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -125,6 +128,8 @@
 		B6BD9E1C1D6E384A0009AB3F /* AudioLab */ = {
 			isa = PBXGroup;
 			children = (
+				BD646C1C234ACD1600E70343 /* GestureAnalyzer.h */,
+				BD646C1D234ACD1600E70343 /* GestureAnalyzer.m */,
 				B8E6DD64234A9E5900D1F2AD /* DopplerViewController.h */,
 				B8E6DD62234A9E5900D1F2AD /* DopplerViewController.m */,
 				B8E6DD63234A9E5900D1F2AD /* GraphViewController.h */,
@@ -328,6 +333,7 @@
 				B8E6DD69234A9E5900D1F2AD /* GraphViewController.m in Sources */,
 				B6BD9E221D6E384A0009AB3F /* AppDelegate.m in Sources */,
 				B6BD9E1F1D6E384A0009AB3F /* main.m in Sources */,
+				BD646C1E234ACD1600E70343 /* GestureAnalyzer.m in Sources */,
 				B8E6DD68234A9E5900D1F2AD /* DopplerViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
