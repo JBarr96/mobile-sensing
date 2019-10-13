@@ -10,6 +10,7 @@ import UIKit
 import SpriteKit
 import CoreMotion
 
+@available(iOS 10.0, *)
 class GameScene: SKScene, SKPhysicsContactDelegate {
 
     //@IBOutlet weak var scoreLabel: UILabel!
@@ -44,28 +45,41 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         physicsWorld.contactDelegate = self
-        backgroundColor = SKColor.white
-        
-        
         
         // start motion for gravity
         self.startMotionUpdates()
         
         // make sides to the screen
-        self.addSidesAndTop()
+//        self.addSidesAndTop()
         
         // add some stationary blocks
-        self.addStaticBlockAtPoint(CGPoint(x: size.width * 0.1, y: size.height * 0.25))
-        self.addStaticBlockAtPoint(CGPoint(x: size.width * 0.9, y: size.height * 0.25))
+//        self.addStaticBlockAtPoint(CGPoint(x: size.width * 0.1, y: size.height * 0.25))
+//        self.addStaticBlockAtPoint(CGPoint(x: size.width * 0.9, y: size.height * 0.25))
         
         // add a spinning block
-        self.addBlockAtPoint(CGPoint(x: size.width * 0.5, y: size.height * 0.35))
+//        self.addBlockAtPoint(CGPoint(x: size.width * 0.5, y: size.height * 0.35))
         
         self.addSprite()
         
         self.addScore()
         
         self.score = 0
+        
+        run(SKAction.repeatForever(
+          SKAction.sequence([
+            SKAction.run(addAlien),
+            SKAction.wait(forDuration: 1.0)
+            ])
+        ))
+        
+        run(SKAction.repeatForever(
+          SKAction.sequence([
+            SKAction.run(addAsteroid),
+            SKAction.wait(forDuration: 1.5)
+            ])
+        ))
+        
+        self.addBackground()
     }
     
     // MARK: Create Sprites Functions
@@ -134,7 +148,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func addSidesAndTop(){
         let left = SKSpriteNode()
         let right = SKSpriteNode()
-        let top = SKSpriteNode()
         
         left.size = CGSize(width:size.width*0.1,height:size.height)
         left.position = CGPoint(x:0, y:size.height*0.5)
@@ -142,11 +155,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         right.size = CGSize(width:size.width*0.1,height:size.height)
         right.position = CGPoint(x:size.width, y:size.height*0.5)
         
-        top.size = CGSize(width:size.width,height:size.height*0.1)
-        top.position = CGPoint(x:size.width*0.5, y:size.height)
-        
-        for obj in [left,right,top]{
-            obj.color = UIColor.red
+        for obj in [left,right]{
+            obj.color = UIColor.black
             obj.physicsBody = SKPhysicsBody(rectangleOf:obj.size)
             obj.physicsBody?.isDynamic = true
             obj.physicsBody?.pinned = true
@@ -155,23 +165,87 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         }
     }
     
+    func addBackground(){
+        // please declare bg as a class level variable
+        let bg = SKSpriteNode(imageNamed: "8bit_space")
+        bg.position = CGPoint(x: 200, y: size.height * 0.5)
+        self.addChild(bg)
+    }
+    
+//  MARK: Monster Example
+    func addAlien() {
+
+        // Create sprite
+        let alien = SKSpriteNode(imageNamed: "alien")
+        alien.scale(to: CGSize(width: 50, height: 40))
+
+
+        // Determine where to spawn the monster along the Y axis
+        let actualY = random(min: alien.size.height + 400, max: size.height - alien.size.height/2)
+
+        // Position the monster slightly off-screen along the right edge,
+        // and along a random position along the Y axis as calculated above
+        alien.position = CGPoint(x: size.width + alien.size.width/2, y: actualY)
+
+        // Add the monster to the scene
+        addChild(alien)
+
+        // Determine speed of the monster
+        let actualDuration = random(min: CGFloat(2.0), max: CGFloat(4.0))
+
+        // Create the actions
+        let actionMove = SKAction.move(to: CGPoint(x: -alien.size.width/2, y: actualY),
+                                     duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        alien.run(SKAction.sequence([actionMove, actionMoveDone]))
+        
+    }
+    
+    func addAsteroid() {
+
+        // Create sprite
+        let asteroid = SKSpriteNode(imageNamed: "asteroid")
+        asteroid.scale(to: CGSize(width: 40, height: 40))
+
+
+        // Determine where to spawn the monster along the Y axis
+        let actualY = random(min: asteroid.size.height + 400, max: size.height/2 - asteroid.size.height/2 - 200)
+
+        // Position the monster slightly off-screen along the right edge,
+        // and along a random position along the Y axis as calculated above
+        asteroid.position = CGPoint(x: 0 - asteroid.size.width, y: actualY)
+
+        // Add the monster to the scene
+        addChild(asteroid)
+
+        // Determine speed of the monster
+        let actualDuration = random(min: CGFloat(2.0), max: CGFloat(4.0))
+
+        // Create the actions
+        let actionMove = SKAction.move(to: CGPoint(x: size.width + asteroid.size.width, y: actualY),
+                                     duration: TimeInterval(actualDuration))
+        let actionMoveDone = SKAction.removeFromParent()
+        asteroid.run(SKAction.sequence([actionMove, actionMoveDone]))
+        
+    }
+
     // MARK: =====Delegate Functions=====
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         self.addSprite()
     }
-    
+
     func didBegin(_ contact: SKPhysicsContact) {
         if contact.bodyA.node == spinBlock || contact.bodyB.node == spinBlock {
             self.score += 1
         }
     }
-    
+
     // MARK: Utility Functions (thanks ray wenderlich!)
     func random() -> CGFloat {
-        return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
+    return CGFloat(Float(arc4random()) / 0xFFFFFFFF)
     }
-    
+
     func random(min: CGFloat, max: CGFloat) -> CGFloat {
-        return random() * (max - min) + min
+    return random() * (max - min) + min
     }
 }

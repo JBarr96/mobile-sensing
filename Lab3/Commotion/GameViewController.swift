@@ -9,6 +9,7 @@
 import UIKit
 import SpriteKit
 
+@available(iOS 10.0, *)
 class GameViewController: UIViewController {
 
     
