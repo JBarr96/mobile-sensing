@@ -12,6 +12,10 @@ import CoreMotion
 
 @available(iOS 10.0, *)
 class GameScene: SKScene, SKPhysicsContactDelegate {
+    let roll_threshold = 0.3
+    var spaceship_position = CGFloat(200.0)
+    let min_spaceship_position = CGFloat(50.0)
+    let max_spaceship_position = CGFloat(325.0)
 
     //@IBOutlet weak var scoreLabel: UILabel!
     
@@ -27,12 +31,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func handleMotion(_ motionData:CMDeviceMotion?, error:Error?){
-        if let gravity = motionData?.gravity {
-//            self.physicsWorld.gravity = CGVector(dx: CGFloat(9.8*gravity.x), dy: CGFloat(9.8*gravity.y))
-            self.physicsWorld.gravity = .zero
-
-//            self.physicsWorld.gravity = CGVector(dx: CGFloat(2*gravity.x), dy: CGFloat(2*gravity.y))
+        self.physicsWorld.gravity = .zero
+        if((motionData?.attitude.roll)! > roll_threshold){
+            if(spaceship_position < max_spaceship_position){
+                spaceship_position += 10
+            }
+        }else if((motionData?.attitude.roll)! < -roll_threshold){
+            if(spaceship_position > min_spaceship_position){
+                spaceship_position -= 10
+            }
         }
+        
+        let actionMove = SKAction.move(to: CGPoint(x: spaceship_position, y: size.height * 0.1),
+                                       duration: TimeInterval(0.15))
+        spaceship.run(actionMove)
     }
     
     // MARK: View Hierarchy Functions
@@ -47,7 +59,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     let ammoCountLabel = SKLabelNode()
-    var ammoCount:Int = 100 {
+    var ammoCount:Int = 10 {
         willSet(newValue){
             DispatchQueue.main.async{
                 self.ammoCountLabel.text = "Ammo: \(newValue)"
@@ -77,8 +89,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         self.addScore()
         self.addAmmoCount()
         
-        self.score = 0
-        self.ammoCount = 100
 //        self.ammoCount = UserDefaults.standard.integer(forKey: "steps")
         
         run(SKAction.repeatForever(
@@ -127,90 +137,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         spaceship.physicsBody?.categoryBitMask = PhysicsCategory.spaceship
         self.addChild(spaceship)
     }
-    
-    
-    func addSprite(){
-        let spriteA = SKSpriteNode(imageNamed: "sprite") // this is literally a sprite bottle... 😎
-        
-        spriteA.size = CGSize(width:size.width*0.1,height:size.height * 0.1)
-        
-        let randNumber = random(min: CGFloat(0.1), max: CGFloat(0.9))
-        spriteA.position = CGPoint(x: size.width * randNumber, y: size.height * 0.75)
-        
-        spriteA.physicsBody = SKPhysicsBody(rectangleOf:spriteA.size)
-        spriteA.physicsBody?.restitution = random(min: CGFloat(1.0), max: CGFloat(1.5))
-        spriteA.physicsBody?.isDynamic = true
-        spriteA.physicsBody?.contactTestBitMask = 0x00000001
-        spriteA.physicsBody?.collisionBitMask = 0x00000001
-        spriteA.physicsBody?.categoryBitMask = 0x00000001
-        
-        self.addChild(spriteA)
-    }
-    
-    func addBlockAtPoint(_ point:CGPoint){
-        
-        spinBlock.color = UIColor.red
-        spinBlock.size = CGSize(width:size.width*0.15,height:size.height * 0.05)
-        spinBlock.position = point
-        
-        spinBlock.physicsBody = SKPhysicsBody(rectangleOf:spinBlock.size)
-        spinBlock.physicsBody?.contactTestBitMask = 0x00000001
-        spinBlock.physicsBody?.collisionBitMask = 0x00000001
-        spinBlock.physicsBody?.categoryBitMask = 0x00000001
-        spinBlock.physicsBody?.isDynamic = true
-        spinBlock.physicsBody?.pinned = true
-        
-        self.addChild(spinBlock)
 
-    }
-    
-    func addStaticBlockAtPoint(_ point:CGPoint){
-        let 🔲 = SKSpriteNode()
-        
-        🔲.color = UIColor.red
-        🔲.size = CGSize(width:size.width*0.1,height:size.height * 0.05)
-        🔲.position = point
-        
-        🔲.physicsBody = SKPhysicsBody(rectangleOf:🔲.size)
-        🔲.physicsBody?.isDynamic = true
-        🔲.physicsBody?.pinned = true
-        🔲.physicsBody?.allowsRotation = true
-        
-        self.addChild(🔲)
-        
-    }
-    
-    func addSidesAndTop(){
-        let left = SKSpriteNode()
-        let right = SKSpriteNode()
-        
-        left.size = CGSize(width:size.width*0.1,height:size.height)
-        left.position = CGPoint(x:0, y:size.height*0.5)
-        
-        right.size = CGSize(width:size.width*0.1,height:size.height)
-        right.position = CGPoint(x:size.width, y:size.height*0.5)
-        
-        for obj in [left,right]{
-            obj.color = UIColor.black
-            obj.physicsBody = SKPhysicsBody(rectangleOf:obj.size)
-            obj.physicsBody?.isDynamic = true
-            obj.physicsBody?.pinned = true
-            obj.physicsBody?.allowsRotation = false
-            self.addChild(obj)
-        }
-    }
-    
-    func addBackground(){
-        // please declare bg as a class level variable
-        let bg = SKSpriteNode(imageNamed: "8bit_space")
-        bg.position = CGPoint(x: 200, y: size.height * 0.5)
-        self.addChild(bg)
-    }
-    
 //  MARK: Monster Example
     func addAlien() {
-
-        // Create sprite
         let alien = SKSpriteNode(imageNamed: "alien")
         alien.scale(to: CGSize(width: 50, height: 40))
         
