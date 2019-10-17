@@ -9,6 +9,7 @@
 import UIKit
 import SpriteKit
 
+@available(iOS 10.0, *)
 class GameViewController: UIViewController {
 
     
@@ -18,9 +19,10 @@ class GameViewController: UIViewController {
 
         //setup game scene
         let scene = GameScene(size: view.bounds.size)
+        scene.gameVC_delegate = self
         let skView = view as! SKView // the view in storyboard must be an SKView
-        skView.showsFPS = true
-        skView.showsNodeCount = true
+        skView.showsFPS = false
+        skView.showsNodeCount = false
         skView.ignoresSiblingOrder = true
         scene.scaleMode = .resizeFill
         skView.presentScene(scene)
