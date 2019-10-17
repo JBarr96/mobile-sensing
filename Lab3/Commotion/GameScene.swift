@@ -16,6 +16,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var spaceship_position = CGFloat(200.0)
     let min_spaceship_position = CGFloat(50.0)
     let max_spaceship_position = CGFloat(325.0)
+    let high_score = UserDefaults.standard.integer(forKey: "high_score")
+    var game_over = false
+    
+    var gameVC_delegate: GameViewController?
 
     //@IBOutlet weak var scoreLabel: UILabel!
     
@@ -104,8 +108,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             SKAction.wait(forDuration: 1.5)
             ])
         ))
-        
-//        self.addBackground()
     }
     
     // MARK: Create Sprites Functions
@@ -230,11 +232,38 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             ammoCount -= 1
             
             if ammoCount == 0{
-                let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
-                let gameOverScene = GameOverScene(size: self.size, score: self.score)
-                view?.presentScene(gameOverScene, transition: reveal)
+                self.gameDidEnd()
             }
         }
+    }
+    
+    func gameDidEnd() {
+        var message = "Game Over\n"
+        if self.score > self.high_score{
+            message += "New High Score!\n"
+            UserDefaults.standard.set(self.score, forKey: "high_score")
+        }
+        message += "Score: \(self.score)\nKeep walking!"
+        
+        let label = SKLabelNode()
+        if #available(iOS 11.0, *) {
+            label.numberOfLines = 0
+        }
+        label.text = message
+        label.fontSize = 40
+        label.fontColor = SKColor.white
+        label.position = CGPoint(x: size.width/2, y: size.height/2)
+        addChild(label)
+        
+        let message2 = "Tap anywhere to exit"
+        let label2 = SKLabelNode()
+        label2.text = message2
+        label2.fontSize = 20
+        label2.fontColor = SKColor.white
+        label2.position = CGPoint(x: size.width/2, y: size.height/2 - 100)
+        addChild(label2)
+        
+        game_over = true
     }
     
     func laserDidCollideWithAlien(laser: SKSpriteNode, alien: SKSpriteNode) {
@@ -247,12 +276,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         laser.removeFromParent()
     }
     
-    // MARK: =====Delegate Functions=====
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         if #available(iOS 11.0, *) {
-            self.fireLaser()
-        } else {
-            // Fallback on earlier versions
+            if(!game_over){
+                self.fireLaser()
+            }else{
+                gameVC_delegate?.dismiss(animated: true)
+            }
         }
     }
 
@@ -268,7 +298,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
            secondBody = contact.bodyA
          }
         
-         // 2
          if ((firstBody.categoryBitMask & PhysicsCategory.alien != 0) &&
              (secondBody.categoryBitMask & PhysicsCategory.laser != 0)) {
            if let alien = firstBody.node as? SKSpriteNode,
@@ -283,10 +312,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             laserDidCollideWithAsteroid(laser: laser)
           }
         }
-//        if contact.bodyA.node == spinBlock || contact.bodyB.node == spinBlock {
-//            self.score += 1
-//        }
     }
+    
+
 
     // MARK: Utility Functions (thanks ray wenderlich!)
     func random() -> CGFloat {
