@@ -79,6 +79,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         self.score = 0
         self.ammoCount = 100
+//        self.ammoCount = UserDefaults.standard.integer(forKey: "steps")
         
         run(SKAction.repeatForever(
           SKAction.sequence([
@@ -275,6 +276,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    @available(iOS 11.0, *)
     func fireLaser(){
         if ammoCount > 0 {
             let laser = SKSpriteNode(imageNamed: "laser")
@@ -297,6 +299,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             let actionMoveDone = SKAction.removeFromParent()
             laser.run(SKAction.sequence([actionMove, actionMoveDone]))
             ammoCount -= 1
+            
+            if ammoCount == 0{
+                let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
+                let gameOverScene = GameOverScene(size: self.size, score: self.score)
+                view?.presentScene(gameOverScene, transition: reveal)
+            }
         }
     }
     
@@ -312,7 +320,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: =====Delegate Functions=====
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        self.fireLaser()
+        if #available(iOS 11.0, *) {
+            self.fireLaser()
+        } else {
+            // Fallback on earlier versions
+        }
     }
 
     func didBegin(_ contact: SKPhysicsContact) {
@@ -355,4 +367,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func random(min: CGFloat, max: CGFloat) -> CGFloat {
     return random() * (max - min) + min
     }
+
 }
