@@ -12,28 +12,20 @@ import SpriteKit
 @available(iOS 10.0, *)
 class GameViewController: UIViewController {
 
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //setup game scene
+        // setup game scene
         let scene = GameScene(size: view.bounds.size)
-        scene.gameVC_delegate = self
-        let skView = view as! SKView // the view in storyboard must be an SKView
-        skView.showsFPS = false
-        skView.showsNodeCount = false
+        scene.gameVC_delegate = self        // set game scene's delegate to self
+        let skView = view as! SKView        // the view in storyboard must be an SKView
         skView.ignoresSiblingOrder = true
         scene.scaleMode = .resizeFill
         skView.presentScene(scene)
     }
 
-    
-    
     override var prefersStatusBarHidden : Bool {
         return true
     }
     
-
-
 }
