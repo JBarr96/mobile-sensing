@@ -30,6 +30,7 @@ class ViewController: UIViewController {
     
     //MARK: =====UI Elements=====
     @IBOutlet weak var stepsLabel: UILabel!
+    @IBOutlet weak var yesterdayStepsLabel: UILabel!
     @IBOutlet weak var stepGoalLabel: UILabel!
     @IBOutlet weak var isWalking: UILabel!
     
@@ -43,6 +44,7 @@ class ViewController: UIViewController {
         self.startActivityMonitoring()
         self.startPedometerMonitoring()
         self.startMotionUpdates()
+        self.setYesterdaySteps()
         
         self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
         
@@ -144,6 +146,25 @@ class ViewController: UIViewController {
     func handlePedometer(_ pedData:CMPedometerData?, error:Error?)->(){
         if let steps = pedData?.numberOfSteps {
             self.totalSteps = steps.floatValue
+        }
+    }
+    
+    func setYesterdaySteps(){
+        let calendar = Calendar(identifier: .gregorian)
+        
+        let yesterday = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: -1, to: Date())!)!
+        let today: Date = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
+        
+        print(yesterday)
+        print(today)
+        
+        self.pedometer.queryPedometerData(from: yesterday, to: today)
+        {
+            (pedData: CMPedometerData?, error: Error?) -> Void in
+
+            DispatchQueue.main.async{
+                self.yesterdayStepsLabel.text = "\(pedData!.numberOfSteps)"
+            }
         }
     }
 }
