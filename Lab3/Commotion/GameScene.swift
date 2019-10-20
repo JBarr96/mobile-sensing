@@ -21,9 +21,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     var spaceship_position = CGFloat(200.0)     // variable used to move the spaceship sprite
     let min_spaceship_position = CGFloat(50.0)  // minimum position the spaceship is allowed to move left
     let max_spaceship_position = CGFloat(325.0) // maximum position the spaceship is allowed to move right
-    let high_score = UserDefaults.standard.integer(forKey: "high_score")    // the user's all time high score in the game
     var game_over = false                       // boolean flag of whether the game is over (user has exhausted available ammo
     
+    // set the default ammo count, either from steps in stored in UserDefaults or set to 10 (if value not there)
+    let defaultAmmo: Int = {
+        if UserDefaults.standard.value(forKey: "steps") != nil{
+            return UserDefaults.standard.integer(forKey: "steps")
+        }else{
+            return 100
+        }
+    }()
+    
+    // set the user's all time high score, either stored in stored in UserDefaults or set to 0 (first time playing)
+    let high_score: Int = {
+        if UserDefaults.standard.value(forKey: "high_score") != nil{
+            return UserDefaults.standard.integer(forKey: "high_score")
+        }else{
+            return 0
+        }
+    }()
+
     var gameVC_delegate: GameViewController?    // GameViewController delegate used for dismissing GameScene
     
     // MARK: Raw Motion Functions
@@ -79,8 +96,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let ammoCountLabel = SKLabelNode()
     
     // initialize and watch ammo count variable, updating the label if the value changes
-//    var ammoCount:Int =  UserDefaults.standard.integer(forKey: "steps") {
-    var ammoCount:Int = 10 {
+    var ammoCount:Int = 100 {
         willSet(newValue){
             DispatchQueue.main.async{
                 self.ammoCountLabel.text = "Ammo: \(newValue)"
@@ -143,7 +159,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // function to add the ammo label sprite to the scene
     func addAmmoCount(){
-        ammoCountLabel.text = "Ammo: \(ammoCount)"
+        self.ammoCount = defaultAmmo
         ammoCountLabel.fontSize = 20
         ammoCountLabel.fontColor = SKColor.white
         ammoCountLabel.position = CGPoint(x: frame.midX + 125, y: frame.minY+10)
@@ -272,7 +288,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     func gameDidEnd() {
         // generate the message for ending the game (dependent on whether or not they beat their high score
         var message = "Game Over\n"
+        // if their current score is greater than their high score
         if self.score > self.high_score{
+            // add high score to the message and overwrite the high score in UserDefaults
             message += "New High Score!\n"
             UserDefaults.standard.set(self.score, forKey: "high_score")
         }
