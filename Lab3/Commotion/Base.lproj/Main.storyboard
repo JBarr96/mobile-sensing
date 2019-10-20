@@ -52,35 +52,34 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="YESTERDAY'S STEPS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVf-4M-Bn4">
-                                <rect key="frame" x="135" y="109" width="107" height="15"/>
-                                <fontDescription key="fontDescription" name="Optima-Bold" family="Optima" pointSize="12"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TODAY'S STEPS" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Pfc-NP-6T9">
                                 <rect key="frame" x="145.5" y="314.5" width="84" height="15"/>
                                 <fontDescription key="fontDescription" name="Optima-Bold" family="Optima" pointSize="12"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="YESTERDAY'S STEPS" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eVf-4M-Bn4">
+                                <rect key="frame" x="134" y="112" width="107" height="15"/>
+                                <fontDescription key="fontDescription" name="Optima-Bold" family="Optima" pointSize="12"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="eD9-Ur-UxT" firstAttribute="leading" secondItem="Crk-Z5-BcA" secondAttribute="leadingMargin" constant="97" id="0rb-6N-Z9g"/>
-                            <constraint firstItem="eD9-Ur-UxT" firstAttribute="top" secondItem="eVf-4M-Bn4" secondAttribute="bottom" constant="-67" id="2rh-aG-CNP"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="centerX" secondItem="eD9-Ur-UxT" secondAttribute="centerX" id="4Q2-vL-wZ1"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerY" secondItem="Crk-Z5-BcA" secondAttribute="centerY" constant="9.5" id="F8M-xW-hdu"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="top" secondItem="eD9-Ur-UxT" secondAttribute="bottom" constant="-83" id="KOW-HW-yXB"/>
-                            <constraint firstItem="K9K-d2-psJ" firstAttribute="leading" secondItem="Crk-Z5-BcA" secondAttribute="leadingMargin" constant="119" id="Pru-6e-i8O"/>
-                            <constraint firstAttribute="trailingMargin" secondItem="K9K-d2-psJ" secondAttribute="trailing" constant="119" id="Szd-wh-ky1"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="Vj4-Ym-n8o"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="top" secondItem="Pfc-NP-6T9" secondAttribute="bottom" constant="-1.5" id="X46-Rc-tuc"/>
+                            <constraint firstItem="K9K-d2-psJ" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="X77-Ee-nmU"/>
+                            <constraint firstItem="Cl2-yC-Nfz" firstAttribute="top" secondItem="eVf-4M-Bn4" secondAttribute="bottom" constant="-4" id="bRN-Sx-52r"/>
                             <constraint firstItem="eD9-Ur-UxT" firstAttribute="top" secondItem="Rth-mZ-lFQ" secondAttribute="bottom" constant="37" id="cMI-Iw-bVK"/>
                             <constraint firstItem="sLI-Jb-ZMf" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="eIK-7L-fgo"/>
                             <constraint firstItem="Pfc-NP-6T9" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="g5o-c7-RlA"/>
                             <constraint firstItem="sLI-Jb-ZMf" firstAttribute="top" secondItem="SOn-df-djo" secondAttribute="bottom" constant="45.5" id="ide-sw-KCn"/>
-                            <constraint firstItem="eVf-4M-Bn4" firstAttribute="leading" secondItem="eD9-Ur-UxT" secondAttribute="trailing" constant="-127" id="rdN-NC-K3h"/>
+                            <constraint firstItem="eVf-4M-Bn4" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="pTn-5T-VIl"/>
                             <constraint firstItem="LEC-Ea-StM" firstAttribute="top" secondItem="K9K-d2-psJ" secondAttribute="bottom" constant="107" id="uXf-rr-Zt1"/>
                             <constraint firstAttribute="trailingMargin" secondItem="eD9-Ur-UxT" secondAttribute="trailing" constant="97" id="xxV-3a-q6c"/>
                         </constraints>

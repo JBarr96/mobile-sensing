@@ -18,6 +18,7 @@ class ViewController: UIViewController {
     
     let circleProgressLayer = CAShapeLayer()
     let stepGoal:Float = 10000
+    var previousStepsToday:Float = 0.0
     
     var totalSteps: Float = 0.0 {
         willSet(newtotalSteps){
@@ -40,11 +41,10 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
 
-        self.totalSteps = 0.0
         self.startActivityMonitoring()
         self.startPedometerMonitoring()
         self.startMotionUpdates()
-        self.setYesterdaySteps()
+        self.setHistoricSteps()
         
         self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
         
@@ -145,19 +145,25 @@ class ViewController: UIViewController {
     //ped handler
     func handlePedometer(_ pedData:CMPedometerData?, error:Error?)->(){
         if let steps = pedData?.numberOfSteps {
-            self.totalSteps = steps.floatValue
+            self.totalSteps = self.previousStepsToday + steps.floatValue
         }
     }
     
-    func setYesterdaySteps(){
+    func setHistoricSteps(){
         let calendar = Calendar(identifier: .gregorian)
         
         let yesterday = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: calendar.date(byAdding: .day, value: -1, to: Date())!)!
         let today: Date = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: Date())!
         
-        print(yesterday)
-        print(today)
+        // query for steps previously taken today
+        self.pedometer.queryPedometerData(from: today, to: Date())
+        {
+            (pedData: CMPedometerData?, error: Error?) -> Void in
+            self.previousStepsToday = Float(truncating: pedData!.numberOfSteps)
+            self.totalSteps = self.previousStepsToday
+        }
         
+        // set for steps taken yesterday
         self.pedometer.queryPedometerData(from: yesterday, to: today)
         {
             (pedData: CMPedometerData?, error: Error?) -> Void in
