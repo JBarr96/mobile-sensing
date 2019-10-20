@@ -70,6 +70,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="isWalking" destination="K9K-d2-psJ" id="z5U-WP-DlD"/>
                         <outlet property="stepGoalLabel" destination="sLI-Jb-ZMf" id="Y99-Rp-6At"/>
                         <outlet property="stepsLabel" destination="SOn-df-djo" id="bls-3e-b7T"/>
                     </connections>

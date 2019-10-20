@@ -22,16 +22,16 @@ class ViewController: UIViewController {
     var totalSteps: Float = 0.0 {
         willSet(newtotalSteps){
             DispatchQueue.main.async{
-                self.stepsLabel.text = String(format: "%.0f", locale: Locale.current, 10000.0)
+                self.stepsLabel.text = String(format: "%.0f", locale: Locale.current, newtotalSteps)
                 self.circleProgressLayer.strokeEnd = CGFloat(newtotalSteps / self.stepGoal)
             }
         }
     }
     
     //MARK: =====UI Elements=====
-    @IBOutlet weak var isWalking: UILabel!
     @IBOutlet weak var stepsLabel: UILabel!
     @IBOutlet weak var stepGoalLabel: UILabel!
+    @IBOutlet weak var isWalking: UILabel!
     
     
     //MARK: =====View Lifecycle=====
@@ -82,7 +82,6 @@ class ViewController: UIViewController {
     func startMotionUpdates(){
         // some internal inconsistency here: we need to ask the device manager for device 
         
-        // TODO: should we be doing this from the MAIN queue? You will need to fix that!!!....
         if self.motion.isDeviceMotionAvailable{
 //            self.motion.startDeviceMotionUpdates(to: OperationQueue.main,
 //                                                 withHandler: self.handleMotion)
@@ -110,7 +109,24 @@ class ViewController: UIViewController {
         // unwrap the activity and disp
         if let unwrappedActivity = activity {
             DispatchQueue.main.async{
-                // self.isWalking.text = "Walking: \(unwrappedActivity.walking)\n Still: \(unwrappedActivity.stationary)"
+                if unwrappedActivity.unknown {
+                    self.isWalking.text = "🤷"
+                }
+                else if unwrappedActivity.stationary {
+                    self.isWalking.text = "🧑"
+                }
+                else if unwrappedActivity.walking {
+                    self.isWalking.text = "🚶"
+                }
+                else if unwrappedActivity.running {
+                    self.isWalking.text = "🏃"
+                }
+                else if unwrappedActivity.cycling {
+                    self.isWalking.text = "🚴"
+                }
+                else if unwrappedActivity.automotive {
+                    self.isWalking.text = "🏎️"
+                }
             }
         }
     }
@@ -130,7 +146,4 @@ class ViewController: UIViewController {
             self.totalSteps = steps.floatValue
         }
     }
-
-
 }
-
