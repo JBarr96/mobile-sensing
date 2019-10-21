@@ -15,9 +15,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
     let activityManager = CMMotionActivityManager()
     let pedometer = CMPedometer()
     let motion = CMMotionManager()
+    let defaults = UserDefaults.standard
     
     let circleProgressLayer = CAShapeLayer()
-    var stepGoal:Float = 10000
+    var stepGoal:Float = 5000
     var previousStepsToday:Float = 0.0
     
     var totalSteps: Float = 0.0 {
@@ -45,8 +46,6 @@ class ViewController: UIViewController, UITextFieldDelegate {
         self.startPedometerMonitoring()
         self.startMotionUpdates()
         self.setHistoricSteps()
-        
-        self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
         
         let circularPath = UIBezierPath(arcCenter: view.center, radius: 80, startAngle: -5 * CGFloat.pi / 4, endAngle: -7 * CGFloat.pi / 4, clockwise: true)
         
@@ -77,6 +76,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
 //        circleProgressLayer.add(basicAnimation, forKey: "basic")
         
         view.layer.addSublayer(circleProgressLayer)
+        
+        if let oldStepGoal = defaults.value(forKey: "stepGoal") {
+            self.setStepGoal(newStepGoal: oldStepGoal as! Float)
+        }
+        else {
+            self.setStepGoal(newStepGoal: self.stepGoal)
+        }
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
@@ -152,6 +158,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    func setStepGoal(newStepGoal: Float) {
+        self.stepGoal = newStepGoal
+        self.defaults.set(newStepGoal, forKey: "stepGoal")
+        
+        // update ui based on new goal
+        self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
+        self.circleProgressLayer.strokeEnd = CGFloat(self.totalSteps / self.stepGoal)
+    }
+    
     func setHistoricSteps(){
         let calendar = Calendar(identifier: .gregorian)
         
@@ -186,10 +201,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             let newStepGoal = Float(textField.text!)
             
             if newStepGoal != nil {
-                self.stepGoal = newStepGoal!
-                
-                self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
-                self.circleProgressLayer.strokeEnd = CGFloat(self.totalSteps / self.stepGoal)
+                self.setStepGoal(newStepGoal: newStepGoal!)
             }
             else {
                 textField.text = ""
