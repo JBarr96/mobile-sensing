@@ -79,6 +79,14 @@
                                     <outlet property="delegate" destination="HR3-LR-QXW" id="Rq3-1b-4NP"/>
                                 </connections>
                             </textField>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RA6-Va-5sM">
+                                <rect key="frame" x="146" y="617" width="82" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Go to Game"/>
+                                <connections>
+                                    <segue destination="uAs-2Q-GOu" kind="presentation" id="kHT-Vh-vnX"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <gestureRecognizers/>
@@ -110,6 +118,7 @@
                         </connections>
                     </view>
                     <connections>
+                        <outlet property="gameLaunchButton" destination="RA6-Va-5sM" id="aIP-Kb-DoL"/>
                         <outlet property="isWalking" destination="K9K-d2-psJ" id="z5U-WP-DlD"/>
                         <outlet property="newGoalTextField" destination="8GL-0O-78y" id="oQT-E4-8tm"/>
                         <outlet property="searchDisplayController" destination="zqd-5Q-B2p" id="zUj-OE-gMq"/>
@@ -133,38 +142,7 @@
                     </connections>
                 </tapGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="564" y="286.50674662668666"/>
-        </scene>
-        <!--View Controller-->
-        <scene sceneID="SfV-er-wDU">
-            <objects>
-                <viewController id="5T7-yh-7UU" sceneMemberID="viewController">
-                    <layoutGuides>
-                        <viewControllerLayoutGuide type="top" id="tkT-Za-cdb"/>
-                        <viewControllerLayoutGuide type="bottom" id="AHw-dI-u7x"/>
-                    </layoutGuides>
-                    <view key="view" contentMode="scaleToFill" id="mfP-ft-J2H">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PRh-0k-R5s">
-                                <rect key="frame" x="146.5" y="318.5" width="82" height="30"/>
-                                <state key="normal" title="Go to Game"/>
-                                <connections>
-                                    <segue destination="uAs-2Q-GOu" kind="presentation" id="mU4-m8-fwE"/>
-                                </connections>
-                            </button>
-                        </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <constraints>
-                            <constraint firstItem="PRh-0k-R5s" firstAttribute="centerY" secondItem="mfP-ft-J2H" secondAttribute="centerY" id="DeB-Ak-dEl"/>
-                            <constraint firstItem="PRh-0k-R5s" firstAttribute="centerX" secondItem="mfP-ft-J2H" secondAttribute="centerX" id="m8o-IH-YDM"/>
-                        </constraints>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="irr-YJ-OhC" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-388" y="978"/>
+            <point key="canvasLocation" x="-279" y="994"/>
         </scene>
         <!--Game View Controller-->
         <scene sceneID="rB5-LK-c32">

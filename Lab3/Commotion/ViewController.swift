@@ -26,6 +26,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
             DispatchQueue.main.async{
                 self.stepsLabel.text = String(format: "%.0f", locale: Locale.current, newtotalSteps)
                 self.circleProgressLayer.strokeEnd = CGFloat(newtotalSteps / self.stepGoal)
+                
+                if newtotalSteps >= self.stepGoal {
+                    self.defaults.set(newtotalSteps, forKey: "steps")
+                    self.gameLaunchButton.isHidden = false
+                }
             }
         }
     }
@@ -36,15 +41,17 @@ class ViewController: UIViewController, UITextFieldDelegate {
     @IBOutlet weak var stepGoalLabel: UILabel!
     @IBOutlet weak var isWalking: UILabel!
     @IBOutlet weak var newGoalTextField: UITextField!
+    @IBOutlet weak var gameLaunchButton: UIButton!
     
     //MARK: =====View Lifecycle=====
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        // hide the button that launches the game
+        self.gameLaunchButton.isHidden = true
 
         self.startActivityMonitoring()
         self.startPedometerMonitoring()
-        self.startMotionUpdates()
         self.setHistoricSteps()
         
         let circularPath = UIBezierPath(arcCenter: view.center, radius: 80, startAngle: -5 * CGFloat.pi / 4, endAngle: -7 * CGFloat.pi / 4, clockwise: true)
@@ -88,29 +95,10 @@ class ViewController: UIViewController, UITextFieldDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
     }
     
-    
-    // MARK: =====Raw Motion Functions=====
-    func startMotionUpdates(){
-        // some internal inconsistency here: we need to ask the device manager for device 
-        
-        if self.motion.isDeviceMotionAvailable{
-//            self.motion.startDeviceMotionUpdates(to: OperationQueue.main,
-//                                                 withHandler: self.handleMotion)
-        }
-    }
-    
-    func handleMotion(_ motionData:CMDeviceMotion?, error:Error?){
-        if let gravity = motionData?.gravity {
-            let rotation = atan2(gravity.x, gravity.y) - Double.pi
-            self.isWalking.transform = CGAffineTransform(rotationAngle: CGFloat(rotation))
-        }
-    }
-    
     // MARK: =====Activity Methods=====
     func startActivityMonitoring(){
         // is activity is available
         if CMMotionActivityManager.isActivityAvailable(){
-            // update from this queue (should we use the MAIN queue here??.... )
             self.activityManager.startActivityUpdates(to: OperationQueue.main, withHandler: self.handleActivity)
         }
         
@@ -165,6 +153,15 @@ class ViewController: UIViewController, UITextFieldDelegate {
         // update ui based on new goal
         self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
         self.circleProgressLayer.strokeEnd = CGFloat(self.totalSteps / self.stepGoal)
+        
+        // check if new goal was reached
+        if self.totalSteps >= self.stepGoal {
+            self.defaults.set(self.totalSteps, forKey: "steps")
+            self.gameLaunchButton.isHidden = false
+        }
+        else {
+            self.gameLaunchButton.isHidden = true
+        }
     }
     
     func setHistoricSteps(){
