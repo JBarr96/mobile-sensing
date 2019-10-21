@@ -64,34 +64,74 @@
                                 <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Set New Goal" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rHY-lU-tSf">
+                                <rect key="frame" x="30" y="587" width="103" height="21"/>
+                                <fontDescription key="fontDescription" name="Optima-Regular" family="Optima" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="8GL-0O-78y">
+                                <rect key="frame" x="144" y="583" width="206" height="30"/>
+                                <nil key="textColor"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" keyboardType="numbersAndPunctuation" returnKeyType="done" smartDashesType="no" smartInsertDeleteType="no" smartQuotesType="no"/>
+                                <connections>
+                                    <outlet property="delegate" destination="HR3-LR-QXW" id="Rq3-1b-4NP"/>
+                                </connections>
+                            </textField>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <gestureRecognizers/>
                         <constraints>
                             <constraint firstItem="eD9-Ur-UxT" firstAttribute="leading" secondItem="Crk-Z5-BcA" secondAttribute="leadingMargin" constant="97" id="0rb-6N-Z9g"/>
+                            <constraint firstAttribute="trailing" secondItem="8GL-0O-78y" secondAttribute="trailing" constant="25" id="4Ba-0W-pKJ"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="centerX" secondItem="eD9-Ur-UxT" secondAttribute="centerX" id="4Q2-vL-wZ1"/>
+                            <constraint firstItem="8GL-0O-78y" firstAttribute="leading" secondItem="rHY-lU-tSf" secondAttribute="trailing" constant="11" id="8wI-Ys-XUH"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerY" secondItem="Crk-Z5-BcA" secondAttribute="centerY" constant="9.5" id="F8M-xW-hdu"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="top" secondItem="eD9-Ur-UxT" secondAttribute="bottom" constant="-83" id="KOW-HW-yXB"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="Vj4-Ym-n8o"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="top" secondItem="Pfc-NP-6T9" secondAttribute="bottom" constant="-1.5" id="X46-Rc-tuc"/>
                             <constraint firstItem="K9K-d2-psJ" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="X77-Ee-nmU"/>
+                            <constraint firstItem="8GL-0O-78y" firstAttribute="top" secondItem="K9K-d2-psJ" secondAttribute="bottom" constant="23" id="a2W-2u-yCQ"/>
+                            <constraint firstItem="LEC-Ea-StM" firstAttribute="top" secondItem="8GL-0O-78y" secondAttribute="bottom" constant="54" id="b3p-Xh-enE"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="top" secondItem="eVf-4M-Bn4" secondAttribute="bottom" constant="-4" id="bRN-Sx-52r"/>
                             <constraint firstItem="eD9-Ur-UxT" firstAttribute="top" secondItem="Rth-mZ-lFQ" secondAttribute="bottom" constant="37" id="cMI-Iw-bVK"/>
+                            <constraint firstItem="LEC-Ea-StM" firstAttribute="top" secondItem="rHY-lU-tSf" secondAttribute="bottom" constant="59" id="cv8-nS-Pa0"/>
                             <constraint firstItem="sLI-Jb-ZMf" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="eIK-7L-fgo"/>
                             <constraint firstItem="Pfc-NP-6T9" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="g5o-c7-RlA"/>
                             <constraint firstItem="sLI-Jb-ZMf" firstAttribute="top" secondItem="SOn-df-djo" secondAttribute="bottom" constant="45.5" id="ide-sw-KCn"/>
                             <constraint firstItem="eVf-4M-Bn4" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="pTn-5T-VIl"/>
+                            <constraint firstItem="K9K-d2-psJ" firstAttribute="leading" secondItem="rHY-lU-tSf" secondAttribute="trailing" constant="2" id="sGJ-Ua-wKS"/>
                             <constraint firstItem="LEC-Ea-StM" firstAttribute="top" secondItem="K9K-d2-psJ" secondAttribute="bottom" constant="107" id="uXf-rr-Zt1"/>
                             <constraint firstAttribute="trailingMargin" secondItem="eD9-Ur-UxT" secondAttribute="trailing" constant="97" id="xxV-3a-q6c"/>
                         </constraints>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="15H-gA-pDz" appends="YES" id="eHE-Yr-Eaa"/>
+                        </connections>
                     </view>
                     <connections>
                         <outlet property="isWalking" destination="K9K-d2-psJ" id="z5U-WP-DlD"/>
+                        <outlet property="newGoalTextField" destination="8GL-0O-78y" id="oQT-E4-8tm"/>
+                        <outlet property="searchDisplayController" destination="zqd-5Q-B2p" id="zUj-OE-gMq"/>
                         <outlet property="stepGoalLabel" destination="sLI-Jb-ZMf" id="Y99-Rp-6At"/>
                         <outlet property="stepsLabel" destination="SOn-df-djo" id="bls-3e-b7T"/>
                         <outlet property="yesterdayStepsLabel" destination="Cl2-yC-Nfz" id="gEw-jR-Qcp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="R00-Lp-6La" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                <searchDisplayController id="zqd-5Q-B2p">
+                    <connections>
+                        <outlet property="delegate" destination="HR3-LR-QXW" id="C9l-8b-bEy"/>
+                        <outlet property="searchContentsController" destination="HR3-LR-QXW" id="2mx-R7-VJw"/>
+                        <outlet property="searchResultsDataSource" destination="HR3-LR-QXW" id="Uti-lX-e4M"/>
+                        <outlet property="searchResultsDelegate" destination="HR3-LR-QXW" id="i6X-Np-kVR"/>
+                    </connections>
+                </searchDisplayController>
+                <tapGestureRecognizer id="15H-gA-pDz">
+                    <connections>
+                        <action selector="didTapMainView:" destination="HR3-LR-QXW" id="9Wp-Vs-Iod"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
             <point key="canvasLocation" x="564" y="286.50674662668666"/>
         </scene>

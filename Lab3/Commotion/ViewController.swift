@@ -9,7 +9,7 @@
 import UIKit
 import CoreMotion
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, UITextFieldDelegate {
     
     //MARK: =====class variables=====
     let activityManager = CMMotionActivityManager()
@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     let motion = CMMotionManager()
     
     let circleProgressLayer = CAShapeLayer()
-    let stepGoal:Float = 10000
+    var stepGoal:Float = 10000
     var previousStepsToday:Float = 0.0
     
     var totalSteps: Float = 0.0 {
@@ -34,7 +34,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var yesterdayStepsLabel: UILabel!
     @IBOutlet weak var stepGoalLabel: UILabel!
     @IBOutlet weak var isWalking: UILabel!
-    
+    @IBOutlet weak var newGoalTextField: UITextField!
     
     //MARK: =====View Lifecycle=====
     override func viewDidLoad() {
@@ -77,6 +77,9 @@ class ViewController: UIViewController {
 //        circleProgressLayer.add(basicAnimation, forKey: "basic")
         
         view.layer.addSublayer(circleProgressLayer)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
     }
     
     
@@ -172,5 +175,45 @@ class ViewController: UIViewController {
                 self.yesterdayStepsLabel.text = "\(pedData!.numberOfSteps)"
             }
         }
+    }
+    
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        textField.text = ""
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField.text != nil {
+            let newStepGoal = Float(textField.text!)
+            
+            if newStepGoal != nil {
+                self.stepGoal = newStepGoal!
+                
+                self.stepGoalLabel.text = "GOAL: \(String(format: "%.0f", locale: Locale.current, self.stepGoal))"
+                self.circleProgressLayer.strokeEnd = CGFloat(self.totalSteps / self.stepGoal)
+            }
+            else {
+                textField.text = ""
+            }
+        }
+        
+        textField.resignFirstResponder()
+        return true
+    }
+    
+    @objc func keyboardWillShow(_ notification: Notification) {
+        if let keyboardFrame: NSValue = notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue {
+            let keyboardRectangle = keyboardFrame.cgRectValue
+            let keyboardHeight = keyboardRectangle.height
+            
+            view.frame.origin.y = -1 * keyboardHeight
+        }
+    }
+    
+    @objc func keyboardWillHide(_ notification: Notification) {
+            view.frame.origin.y = 0
+    }
+    
+    @IBAction func didTapMainView(_ sender: Any) {
+        self.newGoalTextField.resignFirstResponder()
     }
 }
