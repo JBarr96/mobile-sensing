@@ -26,9 +26,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     // set the default ammo count, either from steps in stored in UserDefaults or set to 10 (if value not there)
     let defaultAmmo: Int = {
         if UserDefaults.standard.value(forKey: "steps") != nil{
-            return UserDefaults.standard.integer(forKey: "steps")
+            return UserDefaults.standard.integer(forKey: "steps")/100
         }else{
-            return 100
+            return 10
         }
     }()
     
