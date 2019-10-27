@@ -76,9 +76,8 @@
                                     <outlet property="delegate" destination="HR3-LR-QXW" id="Rq3-1b-4NP"/>
                                 </connections>
                             </textField>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RA6-Va-5sM">
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RA6-Va-5sM">
                                 <rect key="frame" x="146" y="617" width="82" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="Go to Game"/>
                                 <connections>
                                     <segue destination="uAs-2Q-GOu" kind="presentation" id="kHT-Vh-vnX"/>
@@ -90,10 +89,13 @@
                         <constraints>
                             <constraint firstItem="eD9-Ur-UxT" firstAttribute="leading" secondItem="Crk-Z5-BcA" secondAttribute="leadingMargin" constant="97" id="0rb-6N-Z9g"/>
                             <constraint firstAttribute="trailing" secondItem="8GL-0O-78y" secondAttribute="trailing" constant="25" id="4Ba-0W-pKJ"/>
+                            <constraint firstItem="RA6-Va-5sM" firstAttribute="leading" secondItem="Crk-Z5-BcA" secondAttribute="leading" constant="146" id="4PO-iR-eGt"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="centerX" secondItem="eD9-Ur-UxT" secondAttribute="centerX" id="4Q2-vL-wZ1"/>
                             <constraint firstItem="8GL-0O-78y" firstAttribute="leading" secondItem="rHY-lU-tSf" secondAttribute="trailing" constant="11" id="8wI-Ys-XUH"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerY" secondItem="Crk-Z5-BcA" secondAttribute="centerY" constant="9.5" id="F8M-xW-hdu"/>
                             <constraint firstItem="Cl2-yC-Nfz" firstAttribute="top" secondItem="eD9-Ur-UxT" secondAttribute="bottom" constant="-83" id="KOW-HW-yXB"/>
+                            <constraint firstAttribute="trailing" secondItem="RA6-Va-5sM" secondAttribute="trailing" constant="147" id="Lqi-Y2-P53"/>
+                            <constraint firstItem="RA6-Va-5sM" firstAttribute="top" secondItem="8GL-0O-78y" secondAttribute="bottom" constant="4" id="P8A-nO-qbI"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="Vj4-Ym-n8o"/>
                             <constraint firstItem="SOn-df-djo" firstAttribute="top" secondItem="Pfc-NP-6T9" secondAttribute="bottom" constant="-1.5" id="X46-Rc-tuc"/>
                             <constraint firstItem="K9K-d2-psJ" firstAttribute="centerX" secondItem="Crk-Z5-BcA" secondAttribute="centerX" id="X77-Ee-nmU"/>

@@ -24,9 +24,11 @@ class ViewController: UIViewController, UITextFieldDelegate {
     var totalSteps: Float = 0.0 {
         willSet(newtotalSteps){
             DispatchQueue.main.async{
+                // update ui based on new step count
                 self.stepsLabel.text = String(format: "%.0f", locale: Locale.current, newtotalSteps)
                 self.circleProgressLayer.strokeEnd = CGFloat(newtotalSteps / self.stepGoal)
                 
+                // check if current number of steps has reach goal
                 if newtotalSteps >= self.stepGoal {
                     self.defaults.set(newtotalSteps, forKey: "steps")
                     self.gameLaunchButton.isHidden = false
@@ -56,7 +58,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         let circularPath = UIBezierPath(arcCenter: view.center, radius: 80, startAngle: -5 * CGFloat.pi / 4, endAngle: -7 * CGFloat.pi / 4, clockwise: true)
         
-        // create track layer
+        // create track layer for progress bar
         let trackLayer = CAShapeLayer()
         trackLayer.path = circularPath.cgPath
         trackLayer.strokeColor = UIColor.lightGray.cgColor
@@ -66,24 +68,16 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
         view.layer.addSublayer(trackLayer)
         
+        // create progress layer for progress bar
         circleProgressLayer.path        = circularPath.cgPath
         circleProgressLayer.strokeColor = UIColor.purple.cgColor
         circleProgressLayer.lineWidth   = 20
         circleProgressLayer.fillColor   = UIColor.clear.cgColor
         circleProgressLayer.lineCap     = kCALineCapRound
-//        circleProgressLayer.strokeEnd   = 0
-//
-//        // add initial animation to circle progress bar
-//        let basicAnimation = CABasicAnimation(keyPath: "strokeEnd")
-//        basicAnimation.toValue = 0.5
-//        basicAnimation.duration = 0.75
-//        basicAnimation.fillMode = kCAFillModeForwards
-//        basicAnimation.isRemovedOnCompletion = false
-//
-//        circleProgressLayer.add(basicAnimation, forKey: "basic")
         
         view.layer.addSublayer(circleProgressLayer)
         
+        // retrieve persisted goal
         if let oldStepGoal = defaults.value(forKey: "stepGoal") {
             self.setStepGoal(newStepGoal: oldStepGoal as! Float)
         }
@@ -91,6 +85,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
             self.setStepGoal(newStepGoal: self.stepGoal)
         }
         
+        // notification for keyboard show and hide
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: .UIKeyboardWillShow, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: .UIKeyboardWillHide, object: nil)
     }
@@ -104,6 +99,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         
     }
     
+    // handle change in pedometer activity
     func handleActivity(_ activity:CMMotionActivity?)->Void{
         // unwrap the activity and disp
         if let unwrappedActivity = activity {
@@ -146,6 +142,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // update the step goal
     func setStepGoal(newStepGoal: Float) {
         self.stepGoal = newStepGoal
         self.defaults.set(newStepGoal, forKey: "stepGoal")
@@ -164,6 +161,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // retrieve historical pedometer data
     func setHistoricSteps(){
         let calendar = Calendar(identifier: .gregorian)
         
@@ -189,10 +187,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // clear textfield before editing
     func textFieldDidBeginEditing(_ textField: UITextField) {
         textField.text = ""
     }
     
+    // handle the press of the return button after filling the text field
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         if textField.text != nil {
             let newStepGoal = Float(textField.text!)
@@ -209,6 +209,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
         return true
     }
     
+    // shift ui up if keyboard is onn
     @objc func keyboardWillShow(_ notification: Notification) {
         if let keyboardFrame: NSValue = notification.userInfo?[UIKeyboardFrameEndUserInfoKey] as? NSValue {
             let keyboardRectangle = keyboardFrame.cgRectValue
@@ -218,10 +219,12 @@ class ViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    // shift ui down when keyboard disapears
     @objc func keyboardWillHide(_ notification: Notification) {
             view.frame.origin.y = 0
     }
     
+    // hide keyboard on tap
     @IBAction func didTapMainView(_ sender: Any) {
         self.newGoalTextField.resignFirstResponder()
     }
