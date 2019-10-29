@@ -53,48 +53,40 @@ class FacialViewController: UIViewController   {
         // if no faces, just return original image
         if faces.count == 0 { return inputImage }
         
-        var retImage = applyFiltersToFaces(inputImage: inputImage, features: faces)
+        let retImage = applyFiltersToFaces(inputImage: inputImage, faces: faces)
         
         return retImage
     }
     
-    //MARK: Setup filtering
-    func setupFilters(){
-        filters = []
-        
-        let filterPinch = CIFilter(name:"CIBumpDistortion")!
-        filterPinch.setValue(-0.5, forKey: "inputScale")
-        filterPinch.setValue(75, forKey: "inputRadius")
-        filters.append(filterPinch)
-        
-    }
-    
     //MARK: Apply filters and apply feature detectors
-    func applyFiltersToFaces(inputImage:CIImage,features:[CIFaceFeature])->CIImage{
+    func applyFiltersToFaces(inputImage:CIImage,faces:[CIFaceFeature])->CIImage{
         var retImage = inputImage
         var filterCenter = CGPoint()
         
-        for f in features {
+        var faceCount = 1
+        
+        for face in faces {
             //set where to apply filter
-            filterCenter.x = f.bounds.midX
-            filterCenter.y = f.bounds.midY
+            filterCenter.x = face.bounds.midX
+            filterCenter.y = face.bounds.midY
             
             // both eyes closed
-            if !(f.hasLeftEyePosition && f.hasRightEyePosition){
+            if face.leftEyeClosed && face.rightEyeClosed{
                 
             }else{
                 // if they have a left eye position
-                if f.hasLeftEyePosition{
-                    retImage = applyFiltersToEye(inputImage: retImage, eyePosition: f.leftEyePosition)
+                if !face.leftEyeClosed && face.hasLeftEyePosition{
+                    print("")
+                    retImage = applyFiltersToEye(inputImage: retImage, eyePosition: face.leftEyePosition)
                 }
                 // otherwise they are blinking with their left eye
                 else{
-                    
+                    print("Left blink")
                 }
                 
                 // if they have a right eye position
-                if f.hasRightEyePosition{
-                    retImage = applyFiltersToEye(inputImage: retImage, eyePosition: f.rightEyePosition)
+                if !face.rightEyeClosed && face.hasRightEyePosition{
+                    retImage = applyFiltersToEye(inputImage: retImage, eyePosition: face.rightEyePosition)
                 }
                 // otherwise they are blinkin with their right eye
                 else{
@@ -102,37 +94,52 @@ class FacialViewController: UIViewController   {
                 }
             }
             
-            if f.hasMouthPosition{
-                retImage = applyFiltersToMouth(inputImage: retImage, mouthPosition: f.mouthPosition, smile: f.hasSmile)
+            if face.hasMouthPosition{
+                retImage = applyFiltersToMouth(inputImage: retImage, mouthPosition: face.mouthPosition, smiling: face.hasSmile)
             }
             
-            let faceFilter = CIFilter(name:"CIBumpDistortion")!
-            faceFilter.setValue(0.5, forKey: "inputScale")
-            faceFilter.setValue(75, forKey: "inputRadius")
+            let faceFilter = CIFilter(name:"CITwirlDistortion")!
             faceFilter.setValue(CIVector(cgPoint: filterCenter), forKey: "inputCenter")
+            faceFilter.setValue(95, forKey: "inputRadius")
+            faceFilter.setValue(0.75, forKey: "inputAngle")
             faceFilter.setValue(retImage, forKey: kCIInputImageKey)
-            
-            // could also manipualte the radius of the filter based on face size!
             retImage = faceFilter.outputImage!
+            
+            faceCount += 1
         }
         return retImage
     }
     
     func applyFiltersToEye(inputImage:CIImage, eyePosition:CGPoint)->CIImage{
-        var retImage = inputImage
-        
-        let eyeFilter = CIFilter(name: "CIBumpDistortion")
-        return retImage
+        let eyeFilter = CIFilter(name:"CIBumpDistortion")!
+        eyeFilter.setValue(inputImage, forKey: kCIInputImageKey)
+        eyeFilter.setValue(CIVector(cgPoint: eyePosition), forKey: "inputCenter")
+        eyeFilter.setValue(0.5, forKey: "inputScale")
+        eyeFilter.setValue(50, forKey: "inputRadius")
+
+        return eyeFilter.outputImage!
     }
     
-    func applyFiltersToMouth(inputImage:CIImage, mouthPosition: CGPoint, smile: Bool)->CIImage{
-        var retImage = inputImage
-        return retImage
+    func applyFiltersToMouth(inputImage:CIImage, mouthPosition: CGPoint, smiling: Bool)->CIImage{
+        let mouthFilter = CIFilter(name:"CIBumpDistortion")!
+        mouthFilter.setValue(50, forKey: "inputRadius")
+        
+        if smiling{
+            mouthFilter.setValue(1, forKey: "inputScale")
+        }else{
+            mouthFilter.setValue(-1, forKey: "inputScale")
+        }
+        
+        mouthFilter.setValue(inputImage, forKey: kCIInputImageKey)
+        mouthFilter.setValue(CIVector(cgPoint: mouthPosition), forKey: "inputCenter")
+        
+
+        return mouthFilter.outputImage!
     }
     
     func getFaces(img:CIImage) -> [CIFaceFeature]{
         // this ungodly mess makes sure the image is the correct orientation
-        let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation]
+        let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation, CIDetectorSmile: true, CIDetectorEyeBlink: true] as [String : Any]
         // get Face Features
         return self.detector.features(in: img, options: optsFace) as! [CIFaceFeature]
         
