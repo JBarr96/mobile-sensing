@@ -17,6 +17,7 @@ class FacialViewController: UIViewController   {
     let pinchFilterIndex = 2
     var detector:CIDetector! = nil
     let bridge = OpenCVBridge()
+    @IBOutlet weak var detailLabel: UILabel!
     
     //MARK: ViewController Hierarchy
     override func viewDidLoad() {
@@ -62,6 +63,7 @@ class FacialViewController: UIViewController   {
     func applyFiltersToFaces(inputImage:CIImage,faces:[CIFaceFeature])->CIImage{
         var retImage = inputImage
         var filterCenter = CGPoint()
+        var labelString = ""
         
         var faceCount = 1
         
@@ -72,16 +74,15 @@ class FacialViewController: UIViewController   {
             
             // both eyes closed
             if face.leftEyeClosed && face.rightEyeClosed{
-                
+                labelString += "Person \(faceCount) is blinking with BOTH eyes\n"
             }else{
                 // if they have a left eye position
                 if !face.leftEyeClosed && face.hasLeftEyePosition{
-                    print("")
                     retImage = applyFiltersToEye(inputImage: retImage, eyePosition: face.leftEyePosition)
                 }
                 // otherwise they are blinking with their left eye
                 else{
-                    print("Left blink")
+                    labelString += "Person \(faceCount) is blinking with their LEFT eye\n"
                 }
                 
                 // if they have a right eye position
@@ -90,12 +91,15 @@ class FacialViewController: UIViewController   {
                 }
                 // otherwise they are blinkin with their right eye
                 else{
-                    
+                    labelString += "Person \(faceCount) is blinking with their RIGHT eye\n"
                 }
             }
             
             if face.hasMouthPosition{
                 retImage = applyFiltersToMouth(inputImage: retImage, mouthPosition: face.mouthPosition, smiling: face.hasSmile)
+                if face.hasSmile{
+                    labelString += "Person \(faceCount) is smiling\n"
+                }
             }
             
             let faceFilter = CIFilter(name:"CITwirlDistortion")!
@@ -106,6 +110,9 @@ class FacialViewController: UIViewController   {
             retImage = faceFilter.outputImage!
             
             faceCount += 1
+        }
+        DispatchQueue.main.async {
+            self.detailLabel.text = labelString
         }
         return retImage
     }
