@@ -17,6 +17,7 @@ class PpgViewController: UIViewController  {
     let bridge = OpenCVBridge()
 
     @IBOutlet weak var lineChartView: LineChartView!
+    @IBOutlet weak var heartRateLabel: UILabel!
     
     
     override func viewDidLoad() {
@@ -60,6 +61,13 @@ class PpgViewController: UIViewController  {
         
         DispatchQueue.main.async(){
             self.setChart(values: redArray)
+            
+            if(self.bridge.heartRate == 0) {
+                self.heartRateLabel.text = "Heart rate: measuring ..."
+            }
+            else {
+                self.heartRateLabel.text = "Heart rate: \(self.bridge.heartRate)"
+            }
         }
         
         retImage = self.bridge.getImage()

@@ -15,7 +15,7 @@
 @interface OpenCVBridge : NSObject
 
 @property (nonatomic) NSInteger processType;
-
+@property int heartRate;
 
 // set the image for processing later
 -(void) setImage:(CIImage*)ciFrameImage

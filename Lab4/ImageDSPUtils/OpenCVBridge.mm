@@ -8,7 +8,7 @@
 
 #import "OpenCVBridge.hh"
 
-//#define RED_READINGS_BUFFER = 30 * 60
+#define RED_READINGS_BUFFER_SIZE 310
 
 
 using namespace cv;
@@ -21,9 +21,10 @@ using namespace cv;
 @property (nonatomic) CGAffineTransform inverseTransform;
 @property (atomic) cv::CascadeClassifier classifier;
 
+@property float* redReadingsHistory;
 @property float* redArray;
 @property int index;
-@property int heartRate;
+@property bool haveReadingsBeenCollectedOnce;
 @end
 
 @implementation OpenCVBridge
@@ -50,19 +51,21 @@ using namespace cv;
     
     self.redArray[0] = avgPixelIntensity.val[0];
     
+    self.redReadingsHistory[self.index] = avgPixelIntensity.val[0];
+    
     // search for maximas and minimas in the values of red
-    if(self.index == 30) {
-        bool peaks[130];
-        bool troughs[130];
+    if(self.index % 30 == 0 && self.haveReadingsBeenCollectedOnce) {
+        bool peaks[RED_READINGS_BUFFER_SIZE];
+        bool troughs[RED_READINGS_BUFFER_SIZE];
         
-        for(int i = 0; i < 130; i++) {
+        for(int i = 0; i < RED_READINGS_BUFFER_SIZE; i++) {
             peaks[i] = false;
             troughs[i] = false;
         }
         
         int windowSize = 10;
         
-        for(int i = 5; i < 125 - windowSize; i++) {
+        for(int i = 5; i < RED_READINGS_BUFFER_SIZE - 5 - windowSize; i++) {
             float windowMax = 0;
             float windowMin = 256;
             
@@ -70,13 +73,13 @@ using namespace cv;
             int posMin = 0;
             
             for(int j = i; j < i + windowSize; j++) {
-                if(self.redArray[j] > windowMax) {
-                    windowMax = self.redArray[j];
+                if(self.redReadingsHistory[j] > windowMax) {
+                    windowMax = self.redReadingsHistory[j];
                     posMax = j;
                 }
                 
-                if(self.redArray[j] < windowMin) {
-                    windowMin = self.redArray[j];
+                if(self.redReadingsHistory[j] < windowMin) {
+                    windowMin = self.redReadingsHistory[j];
                     posMin = j;
                 }
             }
@@ -94,7 +97,7 @@ using namespace cv;
         bool peakLastSeen = false;
         bool troughLastSeen = true;
         
-        for(int i = 5; i < 125; i++) {
+        for(int i = 5; i < RED_READINGS_BUFFER_SIZE - 5; i++) {
             if(peakLastSeen && troughs[i]) {
                 heartBeatCount++;
                 
@@ -108,15 +111,18 @@ using namespace cv;
             }
         }
         
-        self.heartRate = heartBeatCount * 15;
-        
+        self.heartRate = heartBeatCount * (60 * 30 / (RED_READINGS_BUFFER_SIZE - 10));
+    }
+    
+//    sprintf(text,"Heart Rate: %i", self.heartRate);
+//    cv::putText(_image, text, cv::Point(100, 100), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
+    
+    self.index++;
+    if(self.index == RED_READINGS_BUFFER_SIZE) {
+        self.haveReadingsBeenCollectedOnce = true;
         self.index = 0;
     }
     
-    sprintf(text,"Heart Rate: %i", self.heartRate);
-    cv::putText(_image, text, cv::Point(100, 100), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-    
-    self.index++;
     return self.redArray;
 }
 
@@ -144,13 +150,19 @@ using namespace cv;
         
         // initialize variables used by processImage
         self.redArray = (float*) malloc(130 * sizeof(float));
+        self.redReadingsHistory = (float*) malloc(RED_READINGS_BUFFER_SIZE * sizeof(float));
         
         for(int i = 0; i < 130; i++) {
             self.redArray[i] = 0;
         }
+        
+        for(int i = 0; i < RED_READINGS_BUFFER_SIZE; i++) {
+            self.redReadingsHistory[i] = 0;
+        }
 
         self.index = 0;
         self.heartRate = 0;
+        self.haveReadingsBeenCollectedOnce = false;
     }
     return self;
 }
@@ -297,6 +309,7 @@ using namespace cv;
 
 -(void)dealloc {
     free(self.redArray);
+    free(self.redReadingsHistory);
 }
 
 
