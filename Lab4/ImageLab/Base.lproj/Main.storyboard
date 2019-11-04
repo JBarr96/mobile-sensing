@@ -52,33 +52,33 @@
                         <viewControllerLayoutGuide type="bottom" id="4iE-6q-HVA"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="3dD-H6-vSY">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="603"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VYu-F4-m9n" customClass="LineChartView" customModule="Charts">
-                                <rect key="frame" x="16" y="108" width="343" height="475"/>
+                                <rect key="frame" x="16" y="172" width="343" height="475"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" red="0.29803921568627451" green="0.29803921568627451" blue="0.29803921568627451" alpha="0.0" colorSpace="custom" customColorSpace="sRGB"/>
                             </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Heart rate: measuring ..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tbg-9b-UfO">
-                                <rect key="frame" x="16" y="33" width="343" height="24"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
-                                <nil key="textColor"/>
+                                <rect key="frame" x="16" y="89" width="343" height="24"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <fontDescription key="fontDescription" style="UICTFontTextStyleTitle2"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
+                            <constraint firstItem="tbg-9b-UfO" firstAttribute="leading" secondItem="VYu-F4-m9n" secondAttribute="leading" id="1vs-yh-Sia"/>
                             <constraint firstItem="VYu-F4-m9n" firstAttribute="trailing" secondItem="3dD-H6-vSY" secondAttribute="trailingMargin" id="4Fg-zM-crd"/>
-                            <constraint firstItem="tbg-9b-UfO" firstAttribute="leading" secondItem="VYu-F4-m9n" secondAttribute="leading" id="7gK-AY-mMy"/>
                             <constraint firstItem="VYu-F4-m9n" firstAttribute="leading" secondItem="3dD-H6-vSY" secondAttribute="leadingMargin" id="9Nn-DP-PHh"/>
                             <constraint firstItem="VYu-F4-m9n" firstAttribute="top" secondItem="poT-QV-W5y" secondAttribute="bottom" constant="108" id="Cw0-QV-PSZ"/>
-                            <constraint firstItem="tbg-9b-UfO" firstAttribute="trailing" secondItem="VYu-F4-m9n" secondAttribute="trailing" id="Pbw-bE-VIM"/>
+                            <constraint firstItem="tbg-9b-UfO" firstAttribute="top" secondItem="poT-QV-W5y" secondAttribute="bottom" constant="25" id="ZxF-zR-PiT"/>
+                            <constraint firstItem="tbg-9b-UfO" firstAttribute="trailing" secondItem="VYu-F4-m9n" secondAttribute="trailing" id="bD2-d8-gKJ"/>
                             <constraint firstAttribute="bottom" secondItem="VYu-F4-m9n" secondAttribute="bottom" constant="20" symbolic="YES" id="oWr-uT-IIg"/>
-                            <constraint firstItem="tbg-9b-UfO" firstAttribute="top" secondItem="3dD-H6-vSY" secondAttribute="top" constant="33" id="y09-W0-9Kt"/>
                         </constraints>
                     </view>
-                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
                     <navigationItem key="navigationItem" id="TTV-K7-HIX"/>
                     <connections>
                         <outlet property="heartRateLabel" destination="tbg-9b-UfO" id="BiV-Kx-BMO"/>

@@ -23,7 +23,7 @@ class PpgViewController: UIViewController  {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        self.view.backgroundColor = nil
+        self.view.backgroundColor = UIColor.black;
         
         self.videoManager = VideoAnalgesic.sharedInstance
         self.videoManager.setCameraPosition(position: AVCaptureDevice.Position.back)
