@@ -8,6 +8,8 @@
 
 #import "OpenCVBridge.hh"
 
+//#define RED_READINGS_BUFFER = 30 * 60
+
 
 using namespace cv;
 
@@ -20,7 +22,8 @@ using namespace cv;
 @property (atomic) cv::CascadeClassifier classifier;
 
 @property float* redArray;
-@property int arrayIndex;
+@property int index;
+@property int heartRate;
 @end
 
 @implementation OpenCVBridge
@@ -40,16 +43,80 @@ using namespace cv;
     
     cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
     avgPixelIntensity = cv::mean( image_copy );
-    sprintf(text,"Avg. R: %.0f, G: %.0f, B: %.0f", avgPixelIntensity.val[0], avgPixelIntensity.val[1], avgPixelIntensity.val[2]);
     
-    cv::putText(_image, text, cv::Point(100, 200), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-    
-    for(int i = 99; i > 0; i--) {
+    for(int i = 129; i > 0; i--) {
         self.redArray[i] = self.redArray[i - 1];
     }
     
     self.redArray[0] = avgPixelIntensity.val[0];
     
+    // search for maximas and minimas in the values of red
+    if(self.index == 30) {
+        bool peaks[130];
+        bool troughs[130];
+        
+        for(int i = 0; i < 130; i++) {
+            peaks[i] = false;
+            troughs[i] = false;
+        }
+        
+        int windowSize = 10;
+        
+        for(int i = 5; i < 125 - windowSize; i++) {
+            float windowMax = 0;
+            float windowMin = 256;
+            
+            int posMax = 0;
+            int posMin = 0;
+            
+            for(int j = i; j < i + windowSize; j++) {
+                if(self.redArray[j] > windowMax) {
+                    windowMax = self.redArray[j];
+                    posMax = j;
+                }
+                
+                if(self.redArray[j] < windowMin) {
+                    windowMin = self.redArray[j];
+                    posMin = j;
+                }
+            }
+            
+            if(posMax == i + windowSize / 2) {
+                peaks[posMax] = true;
+            }
+            
+            if(posMin == i + windowSize / 2) {
+                troughs[posMin] = true;
+            }
+        }
+        
+        int heartBeatCount = 0;
+        bool peakLastSeen = false;
+        bool troughLastSeen = true;
+        
+        for(int i = 5; i < 125; i++) {
+            if(peakLastSeen && troughs[i]) {
+                heartBeatCount++;
+                
+                peakLastSeen = false;
+                troughLastSeen = true;
+            }
+            
+            if(troughLastSeen && peaks[i]) {
+                peakLastSeen = true;
+                troughLastSeen = false;
+            }
+        }
+        
+        self.heartRate = heartBeatCount * 15;
+        
+        self.index = 0;
+    }
+    
+    sprintf(text,"Heart Rate: %i", self.heartRate);
+    cv::putText(_image, text, cv::Point(100, 100), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
+    
+    self.index++;
     return self.redArray;
 }
 
@@ -76,13 +143,14 @@ using namespace cv;
         self.inverseTransform = CGAffineTransformRotate(self.inverseTransform, -M_PI_2);
         
         // initialize variables used by processImage
-        self.redArray = (float*) malloc(100 * sizeof(float));
+        self.redArray = (float*) malloc(130 * sizeof(float));
         
-        for(int i = 0; i < 100; i++) {
+        for(int i = 0; i < 130; i++) {
             self.redArray[i] = 0;
         }
 
-        self.arrayIndex = 0;
+        self.index = 0;
+        self.heartRate = 0;
     }
     return self;
 }
@@ -225,6 +293,10 @@ using namespace cv;
     retImage = [retImage imageByApplyingTransform:self.inverseTransform];
     
     return retImage;
+}
+
+-(void)dealloc {
+    free(self.redArray);
 }
 
 

@@ -80,7 +80,7 @@ class PpgViewController: UIViewController  {
     func setChart(values: UnsafeMutablePointer<Float>) {
         var dataEntries: [ChartDataEntry] = []
         
-        for i in 0..<100 {
+        for i in 0..<130 {
             let dataEntry = ChartDataEntry(x: Double(i), y: Double(values[i]))
             dataEntries.append(dataEntry)
         }
