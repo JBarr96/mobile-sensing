@@ -22,7 +22,7 @@ using namespace cv;
 @property (atomic) cv::CascadeClassifier classifier;
 
 @property float* redReadingsHistory;
-@property float* redArray;
+@property float* redGraphDataArray;
 @property int index;
 @property bool haveReadingsBeenCollectedOnce;
 @end
@@ -38,33 +38,40 @@ using namespace cv;
 #pragma mark Define Custom Functions Here
 -(float*)processImage{
     cv::Mat frame_gray,image_copy;
-    char text[50];
     
     Scalar avgPixelIntensity;
     
+    // average the pixel color values
     cvtColor(_image, image_copy, CV_BGRA2BGR); // get rid of alpha for processing
     avgPixelIntensity = cv::mean( image_copy );
     
+    // push the redGraphDataArray 1 element towards the right
     for(int i = 129; i > 0; i--) {
-        self.redArray[i] = self.redArray[i - 1];
+        self.redGraphDataArray[i] = self.redGraphDataArray[i - 1];
     }
     
-    self.redArray[0] = avgPixelIntensity.val[0];
+    // set the first element to new Red value reading
+    self.redGraphDataArray[0] = avgPixelIntensity.val[0];
     
+    // store the new Red value in bigger buffer
     self.redReadingsHistory[self.index] = avgPixelIntensity.val[0];
     
     // search for maximas and minimas in the values of red
     if(self.index % 30 == 0 && self.haveReadingsBeenCollectedOnce) {
+        // arrays storing locations of maximas and minimas
         bool peaks[RED_READINGS_BUFFER_SIZE];
         bool troughs[RED_READINGS_BUFFER_SIZE];
         
+        // initialize maximas and minimas arrays
         for(int i = 0; i < RED_READINGS_BUFFER_SIZE; i++) {
             peaks[i] = false;
             troughs[i] = false;
         }
         
+        // set window size for maximas and minimas search
         int windowSize = 10;
         
+        // go through our red values buffer with a sliding window
         for(int i = 5; i < RED_READINGS_BUFFER_SIZE - 5 - windowSize; i++) {
             float windowMax = 0;
             float windowMin = 256;
@@ -72,6 +79,7 @@ using namespace cv;
             int posMax = 0;
             int posMin = 0;
             
+            // loop the size of the sliding window
             for(int j = i; j < i + windowSize; j++) {
                 if(self.redReadingsHistory[j] > windowMax) {
                     windowMax = self.redReadingsHistory[j];
@@ -84,10 +92,12 @@ using namespace cv;
                 }
             }
             
+            // check if we found a max
             if(posMax == i + windowSize / 2) {
                 peaks[posMax] = true;
             }
             
+            // check if we found a min
             if(posMin == i + windowSize / 2) {
                 troughs[posMin] = true;
             }
@@ -97,7 +107,10 @@ using namespace cv;
         bool peakLastSeen = false;
         bool troughLastSeen = true;
         
+        // count the number of heart beats in the collected data
         for(int i = 5; i < RED_READINGS_BUFFER_SIZE - 5; i++) {
+            // if last time we saw a peak and now we're at a trough
+            // then increase the number of heart beats
             if(peakLastSeen && troughs[i]) {
                 heartBeatCount++;
                 
@@ -105,25 +118,26 @@ using namespace cv;
                 troughLastSeen = true;
             }
             
+            // if last time we saw a trough and now we're at a peak
             if(troughLastSeen && peaks[i]) {
                 peakLastSeen = true;
                 troughLastSeen = false;
             }
         }
         
+        // convert the number of heart beats to heart beats per minute
         self.heartRate = heartBeatCount * (60 * 30 / (RED_READINGS_BUFFER_SIZE - 10));
     }
     
-//    sprintf(text,"Heart Rate: %i", self.heartRate);
-//    cv::putText(_image, text, cv::Point(100, 100), FONT_HERSHEY_PLAIN, 0.75, Scalar::all(255), 1, 2);
-    
+    // increment index
     self.index++;
     if(self.index == RED_READINGS_BUFFER_SIZE) {
         self.haveReadingsBeenCollectedOnce = true;
         self.index = 0;
     }
     
-    return self.redArray;
+    // return pointer to the redGraphDataArray for graphing purposes
+    return self.redGraphDataArray;
 }
 
 
@@ -149,11 +163,11 @@ using namespace cv;
         self.inverseTransform = CGAffineTransformRotate(self.inverseTransform, -M_PI_2);
         
         // initialize variables used by processImage
-        self.redArray = (float*) malloc(130 * sizeof(float));
+        self.redGraphDataArray = (float*) malloc(130 * sizeof(float));
         self.redReadingsHistory = (float*) malloc(RED_READINGS_BUFFER_SIZE * sizeof(float));
         
         for(int i = 0; i < 130; i++) {
-            self.redArray[i] = 0;
+            self.redGraphDataArray[i] = 0;
         }
         
         for(int i = 0; i < RED_READINGS_BUFFER_SIZE; i++) {
@@ -308,7 +322,7 @@ using namespace cv;
 }
 
 -(void)dealloc {
-    free(self.redArray);
+    free(self.redGraphDataArray);
     free(self.redReadingsHistory);
 }
 
