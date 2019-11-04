@@ -5,6 +5,7 @@
 //  Created by Eric Larson
 //  Copyright © 2016 Eric Larson. All rights reserved.
 //
+//  Johnathan Barr and Remus Tumac
 
 import UIKit
 import AVFoundation
@@ -54,8 +55,10 @@ class FacialViewController: UIViewController   {
         // if no faces, just return original image
         if faces.count == 0 { return inputImage }
         
+        // apply all necessary filters (depending on features detected)
         let retImage = applyFiltersToFaces(inputImage: inputImage, faces: faces)
         
+        // return the altered image
         return retImage
     }
     
@@ -65,8 +68,10 @@ class FacialViewController: UIViewController   {
         var filterCenter = CGPoint()
         var labelString = ""
         
+        // variable to keep track of how many faces are in the frame (to show which person is blinking/smiling/etc.)
         var faceCount = 1
         
+        // for all faces retrieved
         for face in faces {
             //set where to apply filter
             filterCenter.x = face.bounds.midX
@@ -95,13 +100,17 @@ class FacialViewController: UIViewController   {
                 }
             }
             
+            // if they have a mouthposition
             if face.hasMouthPosition{
+                // apply a filter to the mouth
                 retImage = applyFiltersToMouth(inputImage: retImage, mouthPosition: face.mouthPosition, smiling: face.hasSmile)
+                // display whether or not the person is smiling
                 if face.hasSmile{
                     labelString += "Person \(faceCount) is smiling\n"
                 }
             }
             
+            // apply a swirl filter to the entire face
             let faceFilter = CIFilter(name:"CITwirlDistortion")!
             faceFilter.setValue(CIVector(cgPoint: filterCenter), forKey: "inputCenter")
             faceFilter.setValue(95, forKey: "inputRadius")
@@ -109,14 +118,20 @@ class FacialViewController: UIViewController   {
             faceFilter.setValue(retImage, forKey: kCIInputImageKey)
             retImage = faceFilter.outputImage!
             
+            // increment the number of faces
             faceCount += 1
         }
+        
+        // update the details label with any information on the main queue
         DispatchQueue.main.async {
             self.detailLabel.text = labelString
         }
+        
+        // return the altered image
         return retImage
     }
     
+    // function to apply the bump distortion filter to a given eye's position
     func applyFiltersToEye(inputImage:CIImage, eyePosition:CGPoint)->CIImage{
         let eyeFilter = CIFilter(name:"CIBumpDistortion")!
         eyeFilter.setValue(inputImage, forKey: kCIInputImageKey)
@@ -127,13 +142,18 @@ class FacialViewController: UIViewController   {
         return eyeFilter.outputImage!
     }
     
+    // function to apply a filter to a given mouth's position
     func applyFiltersToMouth(inputImage:CIImage, mouthPosition: CGPoint, smiling: Bool)->CIImage{
+        // using a bump filter as the base
         let mouthFilter = CIFilter(name:"CIBumpDistortion")!
         mouthFilter.setValue(50, forKey: "inputRadius")
         
+        // if the person is smiling, have it bulge outward
         if smiling{
             mouthFilter.setValue(1, forKey: "inputScale")
-        }else{
+        }
+        // otherwise, have it pinch inwards
+        else{
             mouthFilter.setValue(-1, forKey: "inputScale")
         }
         
@@ -144,6 +164,7 @@ class FacialViewController: UIViewController   {
         return mouthFilter.outputImage!
     }
     
+    // function to get faces from a given image
     func getFaces(img:CIImage) -> [CIFaceFeature]{
         // this ungodly mess makes sure the image is the correct orientation
         let optsFace = [CIDetectorImageOrientation:self.videoManager.ciOrientation, CIDetectorSmile: true, CIDetectorEyeBlink: true] as [String : Any]
