@@ -284,16 +284,6 @@
 				LastUpgradeCheck = 1030;
 				ORGANIZATIONNAME = "Eric Larson";
 				TargetAttributes = {
-					B650B3161D8340F0000114A1 = {
-						DevelopmentTeam = F69WJ27LN4;
-						LastSwiftMigration = 1030;
-					};
-					B650B32A1D8340F0000114A1 = {
-						LastSwiftMigration = 1030;
-					};
-					B650B3351D8340F0000114A1 = {
-						LastSwiftMigration = 1030;
-					};
 				};
 			};
 			buildConfigurationList = B650B3121D8340F0000114A1 /* Build configuration list for PBXProject "ImageLab" */;

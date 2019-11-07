@@ -256,18 +256,6 @@
 				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = "Eric Larson";
 				TargetAttributes = {
-					B6BD9E191D6E384A0009AB3F = {
-						CreatedOnToolsVersion = 7.3.1;
-						DevelopmentTeam = F69WJ27LN4;
-					};
-					B6BD9E321D6E384A0009AB3F = {
-						CreatedOnToolsVersion = 7.3.1;
-						TestTargetID = B6BD9E191D6E384A0009AB3F;
-					};
-					B6BD9E3D1D6E384A0009AB3F = {
-						CreatedOnToolsVersion = 7.3.1;
-						TestTargetID = B6BD9E191D6E384A0009AB3F;
-					};
 				};
 			};
 			buildConfigurationList = B6BD9E151D6E384A0009AB3F /* Build configuration list for PBXProject "AudioLab" */;
