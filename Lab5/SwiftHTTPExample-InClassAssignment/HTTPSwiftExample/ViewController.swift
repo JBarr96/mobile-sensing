@@ -21,7 +21,7 @@ import UIKit
 import CoreMotion
 import AVFoundation
 
-class ViewController: UIViewController, URLSessionDelegate {
+class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
     
     // MARK: Class Properties
     var session = URLSession()
@@ -39,7 +39,14 @@ class ViewController: UIViewController, URLSessionDelegate {
     var isWaitingForMotionData = false
     
     var soundRecorder: AVAudioRecorder!
-    let fileName = "audiofile.caf"
+//    var soundPlayer:AVAudioPlayer!
+    let fileName = "audiofile.m4a"
+    
+    var trainPredict = 0
+    
+    @IBOutlet weak var trainPredictSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var instrumentSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var predictionLabel: UILabel!
     
     @IBOutlet weak var dsidLabel: UILabel!
     @IBOutlet weak var upArrow: UILabel!
@@ -266,7 +273,9 @@ class ViewController: UIViewController, URLSessionDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        predictionLabel.isHidden = true
         setupRecorder()
+        print("View did load")
     }
     
     func getCacheDirectory() -> String {
@@ -276,9 +285,13 @@ class ViewController: UIViewController, URLSessionDelegate {
     }
           
     func getFileURL() -> URL {
-        let filePath = URL(fileURLWithPath: getCacheDirectory()).appendingPathComponent(fileName)
+//        let filePath = URL(fileURLWithPath: getCacheDirectory()).appendingPathComponent(fileName)
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = urls[0] as NSURL
+        let soundURL = documentDirectory.appendingPathComponent(fileName)
           
-        return filePath
+        return soundURL!
     }
     
     func setupRecorder() {
@@ -292,20 +305,66 @@ class ViewController: UIViewController, URLSessionDelegate {
                 
         do { try soundRecorder = AVAudioRecorder(url: getFileURL(), settings: recordSettings) }
         catch { print("Error initializing audio recorder.") }
-        soundRecorder.delegate = (self as! AVAudioRecorderDelegate)
+        soundRecorder.delegate = self
         soundRecorder.prepareToRecord()
+        
+        print("Recorder set up")
     }
     
+//    func preparePlayer() {
+//        do { try soundPlayer = AVAudioPlayer(contentsOf: getFileURL()) }
+//        catch { print("Error initializing audio player.") }
+//
+//        soundPlayer.delegate = self
+//        soundPlayer.prepareToPlay()
+//        soundPlayer.volume = 1.0
+//
+//        print("Player prepared")
+//    }
 
+    
     @IBAction func recordSound(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Record"){
             soundRecorder.record()
             print("Recording")
             sender.setTitle("Stop", for: .normal)
+            predictionLabel.isHidden = true
         } else {
             soundRecorder.stop()
-            print("Stopped")
+            print("Stopped recording")
             sender.setTitle("Record", for: .normal)
+            // upload audio file to server
+            // retrieve prediction from model
+            predictionLabel.isHidden = false
+        }
+    }
+    
+//    @IBAction func playSound(_ sender: UIButton) {
+//        if (sender.titleLabel?.text == "Play"){
+//            sender.setTitle("Stop", for: .normal)
+//            print("Playing")
+//            preparePlayer()
+//            soundPlayer.play()
+//        } else {
+//            soundPlayer.stop()
+//            print("Stopped playing")
+//            sender.setTitle("Play", for: .normal)
+//        }
+//    }
+    
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("Successfully recorded")
+    }
+    
+//    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+//        print("Successfully played")
+//    }
+    @IBAction func trainPredictDidChange(_ sender: UISegmentedControl) {
+        trainPredict = trainPredictSegmentedControl.selectedSegmentIndex
+        if trainPredict == 0{
+            instrumentSegmentedControl.isHidden = false
+        } else{
+            instrumentSegmentedControl.isHidden = true
         }
     }
     

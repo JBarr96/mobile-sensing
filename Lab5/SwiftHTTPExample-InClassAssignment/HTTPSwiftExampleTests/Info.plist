@@ -21,6 +21,6 @@
 	<key>CFBundleVersion</key>
 	<string>1</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Let us hear you</string>
+	<string>Let us access your mic</string>
 </dict>
 </plist>
