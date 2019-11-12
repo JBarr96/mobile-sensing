@@ -33,16 +33,26 @@ class UploadLabeledDatapointHandler(BaseHandler):
         vals = data['feature']
         fvals = [float(val) for val in vals]
         label = data['label']
-        sess  = data['ml_model_type']
 
         dbid = self.db.labeledinstances.insert(
-            {"feature":fvals,"label":label,"ml_model_type":sess}
-            );
-        self.write_json({"id":str(dbid),
-            "feature":[str(len(fvals))+" Points Received",
-                    "min of: " +str(min(fvals)),
-                    "max of: " +str(max(fvals))],
-            "label":label})
+            {
+                "feature": fvals,
+                "label": label
+            }
+        );
+
+        self.write_json(
+            {
+                "id":str(dbid),
+                "feature":
+                    [
+                        str(len(fvals))+" Points Received",
+                        "min of: " +str(min(fvals)),
+                        "max of: " +str(max(fvals))
+                    ],
+                "label":label
+            }
+        )
 
 class UpdateModelForDatasetId(BaseHandler):
     def post(self):
@@ -53,12 +63,12 @@ class UpdateModelForDatasetId(BaseHandler):
 
         # create feature vectors from database
         f=[];
-        for a in self.db.labeledinstances.find({"ml_model_type":ml_model_type}): 
+        for a in self.db.labeledinstances.find({}): 
             f.append([float(val) for val in a['feature']])
 
         # create label vector from database
         l=[];
-        for a in self.db.labeledinstances.find({"ml_model_type":ml_model_type}): 
+        for a in self.db.labeledinstances.find({}): 
             l.append(a['label'])
 
         # fit the model to the data
