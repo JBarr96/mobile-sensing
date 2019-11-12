@@ -33,10 +33,10 @@ class UploadLabeledDatapointHandler(BaseHandler):
         vals = data['feature']
         fvals = [float(val) for val in vals]
         label = data['label']
-        sess  = data['dsid']
+        sess  = data['ml_model_type']
 
         dbid = self.db.labeledinstances.insert(
-            {"feature":fvals,"label":label,"dsid":sess}
+            {"feature":fvals,"label":label,"ml_model_type":sess}
             );
         self.write_json({"id":str(dbid),
             "feature":[str(len(fvals))+" Points Received",
@@ -44,31 +44,32 @@ class UploadLabeledDatapointHandler(BaseHandler):
                     "max of: " +str(max(fvals))],
             "label":label})
 
-class RequestNewDatasetId(BaseHandler):
-    def get(self):
-        '''Get a new dataset ID for building a new dataset
-        '''
-        a = self.db.labeledinstances.find_one(sort=[("dsid", -1)])
-        if a == None:
-            newSessionId = 1
-        else:
-            newSessionId = float(a['dsid'])+1
-        self.write_json({"dsid":newSessionId})
+# class RequestNewDatasetId(BaseHandler):
+#     def get(self):
+#         '''Get a new dataset ID for building a new dataset
+#         '''
+#         a = self.db.labeledinstances.find_one(sort=[("dsid", -1)])
+#         if a == None:
+#             newSessionId = 1
+#         else:
+#             newSessionId = float(a['dsid'])+1
+#         self.write_json({"dsid":newSessionId})
 
 class UpdateModelForDatasetId(BaseHandler):
-    def get(self):
+    def post(self):
         '''Train a new model (or update) for given dataset ID
         '''
-        dsid = self.get_int_arg("dsid",default=0)
+        data = json.loads(self.request.body.decode("utf-8"))
+        ml_model_type  = data['ml_model_type']
 
         # create feature vectors from database
         f=[];
-        for a in self.db.labeledinstances.find({"dsid":dsid}): 
+        for a in self.db.labeledinstances.find({"ml_model_type":ml_model_type}): 
             f.append([float(val) for val in a['feature']])
 
         # create label vector from database
         l=[];
-        for a in self.db.labeledinstances.find({"dsid":dsid}): 
+        for a in self.db.labeledinstances.find({"ml_model_type":ml_model_type}): 
             l.append(a['label'])
 
         # fit the model to the data
@@ -80,7 +81,7 @@ class UpdateModelForDatasetId(BaseHandler):
             self.clf = c1
             acc = sum(lstar==l)/float(len(l))
             bytes = pickle.dumps(c1)
-            self.db.models.update({"dsid":dsid},
+            self.db.models.update({"ml_model_type":ml_model_type},
                 {  "$set": {"model":Binary(bytes)}  },
                 upsert=True)
 
@@ -97,13 +98,13 @@ class PredictOneFromDatasetId(BaseHandler):
         vals = data['feature'];
         fvals = [float(val) for val in vals];
         fvals = np.array(fvals).reshape(1, -1)
-        dsid  = data['dsid']
+        ml_model_type  = data['ml_model_type']
 
         # load the model from the database (using pickle)
         # we are blocking tornado!! no!!
         if(self.clf == []):
             print('Loading Model From DB')
-            tmp = self.db.models.find_one({"dsid":dsid})
+            tmp = self.db.models.find_one({"ml_model_type":ml_model_type})
             self.clf = pickle.loads(tmp['model'])
         predLabel = self.clf.predict(fvals);
         self.write_json({"prediction":str(predLabel)})
