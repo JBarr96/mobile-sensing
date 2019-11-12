@@ -44,17 +44,6 @@ class UploadLabeledDatapointHandler(BaseHandler):
                     "max of: " +str(max(fvals))],
             "label":label})
 
-# class RequestNewDatasetId(BaseHandler):
-#     def get(self):
-#         '''Get a new dataset ID for building a new dataset
-#         '''
-#         a = self.db.labeledinstances.find_one(sort=[("dsid", -1)])
-#         if a == None:
-#             newSessionId = 1
-#         else:
-#             newSessionId = float(a['dsid'])+1
-#         self.write_json({"dsid":newSessionId})
-
 class UpdateModelForDatasetId(BaseHandler):
     def post(self):
         '''Train a new model (or update) for given dataset ID
