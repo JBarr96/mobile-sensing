@@ -72,9 +72,19 @@ class BaseHandler(tornado.web.RequestHandler):
         '''
         return self.application.clf
 
+    @property
+    def ml_model_type(self):
+        '''Instance getter for the Machine Learning Model Type
+        '''
+        return self.application.ml_model_type
+
     @clf.setter
     def clf(self, value):
         self.application.clf = value
+
+    @ml_model_type.setter
+    def ml_model_type(self, value):
+        self.application.ml_model_type = value
 
     def get_int_arg(self, value, default=[], strip=True):
         '''Convenience method for grabbing integer arguments
