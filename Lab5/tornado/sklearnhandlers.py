@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+import time
+
 from pymongo import MongoClient
 import tornado.web
 
@@ -16,6 +18,13 @@ from bson.binary import Binary
 import json
 import numpy as np
 
+import turicreate as tc
+from os.path import basename
+tc.config.set_num_gpus(-1)
+
+from scipy.io import wavfile as wf
+
+
 class PrintHandlers(BaseHandler):
     def get(self):
         '''Write out to screen the handlers used
@@ -28,18 +37,26 @@ class UploadLabeledDatapointHandler(BaseHandler):
     def post(self):
         '''Save data point and class label to database
         '''
+        # get data from POST body
         data = json.loads(self.request.body.decode("utf-8"))
 
         vals = data['feature']
         fvals = [float(val) for val in vals]
         label = data['label']
 
+        # create file name using current epoch time 
+        file_name = f'audio-sample-{int(time.time())}.wav'
+
+        # save the float array fvals to disk as a wav file
+        wf.write(f'../data/audio/{file_name}', 44100, np.array(fvals))
+
+        # save audio label to mongo db
         dbid = self.db.labeledinstances.insert(
             {
-                "feature": fvals,
+                "filename": file_name,
                 "label": label
             }
-        );
+        )
 
         self.write_json(
             {
@@ -50,7 +67,8 @@ class UploadLabeledDatapointHandler(BaseHandler):
                         "min of: " +str(min(fvals)),
                         "max of: " +str(max(fvals))
                     ],
-                "label":label
+                "label": label,
+                "filename": file_name
             }
         )
 
@@ -58,31 +76,48 @@ class UpdateModelForDatasetId(BaseHandler):
     def post(self):
         '''Train a new model (or update) for given dataset ID
         '''
+        # get data from POST body
         data = json.loads(self.request.body.decode("utf-8"))
         ml_model_type  = data['ml_model_type']
 
-        # create feature vectors from database
-        f=[];
-        for a in self.db.labeledinstances.find({}): 
-            f.append([float(val) for val in a['feature']])
+        # load the audio data
+        audio_data = tc.load_audio('../data/audio')
 
-        # create label vector from database
-        l=[];
+        audio_file_names = []
+        audio_labels = []
+
+        # load the audio file names and labels from mongo
         for a in self.db.labeledinstances.find({}): 
-            l.append(a['label'])
+            audio_file_names.append(a['filename'])
+            audio_labels.append(a['label'])
+            
+        meta_data = tc.SFrame(
+            {
+                'filename': audio_file_names,
+                'label': audio_labels
+            }
+        )
+
+        # join the audio data and the meta data.
+        audio_data['filename'] = audio_data['path'].apply(lambda p: basename(p))
+        audio_data = audio_data.join(meta_data)
 
         # fit the model to the data
-        c1 = KNeighborsClassifier(n_neighbors=1);
-        acc = -1;
-        if l:
-            c1.fit(f,l) # training
-            lstar = c1.predict(f)
-            self.clf = c1
-            acc = sum(lstar==l)/float(len(l))
-            bytes = pickle.dumps(c1)
-            self.db.models.update({"ml_model_type":ml_model_type},
-                {  "$set": {"model":Binary(bytes)}  },
-                upsert=True)
+        acc = -1
+        if audio_labels:
+            # create the model
+            model = tc.sound_classifier.create(audio_data,
+                                               target='label',
+                                               feature='audio',
+                                               max_iterations=100)
+
+            # generate an SArray of predictions from the test set
+            predictions = model.predict(audio_data)
+
+            # evaluate the model on the training data
+            acc = model.evaluate(audio_data)['accuracy']
+
+            model.save(f'../data/models/SoundClassification-{ml_model_type}.model')
 
         # send back the resubstitution accuracy
         # if training takes a while, we are blocking tornado!! No!!
@@ -92,18 +127,22 @@ class PredictOneFromDatasetId(BaseHandler):
     def post(self):
         '''Predict the class of a sent feature vector
         '''
+        # get data from POST body
         data = json.loads(self.request.body.decode("utf-8"))    
 
-        vals = data['feature'];
-        fvals = [float(val) for val in vals];
-        fvals = np.array(fvals).reshape(1, -1)
         ml_model_type  = data['ml_model_type']
 
-        # load the model from the database (using pickle)
-        # we are blocking tornado!! no!!
-        if(self.clf == []):
-            print('Loading Model From DB')
-            tmp = self.db.models.find_one({"ml_model_type":ml_model_type})
-            self.clf = pickle.loads(tmp['model'])
-        predLabel = self.clf.predict(fvals);
-        self.write_json({"prediction":str(predLabel)})
+        vals = data['feature']
+        fvals = [float(val) for val in vals]
+
+        # save audio sample to disk as a wav file
+        wf.write(f'../data/temp.wav', 44100, np.array(fvals))
+
+        # load the model from the disk
+        loaded_model = tc.load_model(f'../data/models/SoundClassification-{ml_model_type}.model')
+
+        # load the audio data
+        audio_data = tc.load_audio('../data/temp.wav')
+
+        predictions = loaded_model.predict(audio_data)
+        self.write_json({"prediction": predictions[0]})
