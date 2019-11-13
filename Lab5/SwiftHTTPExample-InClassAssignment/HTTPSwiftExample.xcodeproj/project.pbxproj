@@ -124,9 +124,6 @@
 				LastUpgradeCheck = 0900;
 				ORGANIZATIONNAME = "Eric Larson";
 				TargetAttributes = {
-					B67483D41ACA2D6800A9970E = {
-						DevelopmentTeam = F69WJ27LN4;
-					};
 				};
 			};
 			buildConfigurationList = B67483D01ACA2D6800A9970E /* Build configuration list for PBXProject "HTTPSwiftExample" */;

@@ -15,13 +15,13 @@
 //    ifconfig |grep inet   
 // to see what your public facing IP address is, the ip address can be used here
 //let SERVER_URL = "http://erics-macbook-pro.local:8000" // change this for your server name!!!
-let SERVER_URL = "http://10.8.127.216:8000" // change this for your server name!!!
+let SERVER_URL = "http://10.8.113.230:8000" // change this for your server name!!!
 
 import UIKit
 import CoreMotion
 import AVFoundation
 
-class ViewController: UIViewController, URLSessionDelegate {
+class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDelegate {
     
     // MARK: Class Properties
     var session = URLSession()
@@ -38,8 +38,17 @@ class ViewController: UIViewController, URLSessionDelegate {
     
     var isWaitingForMotionData = false
     
+    lazy var audioSession:AVAudioSession = AVAudioSession.sharedInstance()
     var soundRecorder: AVAudioRecorder!
-    let fileName = "audiofile.caf"
+    let fileName = "audiofile.m4a"
+    
+    var trainPredict = 0
+    
+    @IBOutlet weak var modelSelectSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var trainPredictSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var instrumentSegmentedControl: UISegmentedControl!
+    @IBOutlet weak var coreMLSwitch: UISwitch!
+    @IBOutlet weak var predictionLabel: UILabel!
     
     @IBOutlet weak var dsidLabel: UILabel!
     @IBOutlet weak var upArrow: UILabel!
@@ -48,176 +57,16 @@ class ViewController: UIViewController, URLSessionDelegate {
     @IBOutlet weak var leftArrow: UILabel!
     @IBOutlet weak var largeMotionMagnitude: UIProgressView!
     
-    // MARK: Class Properties with Observers
-    enum CalibrationStage {
-        case notCalibrating
-        case up
-        case right
-        case down
-        case left
-    }
-    
-    var calibrationStage:CalibrationStage = .notCalibrating {
-        didSet{
-            switch calibrationStage {
-            case .up:
-                self.isCalibrating = true
-                DispatchQueue.main.async{
-                    self.setAsCalibrating(self.upArrow)
-                    self.setAsNormal(self.rightArrow)
-                    self.setAsNormal(self.leftArrow)
-                    self.setAsNormal(self.downArrow)
-                }
-                break
-            case .left:
-                self.isCalibrating = true
-                DispatchQueue.main.async{
-                    self.setAsNormal(self.upArrow)
-                    self.setAsNormal(self.rightArrow)
-                    self.setAsCalibrating(self.leftArrow)
-                    self.setAsNormal(self.downArrow)
-                }
-                break
-            case .down:
-                self.isCalibrating = true
-                DispatchQueue.main.async{
-                    self.setAsNormal(self.upArrow)
-                    self.setAsNormal(self.rightArrow)
-                    self.setAsNormal(self.leftArrow)
-                    self.setAsCalibrating(self.downArrow)
-                }
-                break
-                
-            case .right:
-                self.isCalibrating = true
-                DispatchQueue.main.async{
-                    self.setAsNormal(self.upArrow)
-                    self.setAsCalibrating(self.rightArrow)
-                    self.setAsNormal(self.leftArrow)
-                    self.setAsNormal(self.downArrow)
-                }
-                break
-            case .notCalibrating:
-                self.isCalibrating = false
-                DispatchQueue.main.async{
-                    self.setAsNormal(self.upArrow)
-                    self.setAsNormal(self.rightArrow)
-                    self.setAsNormal(self.leftArrow)
-                    self.setAsNormal(self.downArrow)
-                }
-                break
-            }
-        }
-    }
-    
-    var dsid:Int = 0 {
-        didSet{
-            DispatchQueue.main.async{
-                // update label when set
-                self.dsidLabel.layer.add(self.animation, forKey: nil)
-                self.dsidLabel.text = "Current DSID: \(self.dsid)"
-            }
-        }
-    }
-    
-    @IBAction func magnitudeChanged(_ sender: UISlider) {
-        self.magValue = Double(sender.value)
-    }
-    
-    @IBAction func stepperDidChange(_ sender: UIStepper) {
-        self.dsid = Int(sender.value)
-    }
-    
-    // MARK: Core Motion Updates
-    func startMotionUpdates(){
-        // some internal inconsistency here: we need to ask the device manager for device
-        
-        if self.motion.isDeviceMotionAvailable{
-            self.motion.deviceMotionUpdateInterval = 1.0/200
-            self.motion.startDeviceMotionUpdates(to: motionOperationQueue, withHandler: self.handleMotion )
-        }
-    }
-    
-    func handleMotion(_ motionData:CMDeviceMotion?, error:Error?){
-        if let accel = motionData?.userAcceleration {
-            self.ringBuffer.addNewData(xData: accel.x, yData: accel.y, zData: accel.z)
-            let mag = fabs(accel.x)+fabs(accel.y)+fabs(accel.z)
-            
-            DispatchQueue.main.async{
-                //show magnitude via indicator
-                self.largeMotionMagnitude.progress = Float(mag)/0.2
-            }
-            
-            if mag > self.magValue {
-                // buffer up a bit more data and then notify of occurrence
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05, execute: {
-                    self.calibrationOperationQueue.addOperation {
-                        // something large enough happened to warrant
-                        self.largeMotionEventOccurred()
-                    }
-                })
-            }
-        }
-    }
-    
-    
-    //MARK: Calibration procedure
-    func largeMotionEventOccurred(){
-        if(self.isCalibrating){
-            //send a labeled example
-            if(self.calibrationStage != .notCalibrating && self.isWaitingForMotionData)
-            {
-                self.isWaitingForMotionData = false
-                
-                // send data to the server with label
-                sendFeatures(self.ringBuffer.getDataAsVector(),
-                             withLabel: self.calibrationStage)
-                
-                self.nextCalibrationStage()
-            }
-        }
-        else
-        {
-            if(self.isWaitingForMotionData)
-            {
-                self.isWaitingForMotionData = false
-                //predict a label
-                getPrediction(self.ringBuffer.getDataAsVector())
-                // dont predict again for a bit
-                setDelayedWaitingToTrue(2.0)
-                
-            }
-        }
-    }
-    
-    func nextCalibrationStage(){
-        switch self.calibrationStage {
-        case .notCalibrating:
-            //start with up arrow
-            self.calibrationStage = .up
-            setDelayedWaitingToTrue(1.0)
-            break
-        case .up:
-            //go to right arrow
-            self.calibrationStage = .right
-            setDelayedWaitingToTrue(1.0)
-            break
-        case .right:
-            //go to down arrow
-            self.calibrationStage = .down
-            setDelayedWaitingToTrue(1.0)
-            break
-        case .down:
-            //go to left arrow
-            self.calibrationStage = .left
-            setDelayedWaitingToTrue(1.0)
-            break
-            
-        case .left:
-            //end calibration
-            self.calibrationStage = .notCalibrating
-            setDelayedWaitingToTrue(1.0)
-            break
+    func getTrainingLabel() -> String {
+        switch self.instrumentSegmentedControl.selectedSegmentIndex{
+        case 0:
+            return "guitar"
+        case 1:
+            return "violin"
+        case 2:
+            return "piano"
+        default:
+            return "guitar"
         }
     }
     
@@ -227,46 +76,27 @@ class ViewController: UIViewController, URLSessionDelegate {
         })
     }
     
-    func setAsCalibrating(_ label: UILabel){
-        label.layer.add(animation, forKey:nil)
-        label.backgroundColor = UIColor.red
-    }
-    
-    func setAsNormal(_ label: UILabel){
-        label.layer.add(animation, forKey:nil)
-        label.backgroundColor = UIColor.white
-    }
-    
     // MARK: View Controller Life Cycle
-//    override func viewDidLoad() {
-//        super.viewDidLoad()
-//        // Do any additional setup after loading the view, typically from a nib.
-//
-//        let sessionConfig = URLSessionConfiguration.ephemeral
-//
-//        sessionConfig.timeoutIntervalForRequest = 5.0
-//        sessionConfig.timeoutIntervalForResource = 8.0
-//        sessionConfig.httpMaximumConnectionsPerHost = 1
-//
-//        self.session = URLSession(configuration: sessionConfig,
-//            delegate: self,
-//            delegateQueue:self.operationQueue)
-//
-//        // create reusable animation
-//        animation.timingFunction = CAMediaTimingFunction(name: kCAMediaTimingFunctionEaseInEaseOut)
-//        animation.type = kCATransitionFade
-//        animation.duration = 0.5
-//
-//
-//        // setup core motion handlers
-//        startMotionUpdates()
-//
-//        dsid = 2 // set this and it will update UI
-//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        predictionLabel.isHidden = true
+        
+        // Do any additional setup after loading the view, typically from a nib.
+
+        let sessionConfig = URLSessionConfiguration.ephemeral
+
+        sessionConfig.timeoutIntervalForRequest = 10.0
+        sessionConfig.timeoutIntervalForResource = 20.0
+        sessionConfig.httpMaximumConnectionsPerHost = 1
+
+        self.session = URLSession(configuration: sessionConfig,
+            delegate: self,
+            delegateQueue:self.operationQueue)
+        
+        setupAudio()
         setupRecorder()
+        print("View did load")
     }
     
     func getCacheDirectory() -> String {
@@ -276,9 +106,26 @@ class ViewController: UIViewController, URLSessionDelegate {
     }
           
     func getFileURL() -> URL {
-        let filePath = URL(fileURLWithPath: getCacheDirectory()).appendingPathComponent(fileName)
+//        let filePath = URL(fileURLWithPath: getCacheDirectory()).appendingPathComponent(fileName)
+        let fileManager = FileManager.default
+        let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
+        let documentDirectory = urls[0] as URL
+        let soundURL = documentDirectory.appendingPathComponent(fileName)
           
-        return filePath
+        return soundURL
+    }
+    
+    func setupAudio(){
+        if audioSession.recordPermission() == .granted {
+            do {
+                try audioSession.setCategory(AVAudioSessionCategoryRecord, with: AVAudioSessionCategoryOptions.mixWithOthers)
+                try audioSession.setActive(true)
+            } catch {
+                print("  ERROR setting audio session: \(error)" )
+            }
+        }else{
+            print("  ERROR Permission to Audio Denied... Check settings")
+        }
     }
     
     func setupRecorder() {
@@ -286,75 +133,91 @@ class ViewController: UIViewController, URLSessionDelegate {
             AVFormatIDKey: kAudioFormatAppleLossless,
             AVEncoderAudioQualityKey : AVAudioQuality.max.rawValue,
             AVEncoderBitRateKey : 320000,
-            AVNumberOfChannelsKey: 2,
+            AVNumberOfChannelsKey: 1,
             AVSampleRateKey : 44100.0
         ] as [String : Any]
                 
         do { try soundRecorder = AVAudioRecorder(url: getFileURL(), settings: recordSettings) }
         catch { print("Error initializing audio recorder.") }
-        soundRecorder.delegate = (self as! AVAudioRecorderDelegate)
+        soundRecorder.delegate = self
         soundRecorder.prepareToRecord()
+        
+        print("Recorder set up")
     }
     
-
     @IBAction func recordSound(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Record"){
             soundRecorder.record()
             print("Recording")
             sender.setTitle("Stop", for: .normal)
+            predictionLabel.isHidden = true
         } else {
             soundRecorder.stop()
-            print("Stopped")
+            print("Stopped recording")
             sender.setTitle("Record", for: .normal)
         }
     }
     
-    //MARK: Get New Dataset ID
-    @IBAction func getDataSetId(_ sender: AnyObject) {
-        // create a GET request for a new DSID from server
-        let baseURL = "\(SERVER_URL)/GetNewDatasetId"
-        
-        let getUrl = URL(string: baseURL)
-        let request: URLRequest = URLRequest(url: getUrl!)
-        let dataTask : URLSessionDataTask = self.session.dataTask(with: request,
-            completionHandler:{(data, response, error) in
-                if(error != nil){
-                    print("Response:\n%@",response!)
-                }
-                else{
-                    let jsonDictionary = self.convertDataToDictionary(with: data)
-                    
-                    // This better be an integer
-                    if let dsid = jsonDictionary["dsid"]{
-                        self.dsid = dsid as! Int
-                    }
-                }
-                
-        })
-        
-        dataTask.resume() // start the task
-        
+    
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("Successfully recorded")
+        // if switch is on, make HTTP request
+        if self.coreMLSwitch.isOn{
+            // if training, call training function
+            if self.trainPredictSegmentedControl.selectedSegmentIndex == 0{
+                sendFeatures()
+            }
+            // otherwise, call prediction function
+            else {
+                getPrediction()
+            }
+        }
+        // otherwise, use CoreML
+        else{
+            // if training, call training function
+            if self.trainPredictSegmentedControl.selectedSegmentIndex == 0{
+              // CoreML training function call
+            }
+            // otherwise, call the prediction function
+            else {
+              // CoreML prediction function
+            }
+        }
     }
     
-    //MARK: Calibration
-    @IBAction func startCalibration(_ sender: AnyObject) {
-        self.isWaitingForMotionData = false // dont do anything yet
-        nextCalibrationStage()
+    func readAudioFile() -> [Float]{
+        print(getFileURL())
+        let file = try! AVAudioFile(forReading: getFileURL())
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
         
+        let buf = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
+        try! file.read(into: buf!)
+        
+        // this makes a copy
+        let floatArray = Array(UnsafeBufferPointer(start: buf?.floatChannelData![0], count:Int(buf!.frameLength)))
+        return floatArray
+    }
+
+    @IBAction func trainPredictDidChange(_ sender: UISegmentedControl) {
+        trainPredict = trainPredictSegmentedControl.selectedSegmentIndex
+        if trainPredict == 0{
+            instrumentSegmentedControl.isHidden = false
+        } else{
+            instrumentSegmentedControl.isHidden = true
+        }
     }
     
     //MARK: Comm with Server
-    func sendFeatures(_ array:[Double], withLabel label:CalibrationStage){
+    func sendFeatures(){
         let baseURL = "\(SERVER_URL)/AddDataPoint"
-        let postUrl = URL(string: "\(baseURL)")
+        let postUrl = URL(string: baseURL)
         
         // create a custom HTTP POST request
         var request = URLRequest(url: postUrl!)
         
         // data to send in body of post request (send arguments as json)
-        let jsonUpload:NSDictionary = ["feature":array,
-                                       "label":"\(label)",
-                                       "dsid":self.dsid]
+        let jsonUpload:NSDictionary = ["feature": self.readAudioFile(),
+                                       "label":"\(getTrainingLabel())"]
         
         
         let requestBody:Data? = self.convertDictionaryToData(with:jsonUpload)
@@ -381,22 +244,22 @@ class ViewController: UIViewController, URLSessionDelegate {
         postTask.resume() // start the task
     }
     
-    func getPrediction(_ array:[Double]){
+    func getPrediction(){
         let baseURL = "\(SERVER_URL)/PredictOne"
-        let postUrl = URL(string: "\(baseURL)")
-        
+        let postUrl = URL(string: (baseURL))
+
         // create a custom HTTP POST request
         var request = URLRequest(url: postUrl!)
-        
+
         // data to send in body of post request (send arguments as json)
-        let jsonUpload:NSDictionary = ["feature":array, "dsid":self.dsid]
-        
-        
+        let jsonUpload:NSDictionary = ["feature": self.readAudioFile()]
+
+
         let requestBody:Data? = self.convertDictionaryToData(with:jsonUpload)
-        
+
         request.httpMethod = "POST"
         request.httpBody = requestBody
-        
+
         let postTask : URLSessionDataTask = self.session.dataTask(with: request,
                                                                   completionHandler:{(data, response, error) in
                                                                     if(error != nil){
@@ -406,54 +269,26 @@ class ViewController: UIViewController, URLSessionDelegate {
                                                                     }
                                                                     else{
                                                                         let jsonDictionary = self.convertDataToDictionary(with: data)
-                                                                        
+
                                                                         let labelResponse = jsonDictionary["prediction"]!
                                                                         print(labelResponse)
-                                                                        self.displayLabelResponse(labelResponse as! String)
+                                                                        self.predictionLabel.text = (labelResponse as! String)
+                                                                        self.predictionLabel.isHidden = false
 
                                                                     }
-                                                                    
+
         })
-        
+
         postTask.resume() // start the task
     }
+//
     
-    func displayLabelResponse(_ response:String){
-        switch response {
-        case "['up']":
-            blinkLabel(upArrow)
-            break
-        case "['down']":
-            blinkLabel(downArrow)
-            break
-        case "['left']":
-            blinkLabel(leftArrow)
-            break
-        case "['right']":
-            blinkLabel(rightArrow)
-            break
-        default:
-            print("Unknown")
-            break
-        }
-    }
-    
-    func blinkLabel(_ label:UILabel){
-        DispatchQueue.main.async {
-            self.setAsCalibrating(label)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0, execute: {
-                self.setAsNormal(label)
-            })
-        }
-        
-    }
-    
-    @IBAction func makeModel(_ sender: AnyObject) {
-        
+
+    @IBAction func makeModel(_ sender: Any) {
         // create a GET request for server to update the ML model with current data
         let baseURL = "\(SERVER_URL)/UpdateModel"
-        let query = "?dsid=\(self.dsid)"
-        
+        let query = "?model=\(self.modelSelectSegmentedControl.selectedSegmentIndex)"
+
         let getUrl = URL(string: baseURL+query)
         let request: URLRequest = URLRequest(url: getUrl!)
         let dataTask : URLSessionDataTask = self.session.dataTask(with: request,
@@ -466,16 +301,16 @@ class ViewController: UIViewController, URLSessionDelegate {
                 }
                 else{
                     let jsonDictionary = self.convertDataToDictionary(with: data)
-                    
+
                     if let resubAcc = jsonDictionary["resubAccuracy"]{
                         print("Resubstitution Accuracy is", resubAcc)
                     }
                 }
-                                                                    
+
         })
-        
+
         dataTask.resume() // start the task
-        
+
     }
     
     //MARK: JSON Conversion Functions
