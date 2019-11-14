@@ -7,7 +7,9 @@
 //
 
 import UIKit
+import CoreML
 
+@available(iOS 12.0, *)
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 

@@ -15,29 +15,21 @@
 //    ifconfig |grep inet   
 // to see what your public facing IP address is, the ip address can be used here
 //let SERVER_URL = "http://erics-macbook-pro.local:8000" // change this for your server name!!!
-let SERVER_URL = "http://10.8.113.230:8000" // change this for your server name!!!
+let SERVER_URL = "http://10.8.119.21:8000" // change this for your server name!!!
 
 import UIKit
-import CoreMotion
+import CoreML
 import AVFoundation
 
+
+@available(iOS 12.0, *)
 class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDelegate {
     
     // MARK: Class Properties
     var session = URLSession()
     let operationQueue = OperationQueue()
-    let motionOperationQueue = OperationQueue()
     let calibrationOperationQueue = OperationQueue()
-    
-    var ringBuffer = RingBuffer()
-    let animation = CATransition()
-    let motion = CMMotionManager()
-    
-    var magValue = 0.1
-    var isCalibrating = false
-    
-    var isWaitingForMotionData = false
-    
+        
     lazy var audioSession:AVAudioSession = AVAudioSession.sharedInstance()
     var soundRecorder: AVAudioRecorder!
     let fileName = "audiofile.m4a"
@@ -47,33 +39,21 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     @IBOutlet weak var modelSelectSegmentedControl: UISegmentedControl!
     @IBOutlet weak var trainPredictSegmentedControl: UISegmentedControl!
     @IBOutlet weak var instrumentSegmentedControl: UISegmentedControl!
-    @IBOutlet weak var coreMLSwitch: UISwitch!
     @IBOutlet weak var predictionLabel: UILabel!
-    
-    @IBOutlet weak var dsidLabel: UILabel!
-    @IBOutlet weak var upArrow: UILabel!
-    @IBOutlet weak var rightArrow: UILabel!
-    @IBOutlet weak var downArrow: UILabel!
-    @IBOutlet weak var leftArrow: UILabel!
-    @IBOutlet weak var largeMotionMagnitude: UIProgressView!
+    @IBOutlet weak var updatingLabel: UILabel!
+
     
     func getTrainingLabel() -> String {
         switch self.instrumentSegmentedControl.selectedSegmentIndex{
         case 0:
-            return "guitar"
+            return "Guitar"
         case 1:
-            return "violin"
+            return "Violin"
         case 2:
-            return "piano"
+            return "Piano"
         default:
-            return "guitar"
+            return "Guitar"
         }
-    }
-    
-    func setDelayedWaitingToTrue(_ time:Double){
-        DispatchQueue.main.asyncAfter(deadline: .now() + time, execute: {
-            self.isWaitingForMotionData = true
-        })
     }
     
     // MARK: View Controller Life Cycle
@@ -81,13 +61,14 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     override func viewDidLoad() {
         super.viewDidLoad()
         predictionLabel.isHidden = true
+        updatingLabel.isHidden = true
         
         // Do any additional setup after loading the view, typically from a nib.
 
         let sessionConfig = URLSessionConfiguration.ephemeral
 
-        sessionConfig.timeoutIntervalForRequest = 10.0
-        sessionConfig.timeoutIntervalForResource = 20.0
+        sessionConfig.timeoutIntervalForRequest = 1000.0
+        sessionConfig.timeoutIntervalForResource = 2000.0
         sessionConfig.httpMaximumConnectionsPerHost = 1
 
         self.session = URLSession(configuration: sessionConfig,
@@ -106,7 +87,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
           
     func getFileURL() -> URL {
-//        let filePath = URL(fileURLWithPath: getCacheDirectory()).appendingPathComponent(fileName)
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = urls[0] as URL
@@ -120,6 +100,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             do {
                 try audioSession.setCategory(AVAudioSessionCategoryRecord, with: AVAudioSessionCategoryOptions.mixWithOthers)
                 try audioSession.setActive(true)
+                print("AudioSession set up")
             } catch {
                 print("  ERROR setting audio session: \(error)" )
             }
@@ -161,27 +142,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         print("Successfully recorded")
-        // if switch is on, make HTTP request
-        if self.coreMLSwitch.isOn{
-            // if training, call training function
-            if self.trainPredictSegmentedControl.selectedSegmentIndex == 0{
-                sendFeatures()
-            }
-            // otherwise, call prediction function
-            else {
-                getPrediction()
-            }
+        // if training, call training function
+        if self.trainPredictSegmentedControl.selectedSegmentIndex == 0{
+            sendFeatures()
         }
-        // otherwise, use CoreML
-        else{
-            // if training, call training function
-            if self.trainPredictSegmentedControl.selectedSegmentIndex == 0{
-              // CoreML training function call
-            }
-            // otherwise, call the prediction function
-            else {
-              // CoreML prediction function
-            }
+        // otherwise, call prediction function
+        else {
+            getHttpPrediction()
         }
     }
     
@@ -244,7 +211,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         postTask.resume() // start the task
     }
     
-    func getPrediction(){
+    func getHttpPrediction(){
         let baseURL = "\(SERVER_URL)/PredictOne"
         let postUrl = URL(string: (baseURL))
 
@@ -252,7 +219,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         var request = URLRequest(url: postUrl!)
 
         // data to send in body of post request (send arguments as json)
-        let jsonUpload:NSDictionary = ["feature": self.readAudioFile()]
+        let jsonUpload:NSDictionary = ["feature": self.readAudioFile(),
+                                       "ml_model_type": self.modelSelectSegmentedControl.selectedSegmentIndex]
 
 
         let requestBody:Data? = self.convertDictionaryToData(with:jsonUpload)
@@ -272,8 +240,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
 
                                                                         let labelResponse = jsonDictionary["prediction"]!
                                                                         print(labelResponse)
-                                                                        self.predictionLabel.text = (labelResponse as! String)
-                                                                        self.predictionLabel.isHidden = false
+                                                                        DispatchQueue.main.async {
+                                                                            self.predictionLabel.text = (labelResponse as! String)
+                                                                            self.predictionLabel.isHidden = false
+                                                                        }
 
                                                                     }
 
@@ -285,31 +255,47 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
 
     @IBAction func makeModel(_ sender: Any) {
+        updatingLabel.text = ("Updating Model...")
+        updatingLabel.isHidden = false
+        
         // create a GET request for server to update the ML model with current data
         let baseURL = "\(SERVER_URL)/UpdateModel"
-        let query = "?model=\(self.modelSelectSegmentedControl.selectedSegmentIndex)"
+        let postUrl = URL(string: (baseURL))
+        
+        // create a custom HTTP POST request
+        var request = URLRequest(url: postUrl!)
 
-        let getUrl = URL(string: baseURL+query)
-        let request: URLRequest = URLRequest(url: getUrl!)
-        let dataTask : URLSessionDataTask = self.session.dataTask(with: request,
-              completionHandler:{(data, response, error) in
-                // handle error!
-                if (error != nil) {
-                    if let res = response{
-                        print("Response:\n",res)
-                    }
-                }
-                else{
-                    let jsonDictionary = self.convertDataToDictionary(with: data)
+        // data to send in body of post request (send arguments as json)
+        let jsonUpload:NSDictionary = ["ml_model_type": self.modelSelectSegmentedControl.selectedSegmentIndex]
 
-                    if let resubAcc = jsonDictionary["resubAccuracy"]{
-                        print("Resubstitution Accuracy is", resubAcc)
-                    }
-                }
+        let requestBody:Data? = self.convertDictionaryToData(with:jsonUpload)
 
+        request.httpMethod = "POST"
+        request.httpBody = requestBody
+        
+        let postTask : URLSessionDataTask = self.session.dataTask(with: request,
+                                                                  completionHandler:{(data, response, error) in
+                                                                    if(error != nil){
+                                                                        if let res = response{
+                                                                            print("Response:\n",res)
+                                                                        }
+                                                                        print(error)
+                                                                    }
+                                                                    else{
+                                                                        let jsonDictionary = self.convertDataToDictionary(with: data)
+
+                                                                        let accuracy = jsonDictionary["resubAccuracy"]!
+                                                                        print("Training Set Accuracy: \(accuracy)")
+                                                                        DispatchQueue.main.async {
+                                                                            self.updatingLabel.text = ("Model \(self.modelSelectSegmentedControl.selectedSegmentIndex + 1) updated! Training Set Accuracy: \(accuracy)")
+                                                                        }
+                                                                        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+                                                                            self.updatingLabel.isHidden = true
+                                                                        }
+                                                                    }
         })
-
-        dataTask.resume() // start the task
+        
+        postTask.resume() // start the task
 
     }
     
