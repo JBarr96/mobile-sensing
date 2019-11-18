@@ -9,6 +9,7 @@ from tornado.web import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.options import define, options
+from tornado import gen
 
 from basehandler import BaseHandler
 
@@ -73,6 +74,7 @@ class UploadLabeledDatapointHandler(BaseHandler):
         )
 
 class UpdateModelForDatasetId(BaseHandler):
+    @gen.coroutine
     def post(self):
         '''Train a new model (or update) for given dataset ID
         '''
@@ -105,45 +107,49 @@ class UpdateModelForDatasetId(BaseHandler):
         # fit the model to the data
         acc = -1
         if audio_labels:
-            model = None
-
-            # create the model
-            if ml_model_type == 0:
-                model = tc.sound_classifier.create(audio_data,
-                                                   target='label',
-                                                   feature='audio',
-                                                   max_iterations=2500)
-            elif ml_model_type == 1:
-                model = tc.sound_classifier.create(audio_data,
-                                                   target='label',
-                                                   feature='audio',
-                                                   max_iterations=2500,
-                                                   custom_layer_sizes=[200, 200])
-            elif ml_model_type == 2:
-                model = tc.sound_classifier.create(audio_data,
-                                                   target='label',
-                                                   feature='audio',
-                                                   max_iterations=2500,
-                                                   custom_layer_sizes=[100, 100, 50, 50])
-            elif ml_model_type == 3:
-                model = tc.sound_classifier.create(audio_data,
-                                                   target='label',
-                                                   feature='audio',
-                                                   max_iterations=2500,
-                                                   custom_layer_sizes=[50, 50, 100, 100])
-
-            # generate an SArray of predictions from the test set
-            predictions = model.predict(audio_data)
-
-            # evaluate the model on the training data
-            acc = model.evaluate(audio_data)['accuracy']
-
-            model.save(f'../data/models/SoundClassification-{ml_model_type}.model')
-            # model.export_coreml('../data/core-ml-models/SoundClassification.mlmodel')
+            acc = yield self.create_ml_model(audio_data, ml_model_type)
 
         # send back the resubstitution accuracy
-        # if training takes a while, we are blocking tornado!! No!!
         self.write_json({"resubAccuracy":acc})
+
+    async def create_ml_model(self, audio_data, ml_model_type):
+        model = None
+
+        # create the model
+        if ml_model_type == 0:
+            model = tc.sound_classifier.create(audio_data,
+                                                target='label',
+                                                feature='audio',
+                                                max_iterations=2500)
+        elif ml_model_type == 1:
+            model = tc.sound_classifier.create(audio_data,
+                                                target='label',
+                                                feature='audio',
+                                                max_iterations=2500,
+                                                custom_layer_sizes=[200, 200])
+        elif ml_model_type == 2:
+            model = tc.sound_classifier.create(audio_data,
+                                                target='label',
+                                                feature='audio',
+                                                max_iterations=2500,
+                                                custom_layer_sizes=[100, 100, 50, 50])
+        elif ml_model_type == 3:
+            model = tc.sound_classifier.create(audio_data,
+                                                target='label',
+                                                feature='audio',
+                                                max_iterations=2500,
+                                                custom_layer_sizes=[50, 50, 100, 100])
+
+        # generate an SArray of predictions from the test set
+        predictions = model.predict(audio_data)
+
+        # evaluate the model on the training data
+        acc = model.evaluate(audio_data)['accuracy']
+
+        model.save(f'../data/models/SoundClassification-{ml_model_type}.model')
+        model.export_coreml('../data/core-ml-models/SoundClassification.mlmodel')
+
+        return acc
 
 class PredictOneFromDatasetId(BaseHandler):
     def post(self):
