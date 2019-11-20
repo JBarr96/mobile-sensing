@@ -69,7 +69,7 @@ def main():
     tornado.options.parse_command_line()
     http_server = HTTPServer(Application(), xheaders=True)
     http_server.listen(options.port)
-    IOLoop.instance().start()
+    IOLoop.current().start()
 
 if __name__ == "__main__":
     main()
