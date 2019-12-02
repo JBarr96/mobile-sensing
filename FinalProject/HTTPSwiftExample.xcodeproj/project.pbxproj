@@ -12,6 +12,8 @@
 		B67483E01ACA2D6800A9970E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B67483DE1ACA2D6800A9970E /* Main.storyboard */; };
 		B67483E21ACA2D6800A9970E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B67483E11ACA2D6800A9970E /* Images.xcassets */; };
 		B67483E51ACA2D6800A9970E /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = B67483E31ACA2D6800A9970E /* LaunchScreen.xib */; };
+		B837960A23949F2300F9F910 /* Metronone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B837960923949F2300F9F910 /* Metronone.swift */; };
+		B837960C2394A1CF00F9F910 /* Click.wav in Resources */ = {isa = PBXBuildFile; fileRef = B837960B2394A1CF00F9F910 /* Click.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -37,6 +39,8 @@
 		B67483E41ACA2D6800A9970E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		B67483EF1ACA2D6800A9970E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		B67483F01ACA2D6800A9970E /* HTTPSwiftExampleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPSwiftExampleTests.swift; sourceTree = "<group>"; };
+		B837960923949F2300F9F910 /* Metronone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Metronone.swift; sourceTree = "<group>"; };
+		B837960B2394A1CF00F9F910 /* Click.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = Click.wav; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -73,9 +77,11 @@
 			children = (
 				B67483DA1ACA2D6800A9970E /* AppDelegate.swift */,
 				B67483DC1ACA2D6800A9970E /* ViewController.swift */,
+				B837960923949F2300F9F910 /* Metronone.swift */,
 				B67483DE1ACA2D6800A9970E /* Main.storyboard */,
 				B67483E11ACA2D6800A9970E /* Images.xcassets */,
 				B67483E31ACA2D6800A9970E /* LaunchScreen.xib */,
+				B837960B2394A1CF00F9F910 /* Click.wav */,
 				B67483D81ACA2D6800A9970E /* Supporting Files */,
 			);
 			path = HTTPSwiftExample;
@@ -175,6 +181,7 @@
 				B67483E01ACA2D6800A9970E /* Main.storyboard in Resources */,
 				B67483E51ACA2D6800A9970E /* LaunchScreen.xib in Resources */,
 				B67483E21ACA2D6800A9970E /* Images.xcassets in Resources */,
+				B837960C2394A1CF00F9F910 /* Click.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,6 +193,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				B67483DD1ACA2D6800A9970E /* ViewController.swift in Sources */,
+				B837960A23949F2300F9F910 /* Metronone.swift in Sources */,
 				B67483DB1ACA2D6800A9970E /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -4,20 +4,8 @@
 //
 //  Created by Eric Larson on 3/30/15.
 //  Copyright (c) 2015 Eric Larson. All rights reserved.
-//
-
-// This exampe is meant to be run with the python example:
-//              tornado_example.py 
-//              from the course GitHub repository: tornado_bare, branch sklearn_example
-
-
-// if you do not know your local sharing server name try:
-//    ifconfig |grep inet   
-// to see what your public facing IP address is, the ip address can be used here
 
 // Johnathan Barr and Remus Tumac
-
-let SERVER_URL = "http://10.8.97.162:8000" // change this for your server name!!!
 
 import UIKit
 import CoreML
@@ -33,6 +21,9 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     var soundRecorder: AVAudioRecorder!
     let fileName = "audiofile.m4a"
     
+    let myMetronome = Metronome()
+    @IBOutlet weak var tickLabel: UILabel!
+    
     @IBOutlet weak var transcriptionLabel: UILabel!
     
     
@@ -43,6 +34,17 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         //set up the audio session and recorder
         setupAudio()
         setupRecorder()
+        
+        myMetronome.onTick = { (nextTick) in
+            self.animateTick()
+        }
+    }
+    
+    private func animateTick() {
+        tickLabel.alpha = 1.0
+        UIView.animate(withDuration: 0.35) {
+            self.tickLabel.alpha = 0.0
+        }
     }
     
     func transcribeAudio() -> String {
@@ -129,6 +131,16 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             soundRecorder.stop()
             print("Stopped recording")
             sender.setTitle("Record", for: .normal)
+        }
+    }
+    
+    @IBAction func startStopMetronome(_ sender: UIButton) {
+        if (sender.titleLabel?.text == "Start Metronome"){
+            myMetronome.enabled = true
+            sender.setTitle("Stop Metronome", for: .normal)
+        } else {
+            myMetronome.enabled = false
+            sender.setTitle("Start Metronome", for: .normal)
         }
     }
     
