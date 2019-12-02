@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="49W-zV-bwu">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="aUw-zw-R1W">
+            <objects>
+                <viewController id="49W-zV-bwu" customClass="ViewController" customModule="PocketJamBand" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="fKp-Wz-G1n"/>
+                        <viewControllerLayoutGuide type="bottom" id="wGV-06-pOX"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="6w7-Ej-f6E">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4o-rL-dhG">
+                                <rect key="frame" x="149" y="75" width="77" height="42"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <state key="normal" title="Record"/>
+                                <connections>
+                                    <action selector="recordSound:" destination="49W-zV-bwu" eventType="touchUpInside" id="V2q-bd-6K7"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DU9-KF-NHL">
+                                <rect key="frame" x="16" y="136" width="343" height="20.5"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="343" id="Fiv-Ka-B0v"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3C3-O3-u7P">
+                                <rect key="frame" x="129" y="517" width="117" height="30"/>
+                                <state key="normal" title="Start Metronome"/>
+                                <connections>
+                                    <action selector="startStopMetronome:" destination="49W-zV-bwu" eventType="touchUpInside" id="Jio-U6-Y7N"/>
+                                </connections>
+                            </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tick" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DIg-PN-uAr">
+                                <rect key="frame" x="171" y="555" width="33" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="E4o-rL-dhG" firstAttribute="top" secondItem="fKp-Wz-G1n" secondAttribute="bottom" constant="75" id="19M-PU-0hk"/>
+                            <constraint firstItem="3C3-O3-u7P" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="U0u-uf-KAi"/>
+                            <constraint firstItem="wGV-06-pOX" firstAttribute="top" secondItem="3C3-O3-u7P" secondAttribute="bottom" constant="120" id="ZNp-gc-BE1"/>
+                            <constraint firstItem="DU9-KF-NHL" firstAttribute="top" secondItem="E4o-rL-dhG" secondAttribute="bottom" constant="19" id="bar-3O-oen"/>
+                            <constraint firstItem="E4o-rL-dhG" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="lZS-24-z6h"/>
+                            <constraint firstItem="DIg-PN-uAr" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="uPm-1a-cI8"/>
+                            <constraint firstItem="DU9-KF-NHL" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="xrw-Ev-SsT"/>
+                            <constraint firstItem="DIg-PN-uAr" firstAttribute="top" secondItem="3C3-O3-u7P" secondAttribute="bottom" constant="8" id="zEH-be-hy3"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="tickLabel" destination="DIg-PN-uAr" id="kRL-IY-cID"/>
+                        <outlet property="transcriptionLabel" destination="DU9-KF-NHL" id="1te-h6-eSy"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="U0h-ZW-Qwv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-922.39999999999998" y="196.55172413793105"/>
+        </scene>
+    </scenes>
+</document>
