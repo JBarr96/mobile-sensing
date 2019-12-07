@@ -22,10 +22,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     let fileName = "audiofile.m4a"
     
     let myMetronome = Metronome()
-    @IBOutlet weak var tickLabel: UILabel!
     
+    var recordForTempoAnalysis = false
+    
+    @IBOutlet weak var tickLabel: UILabel!
     @IBOutlet weak var transcriptionLabel: UILabel!
     
+    @IBOutlet weak var recordButton: UIButton!
     
     // MARK: View Controller Life Cycle
     override func viewDidLoad() {
@@ -47,7 +50,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }
     
-    func transcribeAudio() -> String {
+    func transcribeAudioAndTakeAction() {
         let url = getFileURL()
         // create a new recognizer and point it at our audio
         let recognizer = SFSpeechRecognizer()
@@ -69,13 +72,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 transcription = result.bestTranscription.formattedString
                 print("Transcription: \(transcription)")
                 self.transcriptionLabel.text = transcription
+                
+                self.interpretCommand(command: transcription.lowercased())
             }
             else{
                 transcription = ""
             }
         }
-        
-        return transcription
     }
           
     // function to return the URL for the audio file
@@ -145,6 +148,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
     
     func interpretCommand(command: String) {
+        print(command)
+        
         if command.contains("metronome"){
             // switch to metronome mode
         }
@@ -152,7 +157,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             // switch to loop mode
         }
         else if command.contains("set tempo"){
-            // initiate function to set tempo
+            self.recordForTempoAnalysis = true
+            
+            // start recording to get new temo
+            self.recordButton.sendActions(for: .touchUpInside)
         }
         else if command.contains("record"){
             // record loop
@@ -166,11 +174,63 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         print("Successfully recorded")
        // call get transcribed audio text
-        let command = transcribeAudio()
         
-        // interpret command
-//        interpretCommand(command: command)
+        if self.recordForTempoAnalysis {
+            self.recordForTempoAnalysis = false
+            let beatsPerMinute = findRecordingTempo()
+            
+            // set metronome to new beatsPerMinute
+        }
+        else {
+            transcribeAudioAndTakeAction()
+        }
     }
-
+    
+    // function that reads in the audiofile and transforms it into a float array
+    func readAudioFile() -> [Float]{
+        print(getFileURL())
+        let file = try! AVAudioFile(forReading: getFileURL())
+        let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
+        
+        let buf = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
+        try! file.read(into: buf!)
+        
+        let floatArray = Array(UnsafeBufferPointer(start: buf?.floatChannelData![0], count:Int(buf!.frameLength)))
+        return floatArray
+    }
+    
+    func findRecordingTempo() -> Int {
+        let audioData : Array = readAudioFile()
+        
+        var peaks : [Int] = []
+        let windowSize = 3000
+        
+        for i in 4000..<audioData.count - windowSize {
+            var windowMax = audioData[i]
+            var windowMaxPosition = i
+            
+            for j in i..<i + windowSize {
+                if(audioData[j] > windowMax) {
+                    windowMax = audioData[j]
+                    windowMaxPosition = j
+                }
+            }
+            
+            if(windowMaxPosition == i + windowSize / 2 && windowMax > 0.15) {
+                peaks.append(windowMaxPosition)
+            }
+        }
+        
+        var beatsPerMinute = 0.0
+        
+        if peaks.count > 1 {
+            let timeInterval = Double(peaks.last! - peaks.first!) / 44100.0
+            beatsPerMinute = Double(peaks.count - 1) / timeInterval * 60            
+        }
+        
+        print("BPM: \(Int(beatsPerMinute.rounded()))")
+        
+        return Int(beatsPerMinute.rounded())
+    }
 }
 
