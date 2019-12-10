@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="49W-zV-bwu">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" colorMatched="YES" initialViewController="49W-zV-bwu">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -21,7 +20,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="E4o-rL-dhG">
-                                <rect key="frame" x="149" y="95" width="77" height="42"/>
+                                <rect key="frame" x="149" y="75" width="77" height="42"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="25"/>
                                 <state key="normal" title="Record"/>
                                 <connections>
@@ -29,7 +28,7 @@
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DU9-KF-NHL">
-                                <rect key="frame" x="16" y="156" width="343" height="20.5"/>
+                                <rect key="frame" x="16" y="136" width="343" height="20.5"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="343" id="Fiv-Ka-B0v"/>
                                 </constraints>
@@ -50,11 +49,19 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tempo" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H25-4f-neT">
+                                <rect key="frame" x="161" y="488" width="53" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="E4o-rL-dhG" firstAttribute="top" secondItem="fKp-Wz-G1n" secondAttribute="bottom" constant="75" id="19M-PU-0hk"/>
+                            <constraint firstItem="3C3-O3-u7P" firstAttribute="top" secondItem="H25-4f-neT" secondAttribute="bottom" constant="8" id="1vo-PA-FMZ"/>
                             <constraint firstItem="3C3-O3-u7P" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="U0u-uf-KAi"/>
+                            <constraint firstItem="H25-4f-neT" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="Xtw-NF-805"/>
                             <constraint firstItem="wGV-06-pOX" firstAttribute="top" secondItem="3C3-O3-u7P" secondAttribute="bottom" constant="120" id="ZNp-gc-BE1"/>
                             <constraint firstItem="DU9-KF-NHL" firstAttribute="top" secondItem="E4o-rL-dhG" secondAttribute="bottom" constant="19" id="bar-3O-oen"/>
                             <constraint firstItem="E4o-rL-dhG" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="lZS-24-z6h"/>
@@ -65,6 +72,7 @@
                     </view>
                     <connections>
                         <outlet property="recordButton" destination="E4o-rL-dhG" id="qj7-PX-wqd"/>
+                        <outlet property="tempoLabel" destination="H25-4f-neT" id="CUc-2r-c9P"/>
                         <outlet property="tickLabel" destination="DIg-PN-uAr" id="kRL-IY-cID"/>
                         <outlet property="transcriptionLabel" destination="DU9-KF-NHL" id="1te-h6-eSy"/>
                     </connections>

@@ -14,31 +14,67 @@ import Speech
 
 
 @available(iOS 12.0, *)
-class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDelegate {
+class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDelegate, AVAudioPlayerDelegate {
     
     // variables necessary for audio recording including the file name
     lazy var audioSession:AVAudioSession = AVAudioSession.sharedInstance()
     var soundRecorder: AVAudioRecorder!
     let fileName = "audiofile.m4a"
     
-    let myMetronome = Metronome()
+    var bpm: Int = 60 { didSet {
+        bpm = min(300,max(30,bpm))
+        self.tempoLabel.text = "BPM : \(self.bpm)"
+        }}
+    var onTick: ((_ nextTick: DispatchTime) -> Void)?
+    var nextTick: DispatchTime = DispatchTime.distantFuture
+    
+    var metronome_enabled: Bool = false { didSet {
+        if metronome_enabled {
+            start()
+        } else {
+            stop()
+        }
+        }}
     
     var recordForTempoAnalysis = false
     
+    @IBOutlet weak var tempoLabel: UILabel!
     @IBOutlet weak var tickLabel: UILabel!
     @IBOutlet weak var transcriptionLabel: UILabel!
     
     @IBOutlet weak var recordButton: UIButton!
     
+    private var player:AVAudioPlayer! = nil
+    
     // MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
+    
+        
+        let audioSession = AVAudioSession.sharedInstance()
+        do {
+            try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+        } catch let error as NSError {
+            print(error.description)
+        }
+        
+        // Do any additional setup after loading the view.
+        let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
+        
+        do{
+            player = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: sound!))
+            print("loaded file with volume \(player.volume) and \(player.duration)")
+        }catch{
+            print(error)
+        }
+        print("playing \(player.isPlaying)")
         
         //set up the audio session and recorder
-        setupAudio()
+//        setupAudio()
         setupRecorder()
+
         
-        myMetronome.onTick = { (nextTick) in
+        self.onTick = { (nextTick) in
             self.animateTick()
         }
     }
@@ -95,7 +131,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     func setupAudio(){
         if audioSession.recordPermission() == .granted {
             do {
-                try audioSession.setCategory(AVAudioSessionCategoryRecord, with: AVAudioSessionCategoryOptions.mixWithOthers)
+                try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with: AVAudioSessionCategoryOptions.mixWithOthers)
                 try audioSession.setActive(true)
                 print("AudioSession set up")
             } catch {
@@ -139,12 +175,57 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     @IBAction func startStopMetronome(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Start Metronome"){
-            myMetronome.enabled = true
+            metronome_enabled = true
             sender.setTitle("Stop Metronome", for: .normal)
         } else {
-            myMetronome.enabled = false
+            metronome_enabled = false
             sender.setTitle("Start Metronome", for: .normal)
         }
+        
+        do {try
+            audioSession.setCategory(AVAudioSessionCategoryPlayback, with: AVAudioSessionCategoryOptions.mixWithOthers)
+        }
+        catch {
+            print("error setting category")
+        }
+
+        do {try audioSession.setActive(true)} catch {
+            print("error setting active")
+        }
+
+
+//        self.player.prepareToPlay()
+//        self.player.play()
+//        print("playing \(self.player.isPlaying)")
+    }
+    
+    private func start() {
+        print("Starting metronome, BPM: \(bpm)")
+        player.prepareToPlay()
+        nextTick = DispatchTime.now()
+        tick()
+    }
+
+    private func stop() {
+        player.stop()
+        print("Stoping metronome")
+    }
+
+    private func tick() {
+        guard
+            metronome_enabled,
+            nextTick <= DispatchTime.now()
+            else { return }
+
+        let interval: TimeInterval = 60.0 / TimeInterval(bpm)
+        nextTick = nextTick + interval
+        DispatchQueue.main.asyncAfter(deadline: nextTick) { [weak self] in
+            self?.tick()
+        }
+
+        print("Tick")
+        player.play()
+        onTick?(nextTick)
     }
     
     func interpretCommand(command: String) {
@@ -157,10 +238,22 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             // switch to loop mode
         }
         else if command.contains("set tempo"){
-            self.recordForTempoAnalysis = true
-            
-            // start recording to get new temo
-            self.recordButton.sendActions(for: .touchUpInside)
+            if command.contains("to"){
+                let strArr = command.split(separator: " ")
+                for item in strArr {
+                    let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+
+                    if let intVal = Int(part) {
+                        self.bpm = intVal
+                    }
+                }
+            }
+            else{
+                self.recordForTempoAnalysis = true
+                
+                // start recording to get new temo
+                self.recordButton.sendActions(for: .touchUpInside)
+            }
         }
         else if command.contains("record"){
             // record loop
@@ -177,8 +270,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         if self.recordForTempoAnalysis {
             self.recordForTempoAnalysis = false
-            let beatsPerMinute = findRecordingTempo()
-            
+            self.bpm = findRecordingTempo()
             // set metronome to new beatsPerMinute
         }
         else {
@@ -205,7 +297,9 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         var peaks : [Int] = []
         let windowSize = 3000
         
+        print(audioData.count)
         for i in 4000..<audioData.count - windowSize {
+            print(i)
             var windowMax = audioData[i]
             var windowMaxPosition = i
             
