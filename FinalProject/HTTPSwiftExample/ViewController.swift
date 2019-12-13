@@ -23,7 +23,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     var bpm: Int = 60 { didSet {
         bpm = min(300,max(30,bpm))
-        self.tempoLabel.text = "\(self.bpm)"
+        self.bpmLabel.text = "\(self.bpm)"
         }}
     var onTick: ((_ nextTick: DispatchTime) -> Void)?
     var nextTick: DispatchTime = DispatchTime.distantFuture
@@ -35,36 +35,147 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             stop()
         }
         }}
-    
-    var flash = false
-    
+        
     var recordForTempoAnalysis = false
     
-    @IBOutlet weak var tempoLabel: UILabel!
+    @IBOutlet weak var bpmLabel: UILabel!
+    @IBOutlet weak var bpmSubLabel: UILabel!
     
     @IBOutlet weak var actionButton: UIButton!
-    let buttons:[String:UIImage] = ["speak": UIImage(named: "Tap To Speak")!,
+    @IBOutlet weak var playButton: UIButton!
+    @IBOutlet weak var modeImage: UIImageView!
+    
+    let images:[String:UIImage] = ["speak": UIImage(named: "Tap To Speak")!,
                                     "go": UIImage(named: "Go Button")!,
                                     "stop": UIImage(named: "Stop Button")!,
-                                    "recording": UIImage(named: "Recording Button")!,
-                                    "play": UIImage(named: "Tap To Speak")!,
+                                    "play": UIImage(named: "Play Button")!,
+                                    "recording_loop": UIImage(named: "Recording Button")!,
                                     "loop_black": UIImage(named: "loop_black")!,
                                     "loop_white": UIImage(named: "loop_white")!,
+                                    "recording_metronome": UIImage(named: "Stop Recording")!,
                                     "metronome_black": UIImage(named: "metronome_black")!,
                                     "metronome_white": UIImage(named: "metronome_white")!]
+    
+    enum Mode {
+        case metronome
+        case loop
+    }
+    
+    var mode = Mode.metronome { didSet {
+        switch mode {
+        case Mode.metronome:
+            self.modeImage.image = images["metronome_white"]
+        case Mode.loop:
+            self.modeImage.image = images["loop_white"]
+        default:
+            return
+        }
+    }}
+    
+    var flash = false { didSet {
+        if flash{
+            view.backgroundColor = .white
+            self.bpmLabel.textColor = .darkGray
+            self.bpmSubLabel.textColor = .darkGray
+            switch self.mode {
+            case Mode.metronome:
+                self.modeImage.image = images["metronome_black"]
+            case Mode.loop:
+                self.modeImage.image = images["loop_black"]
+            default:
+                return
+            }
+        }else{
+            view.backgroundColor = .darkGray
+            self.bpmLabel.textColor = .white
+            self.bpmSubLabel.textColor = .white
+            switch self.mode {
+            case Mode.metronome:
+                self.modeImage.image = images["metronome_white"]
+            case Mode.loop:
+                self.modeImage.image = images["loop_white"]
+            default:
+                return
+            }
+        }
+    }}
+
+    enum State {
+        case speak
+        case listening
+        case recording_metronome
+        case playing_metronome
+        case stopped_metronome
+        case recording_loop
+        case playing_loop
+        case stopped_loop
+    }
+    
+    var state = State.speak { didSet {
+        switch state {
+        case State.speak:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.listening:
+            self.actionButton.setBackgroundImage(images["go"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.recording_metronome:
+            self.actionButton.setBackgroundImage(images["recording_metronome"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.playing_metronome:
+            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = false
+            
+        case State.stopped_metronome:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = false
+            self.modeImage.isHidden = false
+            
+        case State.recording_loop:
+            self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
+            self.actionButton.isEnabled = false
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.playing_loop:
+            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
+            self.actionButton.isEnabled = true
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = false
+            
+        case State.stopped_loop:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = false
+            self.modeImage.isHidden = false
+            
+        default:
+            return
+        }
+    }}
+    
     
     private var player:AVAudioPlayer! = nil
     
     // MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.actionButton.setBackgroundImage(buttons["speak"], for: .normal)
-        self.tempoLabel.text = "\(self.bpm)"
+        self.playButton.setBackgroundImage(images["play"], for: .normal)
+        self.bpm = 60
+        self.state = State.speak
+        
         
         // set up audio session
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
+            try audioSession.setActive(true)
         } catch let error as NSError {
             print(error.description)
         }
@@ -85,22 +196,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
 
         
         self.onTick = { (nextTick) in
-            self.flashBackground()
+            self.flash = !self.flash
         }
-    }
-    
-    private func flashBackground() {
-        if self.flash{
-            view.backgroundColor = .white
-            self.flash = false
-        }else{
-            view.backgroundColor = .darkGray
-            self.flash = true
-        }
-//        tickLabel.alpha = 1.0
-//        UIView.animate(withDuration: 0.35) {
-//            self.tickLabel.alpha = 0.0
-//        }
     }
     
     func transcribeAudioAndTakeAction() {
@@ -177,36 +274,34 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     // function to record/stop recording of audio
     @IBAction func recordSound(_ sender: UIButton) {
-        if (sender.titleLabel?.text == "Record"){
+        if(self.state == State.speak){
             soundRecorder.record()
             print("Recording")
-            sender.setBackgroundImage(buttons["go"], for: .normal)
+            sender.setBackgroundImage(images["go"], for: .normal)
+            self.state = State.listening
             // having "listening" label appear
         } else {
             soundRecorder.stop()
             print("Stopped recording")
+            sender.setBackgroundImage(images["speak"], for: .normal)
+            self.state = State.speak
         }
     }
     
-    func startStopMetronome(_ sender: UIButton) {
-        if (sender.titleLabel?.text == "Start Metronome"){
+    @IBAction func testMetronome(_ sender: Any) {
+        startStopMetronome()
+    }
+    
+    func startStopMetronome() {
+        if (self.state != State.playing_metronome){
             metronome_enabled = true
-            sender.setTitle("Stop Metronome", for: .normal)
+            self.state = State.playing_metronome
+            flash = true
         } else {
             metronome_enabled = false
-            sender.setTitle("Start Metronome", for: .normal)
+            self.state = State.stopped_metronome
             view.backgroundColor = .darkGray
-        }
-        
-        do {try
-            audioSession.setCategory(AVAudioSessionCategoryPlayback, with: AVAudioSessionCategoryOptions.mixWithOthers)
-        }
-        catch {
-            print("error setting category")
-        }
-
-        do {try audioSession.setActive(true)} catch {
-            print("error setting active")
+            flash = false
         }
     }
     

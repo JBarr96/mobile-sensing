@@ -29,24 +29,45 @@
                                     <action selector="recordSound:" destination="49W-zV-bwu" eventType="touchUpInside" id="Fdt-rx-MQY"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Tempo" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H25-4f-neT">
-                                <rect key="frame" x="45" y="20" width="285" height="119.5"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BPM" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H25-4f-neT">
+                                <rect key="frame" x="87" y="19.5" width="201.5" height="120"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="100"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BPM" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Hfk-nx-EvO">
                                 <rect key="frame" x="156.5" y="118" width="62" height="36"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="30"/>
-                                <nil key="textColor"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="metronome_white" translatesAutoresizingMaskIntoConstraints="NO" id="xiA-YY-dMc">
+                                <rect key="frame" x="205" y="505" width="110" height="100"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="99.999999999999886" id="1Gv-B6-0dT"/>
+                                    <constraint firstAttribute="width" constant="110" id="Y1A-l0-Q3K"/>
+                                </constraints>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zOx-Kg-Awz">
+                                <rect key="frame" x="64" y="531" width="100" height="105"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="105" id="KdN-72-46z"/>
+                                    <constraint firstAttribute="width" constant="100" id="pmT-qU-6ae"/>
+                                </constraints>
+                                <connections>
+                                    <action selector="testMetronome:" destination="49W-zV-bwu" eventType="touchUpInside" id="6EE-pa-C3a"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="top" secondItem="H25-4f-neT" secondAttribute="bottom" constant="44" id="0mp-xj-9UY"/>
                             <constraint firstItem="H25-4f-neT" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="350-6o-ugu"/>
+                            <constraint firstItem="zOx-Kg-Awz" firstAttribute="top" secondItem="mfg-fs-Cbn" secondAttribute="bottom" constant="47.5" id="ATX-G1-o1m"/>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="AtY-Vl-SAR"/>
+                            <constraint firstItem="zOx-Kg-Awz" firstAttribute="leading" secondItem="6w7-Ej-f6E" secondAttribute="leading" constant="64" id="GKW-fS-aN6"/>
+                            <constraint firstItem="wGV-06-pOX" firstAttribute="top" secondItem="xiA-YY-dMc" secondAttribute="bottom" constant="62.000000000000114" id="JyK-6P-Qht"/>
+                            <constraint firstAttribute="trailing" secondItem="xiA-YY-dMc" secondAttribute="trailing" constant="60" id="Mp1-QZ-UBJ"/>
                             <constraint firstItem="Hfk-nx-EvO" firstAttribute="centerX" secondItem="H25-4f-neT" secondAttribute="centerX" id="S3r-2N-13Z"/>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="centerY" secondItem="6w7-Ej-f6E" secondAttribute="centerY" id="c9Z-n9-pGR"/>
                             <constraint firstItem="Hfk-nx-EvO" firstAttribute="top" secondItem="H25-4f-neT" secondAttribute="bottom" constant="-21.5" id="fkf-yG-Pqa"/>
@@ -54,7 +75,10 @@
                     </view>
                     <connections>
                         <outlet property="actionButton" destination="mfg-fs-Cbn" id="EBS-sU-Y0j"/>
-                        <outlet property="tempoLabel" destination="H25-4f-neT" id="CUc-2r-c9P"/>
+                        <outlet property="bpmLabel" destination="H25-4f-neT" id="xxi-al-Udq"/>
+                        <outlet property="bpmSubLabel" destination="Hfk-nx-EvO" id="yRW-rd-FH7"/>
+                        <outlet property="modeImage" destination="xiA-YY-dMc" id="sC7-Mx-lej"/>
+                        <outlet property="playButton" destination="zOx-Kg-Awz" id="gW8-S0-Z8N"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="U0h-ZW-Qwv" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
@@ -62,4 +86,7 @@
             <point key="canvasLocation" x="-922.39999999999998" y="196.55172413793105"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="metronome_white" width="418" height="417"/>
+    </resources>
 </document>
