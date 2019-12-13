@@ -52,6 +52,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     @IBOutlet weak var bpmLabel: UILabel!
     @IBOutlet weak var bpmSubLabel: UILabel!
+    @IBOutlet weak var misunderstoodLabel: UILabel!
     @IBOutlet weak var actionButton: UIButton!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var modeImage: UIImageView!
@@ -86,6 +87,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     enum State {
         case speak
         case listening
+        case misunderstand
         case recording_tempo
         case playing_metronome
         case stopped_metronome
@@ -98,27 +100,39 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         switch state {
         case State.speak:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.listening:
             self.actionButton.setBackgroundImage(images["go"], for: .normal)
+            self.misunderstoodLabel.isHidden = true
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+        
+        case State.misunderstand:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.misunderstoodLabel.isHidden = false
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.recording_tempo:
+            print("State set to recording tempo")
             self.actionButton.setBackgroundImage(images["recording_tempo"], for: .normal)
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.playing_metronome:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
             self.mode = Mode.metronome
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
         case State.stopped_metronome:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
@@ -126,17 +140,20 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
             self.actionButton.isEnabled = false
             self.mode = Mode.loop
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.playing_loop:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
             self.actionButton.isEnabled = true
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
         case State.stopped_loop:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.misunderstoodLabel.isHidden = true
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
@@ -230,6 +247,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
     
     func recordForTempoAnalysis(){
+        print("Record for Tempo Analysis")
         self.state = State.recording_tempo
         self.recordForTempoAnalysisFlag = true
         soundRecorder.record()
@@ -280,10 +298,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             soundRecorder.record()
             print("Recording command")
             self.state = State.listening
-            // having "listening" label appear
         case State.listening:
             soundRecorder.stop()
             print("Stopped recording command")
+        case State.misunderstand:
+            soundRecorder.record()
+            print("Recording command")
+            self.state = State.listening
         case State.recording_tempo:
             soundRecorder.stop()
             print("Stopped recording tempo")
@@ -412,9 +433,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.state = State.playing_metronome
             startMetronome()
         }
-        else if command.contains("loop"){
-            // switch to loop mode
-        }
         else if command.contains("set tempo"){
             if command.contains("to"){
                 let strArr = command.split(separator: " ")
@@ -425,11 +443,14 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                         self.bpm = intVal
                     }
                 }
+                self.state = State.speak
             }
-            else{
+            else if command == "set tempo"{
                 self.recordForTempoAnalysis()
             }
-            self.state = State.speak
+            else {
+                self.state = State.misunderstand
+            }
         }
         else if command.contains("record"){
             let strArr = command.split(separator: " ")
@@ -472,25 +493,22 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 recordForLoop(numBars: numBars)
             }
             else {
-                self.state = State.speak
+                self.state = State.misunderstand
             }
         }
-        else if command.contains("start"){
-            // start either metronome or loop, depending on mode
-        }
         else {
-            self.state = State.speak
+            self.state = State.misunderstand
         }
     }
     
     // AVAudioRecorderDelegate delegate function performed upon completion of audio recording
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        print("Successfully recorded")
-       // call get transcribed audio text
+        print("Finished Recording")
         
         if self.recordForTempoAnalysisFlag {
             self.recordForTempoAnalysisFlag = false
             self.bpm = findRecordingTempo()
+            self.state = State.speak
         }
         else if self.recordLoopPlayback {
             self.flash = false
@@ -519,6 +537,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
     
     func findRecordingTempo() -> Int {
+        print("Analyzing Tempo")
         let audioData : Array = readAudioFile()
         
         var peaks : [Int] = []

@@ -58,16 +58,24 @@
                                     <action selector="resume:" destination="49W-zV-bwu" eventType="touchUpInside" id="T3i-M1-Yt6"/>
                                 </connections>
                             </button>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Command not understood Please Try Again" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wTR-HN-Yru">
+                                <rect key="frame" x="46.5" y="525" width="282.5" height="60"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="25"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="top" secondItem="H25-4f-neT" secondAttribute="bottom" constant="44" id="0mp-xj-9UY"/>
                             <constraint firstItem="H25-4f-neT" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="350-6o-ugu"/>
+                            <constraint firstItem="wTR-HN-Yru" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="84c-Xb-A3t"/>
                             <constraint firstItem="zOx-Kg-Awz" firstAttribute="top" secondItem="mfg-fs-Cbn" secondAttribute="bottom" constant="47.5" id="ATX-G1-o1m"/>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="centerX" secondItem="6w7-Ej-f6E" secondAttribute="centerX" id="AtY-Vl-SAR"/>
                             <constraint firstItem="zOx-Kg-Awz" firstAttribute="leading" secondItem="6w7-Ej-f6E" secondAttribute="leading" constant="64" id="GKW-fS-aN6"/>
                             <constraint firstItem="wGV-06-pOX" firstAttribute="top" secondItem="xiA-YY-dMc" secondAttribute="bottom" constant="62.000000000000114" id="JyK-6P-Qht"/>
                             <constraint firstAttribute="trailing" secondItem="xiA-YY-dMc" secondAttribute="trailing" constant="60" id="Mp1-QZ-UBJ"/>
+                            <constraint firstItem="wTR-HN-Yru" firstAttribute="centerY" secondItem="xiA-YY-dMc" secondAttribute="centerY" id="Qfh-Ue-bEW"/>
                             <constraint firstItem="Hfk-nx-EvO" firstAttribute="centerX" secondItem="H25-4f-neT" secondAttribute="centerX" id="S3r-2N-13Z"/>
                             <constraint firstItem="mfg-fs-Cbn" firstAttribute="centerY" secondItem="6w7-Ej-f6E" secondAttribute="centerY" id="c9Z-n9-pGR"/>
                             <constraint firstItem="Hfk-nx-EvO" firstAttribute="top" secondItem="H25-4f-neT" secondAttribute="bottom" constant="-21.5" id="fkf-yG-Pqa"/>
@@ -77,6 +85,7 @@
                         <outlet property="actionButton" destination="mfg-fs-Cbn" id="EBS-sU-Y0j"/>
                         <outlet property="bpmLabel" destination="H25-4f-neT" id="xxi-al-Udq"/>
                         <outlet property="bpmSubLabel" destination="Hfk-nx-EvO" id="yRW-rd-FH7"/>
+                        <outlet property="misunderstoodLabel" destination="wTR-HN-Yru" id="6ha-Yo-OUk"/>
                         <outlet property="modeImage" destination="xiA-YY-dMc" id="sC7-Mx-lej"/>
                         <outlet property="playButton" destination="zOx-Kg-Awz" id="gW8-S0-Z8N"/>
                     </connections>
