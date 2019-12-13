@@ -26,7 +26,7 @@
                                     <constraint firstAttribute="width" constant="300" id="hE2-iZ-fi9"/>
                                 </constraints>
                                 <connections>
-                                    <action selector="recordSound:" destination="49W-zV-bwu" eventType="touchUpInside" id="Fdt-rx-MQY"/>
+                                    <action selector="actionButtonPressed:" destination="49W-zV-bwu" eventType="touchUpInside" id="M85-po-dx4"/>
                                 </connections>
                             </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="BPM" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="H25-4f-neT">
@@ -55,7 +55,7 @@
                                     <constraint firstAttribute="width" constant="100" id="pmT-qU-6ae"/>
                                 </constraints>
                                 <connections>
-                                    <action selector="testMetronome:" destination="49W-zV-bwu" eventType="touchUpInside" id="6EE-pa-C3a"/>
+                                    <action selector="resume:" destination="49W-zV-bwu" eventType="touchUpInside" id="T3i-M1-Yt6"/>
                                 </connections>
                             </button>
                         </subviews>

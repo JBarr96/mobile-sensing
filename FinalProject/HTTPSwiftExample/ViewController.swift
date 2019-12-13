@@ -19,8 +19,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     // variables necessary for audio recording including the file name
     lazy var audioSession:AVAudioSession = AVAudioSession.sharedInstance()
     var soundRecorder: AVAudioRecorder!
+    private var player:AVAudioPlayer! = nil
     let fileName = "audiofile.m4a"
     
+    var recordForTempoAnalysisFlag = false
+    var recordLoopPlayback = false
+    
+    // metronome variables
     var bpm: Int = 60 { didSet {
         bpm = min(300,max(30,bpm))
         self.bpmLabel.text = "\(self.bpm)"
@@ -30,13 +35,15 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     var metronome_enabled: Bool = false { didSet {
         if metronome_enabled {
-            start()
+            print("Starting metronome, BPM: \(bpm)")
+            player.prepareToPlay()
+            nextTick = DispatchTime.now()
+            tick()
         } else {
-            stop()
+            player.stop()
+            print("Stopping metronome")
         }
-        }}
-        
-    var recordForTempoAnalysis = false
+    }}
     
     @IBOutlet weak var bpmLabel: UILabel!
     @IBOutlet weak var bpmSubLabel: UILabel!
@@ -52,7 +59,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                                     "recording_loop": UIImage(named: "Recording Button")!,
                                     "loop_black": UIImage(named: "loop_black")!,
                                     "loop_white": UIImage(named: "loop_white")!,
-                                    "recording_metronome": UIImage(named: "Stop Recording")!,
+                                    "recording_tempo": UIImage(named: "Stop Recording")!,
                                     "metronome_black": UIImage(named: "metronome_black")!,
                                     "metronome_white": UIImage(named: "metronome_white")!]
     
@@ -67,6 +74,68 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.modeImage.image = images["metronome_white"]
         case Mode.loop:
             self.modeImage.image = images["loop_white"]
+        default:
+            return
+        }
+    }}
+
+    enum State {
+        case speak
+        case listening
+        case recording_tempo
+        case playing_metronome
+        case stopped_metronome
+        case recording_loop
+        case playing_loop
+        case stopped_loop
+    }
+    
+    var state = State.speak { didSet {
+        switch state {
+        case State.speak:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.listening:
+            self.actionButton.setBackgroundImage(images["go"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.recording_tempo:
+            self.actionButton.setBackgroundImage(images["recording_tempo"], for: .normal)
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.playing_metronome:
+            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
+            self.mode = Mode.metronome
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = false
+            
+        case State.stopped_metronome:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = false
+            self.modeImage.isHidden = false
+            
+        case State.recording_loop:
+            self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
+            self.actionButton.isEnabled = false
+            self.mode = Mode.loop
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = true
+            
+        case State.playing_loop:
+            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
+            self.actionButton.isEnabled = true
+            self.playButton.isHidden = true
+            self.modeImage.isHidden = false
+            
+        case State.stopped_loop:
+            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
+            self.playButton.isHidden = false
+            self.modeImage.isHidden = false
+            
         default:
             return
         }
@@ -100,76 +169,11 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }}
 
-    enum State {
-        case speak
-        case listening
-        case recording_metronome
-        case playing_metronome
-        case stopped_metronome
-        case recording_loop
-        case playing_loop
-        case stopped_loop
-    }
-    
-    var state = State.speak { didSet {
-        switch state {
-        case State.speak:
-            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = true
-            
-        case State.listening:
-            self.actionButton.setBackgroundImage(images["go"], for: .normal)
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = true
-            
-        case State.recording_metronome:
-            self.actionButton.setBackgroundImage(images["recording_metronome"], for: .normal)
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = true
-            
-        case State.playing_metronome:
-            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = false
-            
-        case State.stopped_metronome:
-            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.playButton.isHidden = false
-            self.modeImage.isHidden = false
-            
-        case State.recording_loop:
-            self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
-            self.actionButton.isEnabled = false
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = true
-            
-        case State.playing_loop:
-            self.actionButton.setBackgroundImage(images["stop"], for: .normal)
-            self.actionButton.isEnabled = true
-            self.playButton.isHidden = true
-            self.modeImage.isHidden = false
-            
-        case State.stopped_loop:
-            self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.playButton.isHidden = false
-            self.modeImage.isHidden = false
-            
-        default:
-            return
-        }
-    }}
-    
-    
-    private var player:AVAudioPlayer! = nil
-    
-    // MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
         self.playButton.setBackgroundImage(images["play"], for: .normal)
         self.bpm = 60
         self.state = State.speak
-        
         
         // set up audio session
         let audioSession = AVAudioSession.sharedInstance()
@@ -193,7 +197,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         //set up the audio session and recorder
         setupRecorder()
-
         
         self.onTick = { (nextTick) in
             self.flash = !self.flash
@@ -228,7 +231,140 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             }
         }
     }
-          
+    
+    func interpretCommand(command: String) {
+        print(command)
+        
+        if command.contains("metronome"){
+            self.state = State.playing_metronome
+            startMetronome()
+        }
+        else if command.contains("loop"){
+            
+            // switch to loop mode
+        }
+        else if command.contains("set tempo"){
+            if command.contains("to"){
+                let strArr = command.split(separator: " ")
+                for item in strArr {
+                    let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+
+                    if let intVal = Int(part) {
+                        self.bpm = intVal
+                    }
+                }
+            }
+            else{
+                // start recording to get new temo
+                self.recordForTempoAnalysis()
+            }
+            self.state = State.speak
+        }
+        else if command.contains("record"){
+            recordForLoop()
+        }
+        else if command.contains("start"){
+            // start either metronome or loop, depending on mode
+        }
+    }
+    
+    func recordForTempoAnalysis(){
+        self.state = State.recording_tempo
+        self.recordForTempoAnalysisFlag = true
+        soundRecorder.record()
+    }
+    
+    func recordForLoop(){
+        self.state = State.recording_loop
+        self.recordLoopPlayback = true
+        soundRecorder.record()
+    }
+    
+    // function to record/stop recording of audio
+    @IBAction func actionButtonPressed(_ sender: UIButton) {
+        switch state {
+        case State.speak:
+            soundRecorder.record()
+            print("Recording command")
+            self.state = State.listening
+            // having "listening" label appear
+        case State.listening:
+            soundRecorder.stop()
+            print("Stopped recording command")
+        case State.recording_tempo:
+            soundRecorder.stop()
+            print("Stopped recording tempo")
+        case State.playing_metronome:
+            stopMetronome()
+        case State.stopped_metronome:
+            soundRecorder.record()
+            print("Recording")
+            self.state = State.listening
+        case State.playing_loop:
+            stopLoop()
+        case State.stopped_loop:
+            soundRecorder.record()
+            print("Recording")
+            self.state = State.listening
+        default:
+            return
+        }
+    }
+    
+    // AVAudioRecorderDelegate delegate function performed upon completion of audio recording
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        print("Successfully recorded")
+       // call get transcribed audio text
+        
+        if self.recordForTempoAnalysisFlag {
+            self.recordForTempoAnalysisFlag = false
+            self.bpm = findRecordingTempo()
+        }
+        else if self.recordLoopPlayback{
+            self.recordLoopPlayback = false
+            startLoop()
+        }
+        else {
+            transcribeAudioAndTakeAction()
+        }
+    }
+    
+    func startMetronome(){
+        metronome_enabled = true
+        self.state = State.playing_metronome
+        flash = true
+        print("Started metronome")
+    }
+    
+    func stopMetronome(){
+        metronome_enabled = false
+        self.state = State.stopped_metronome
+        view.backgroundColor = .darkGray
+        flash = false
+        print("Stopped metronome")
+    }
+    
+    func startLoop(){
+        print("Started Loop")
+    }
+    
+    func stopLoop(){
+        print("Stopped loop")
+    }
+        
+        
+    @IBAction func resume(_ sender: Any) {
+        if self.mode == Mode.metronome {
+            startMetronome()
+        }
+        else if self.mode == Mode.loop {
+            startLoop()
+        }
+        else{
+            return
+        }
+    }
+    
     // function to return the URL for the audio file
     func getFileURL() -> URL {
         let fileManager = FileManager.default
@@ -237,21 +373,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         let soundURL = documentDirectory.appendingPathComponent(fileName)
           
         return soundURL
-    }
-    
-    // function to set up the audio session
-    func setupAudio(){
-        if audioSession.recordPermission() == .granted {
-            do {
-                try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord, with: AVAudioSessionCategoryOptions.mixWithOthers)
-                try audioSession.setActive(true)
-                print("AudioSession set up")
-            } catch {
-                print("  ERROR setting audio session: \(error)" )
-            }
-        }else{
-            print("  ERROR Permission to Audio Denied... Check settings")
-        }
     }
     
     // function to set up the audio recorder
@@ -272,51 +393,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Recorder set up")
     }
     
-    // function to record/stop recording of audio
-    @IBAction func recordSound(_ sender: UIButton) {
-        if(self.state == State.speak){
-            soundRecorder.record()
-            print("Recording")
-            sender.setBackgroundImage(images["go"], for: .normal)
-            self.state = State.listening
-            // having "listening" label appear
-        } else {
-            soundRecorder.stop()
-            print("Stopped recording")
-            sender.setBackgroundImage(images["speak"], for: .normal)
-            self.state = State.speak
-        }
-    }
-    
-    @IBAction func testMetronome(_ sender: Any) {
-        startStopMetronome()
-    }
-    
-    func startStopMetronome() {
-        if (self.state != State.playing_metronome){
-            metronome_enabled = true
-            self.state = State.playing_metronome
-            flash = true
-        } else {
-            metronome_enabled = false
-            self.state = State.stopped_metronome
-            view.backgroundColor = .darkGray
-            flash = false
-        }
-    }
-    
-    private func start() {
-        print("Starting metronome, BPM: \(bpm)")
-        player.prepareToPlay()
-        nextTick = DispatchTime.now()
-        tick()
-    }
-
-    private func stop() {
-        player.stop()
-        print("Stoping metronome")
-    }
-
     private func tick() {
         guard
             metronome_enabled,
@@ -332,56 +408,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Tick")
         player.play()
         onTick?(nextTick)
-    }
-    
-    func interpretCommand(command: String) {
-        print(command)
-        
-        if command.contains("metronome"){
-            // switch to metronome mode
-        }
-        else if command.contains("loop"){
-            // switch to loop mode
-        }
-        else if command.contains("set tempo"){
-            if command.contains("to"){
-                let strArr = command.split(separator: " ")
-                for item in strArr {
-                    let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
-
-                    if let intVal = Int(part) {
-                        self.bpm = intVal
-                    }
-                }
-            }
-            else{
-                self.recordForTempoAnalysis = true
-                
-                // start recording to get new temo
-                self.actionButton.sendActions(for: .touchUpInside)
-            }
-        }
-        else if command.contains("record"){
-            // record loop
-        }
-        else if command.contains("start"){
-            // start either metronome or loop, depending on mode
-        }
-    }
-    
-    // AVAudioRecorderDelegate delegate function performed upon completion of audio recording
-    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
-        print("Successfully recorded")
-       // call get transcribed audio text
-        
-        if self.recordForTempoAnalysis {
-            self.recordForTempoAnalysis = false
-            self.bpm = findRecordingTempo()
-            // set metronome to new beatsPerMinute
-        }
-        else {
-            transcribeAudioAndTakeAction()
-        }
     }
     
     // function that reads in the audiofile and transforms it into a float array
