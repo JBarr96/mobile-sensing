@@ -23,7 +23,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     var bpm: Int = 60 { didSet {
         bpm = min(300,max(30,bpm))
-        self.tempoLabel.text = "BPM : \(self.bpm)"
+        self.tempoLabel.text = "\(self.bpm)"
         }}
     var onTick: ((_ nextTick: DispatchTime) -> Void)?
     var nextTick: DispatchTime = DispatchTime.distantFuture
@@ -36,21 +36,32 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
         }}
     
+    var flash = false
+    
     var recordForTempoAnalysis = false
     
     @IBOutlet weak var tempoLabel: UILabel!
-    @IBOutlet weak var tickLabel: UILabel!
-    @IBOutlet weak var transcriptionLabel: UILabel!
     
-    @IBOutlet weak var recordButton: UIButton!
+    @IBOutlet weak var actionButton: UIButton!
+    let buttons:[String:UIImage] = ["speak": UIImage(named: "Tap To Speak")!,
+                                    "go": UIImage(named: "Go Button")!,
+                                    "stop": UIImage(named: "Stop Button")!,
+                                    "recording": UIImage(named: "Recording Button")!,
+                                    "play": UIImage(named: "Tap To Speak")!,
+                                    "loop_black": UIImage(named: "loop_black")!,
+                                    "loop_white": UIImage(named: "loop_white")!,
+                                    "metronome_black": UIImage(named: "metronome_black")!,
+                                    "metronome_white": UIImage(named: "metronome_white")!]
     
     private var player:AVAudioPlayer! = nil
     
     // MARK: View Controller Life Cycle
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+        self.actionButton.setBackgroundImage(buttons["speak"], for: .normal)
+        self.tempoLabel.text = "\(self.bpm)"
         
+        // set up audio session
         let audioSession = AVAudioSession.sharedInstance()
         do {
             try audioSession.setCategory(AVAudioSessionCategoryPlayAndRecord)
@@ -58,7 +69,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             print(error.description)
         }
         
-        // Do any additional setup after loading the view.
+        // set up audio player
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
         
         do{
@@ -70,20 +81,26 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("playing \(player.isPlaying)")
         
         //set up the audio session and recorder
-//        setupAudio()
         setupRecorder()
 
         
         self.onTick = { (nextTick) in
-            self.animateTick()
+            self.flashBackground()
         }
     }
     
-    private func animateTick() {
-        tickLabel.alpha = 1.0
-        UIView.animate(withDuration: 0.35) {
-            self.tickLabel.alpha = 0.0
+    private func flashBackground() {
+        if self.flash{
+            view.backgroundColor = .white
+            self.flash = false
+        }else{
+            view.backgroundColor = .darkGray
+            self.flash = true
         }
+//        tickLabel.alpha = 1.0
+//        UIView.animate(withDuration: 0.35) {
+//            self.tickLabel.alpha = 0.0
+//        }
     }
     
     func transcribeAudioAndTakeAction() {
@@ -107,8 +124,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 // pull out the best transcription...
                 transcription = result.bestTranscription.formattedString
                 print("Transcription: \(transcription)")
-                self.transcriptionLabel.text = transcription
-                
                 self.interpretCommand(command: transcription.lowercased())
             }
             else{
@@ -165,21 +180,22 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         if (sender.titleLabel?.text == "Record"){
             soundRecorder.record()
             print("Recording")
-            sender.setTitle("Stop", for: .normal)
+            sender.setBackgroundImage(buttons["go"], for: .normal)
+            // having "listening" label appear
         } else {
             soundRecorder.stop()
             print("Stopped recording")
-            sender.setTitle("Record", for: .normal)
         }
     }
     
-    @IBAction func startStopMetronome(_ sender: UIButton) {
+    func startStopMetronome(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Start Metronome"){
             metronome_enabled = true
             sender.setTitle("Stop Metronome", for: .normal)
         } else {
             metronome_enabled = false
             sender.setTitle("Start Metronome", for: .normal)
+            view.backgroundColor = .darkGray
         }
         
         do {try
@@ -192,11 +208,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         do {try audioSession.setActive(true)} catch {
             print("error setting active")
         }
-
-
-//        self.player.prepareToPlay()
-//        self.player.play()
-//        print("playing \(self.player.isPlaying)")
     }
     
     private func start() {
@@ -252,7 +263,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 self.recordForTempoAnalysis = true
                 
                 // start recording to get new temo
-                self.recordButton.sendActions(for: .touchUpInside)
+                self.actionButton.sendActions(for: .touchUpInside)
             }
         }
         else if command.contains("record"){
@@ -299,7 +310,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         print(audioData.count)
         for i in 4000..<audioData.count - windowSize {
-            print(i)
             var windowMax = audioData[i]
             var windowMaxPosition = i
             
@@ -325,6 +335,32 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("BPM: \(Int(beatsPerMinute.rounded()))")
         
         return Int(beatsPerMinute.rounded())
+    }
+    
+    func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+
+        // Figure out what our orientation is, and use that to form the rectangle
+        var newSize: CGSize
+        if(widthRatio > heightRatio) {
+            newSize = CGSize(width: size.width * heightRatio, height: size.height * heightRatio)
+        } else {
+            newSize = CGSize(width: size.width * widthRatio,  height: size.height * widthRatio)
+        }
+
+        // This is the rect that we've calculated out and this is what is actually used below
+        let rect = CGRect(x: 0, y: 0, width: newSize.width, height: newSize.height)
+
+        // Actually do the resizing to the rect using the ImageContext stuff
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: rect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage!
     }
 }
 
