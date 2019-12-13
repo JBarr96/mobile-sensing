@@ -181,22 +181,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             metronome_enabled = false
             sender.setTitle("Start Metronome", for: .normal)
         }
-        
-        do {try
-            audioSession.setCategory(AVAudioSessionCategoryPlayback, with: AVAudioSessionCategoryOptions.mixWithOthers)
-        }
-        catch {
-            print("error setting category")
-        }
-
-        do {try audioSession.setActive(true)} catch {
-            print("error setting active")
-        }
-
-
-//        self.player.prepareToPlay()
-//        self.player.play()
-//        print("playing \(self.player.isPlaying)")
     }
     
     private func start() {
