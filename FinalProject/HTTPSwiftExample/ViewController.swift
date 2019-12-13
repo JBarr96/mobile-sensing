@@ -20,6 +20,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     lazy var audioSession:AVAudioSession = AVAudioSession.sharedInstance()
     var soundRecorder: AVAudioRecorder!
     let fileName = "audiofile.m4a"
+    let loopPlaybackFileName = "audiofile-loop.m4a"
     
     var bpm: Int = 60 { didSet {
         bpm = min(300,max(30,bpm))
@@ -36,7 +37,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
         }}
     
+    let recorderSamplingRate = 44100.0
+    
     var recordForTempoAnalysis = false
+    var recordLoopPlayback = false
+    
+    var numBarsLoopPlayback = 0
+    
     
     @IBOutlet weak var tempoLabel: UILabel!
     @IBOutlet weak var tickLabel: UILabel!
@@ -60,18 +67,11 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         // Do any additional setup after loading the view.
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
-        
-        do{
-            player = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: sound!))
-            print("loaded file with volume \(player.volume) and \(player.duration)")
-        }catch{
-            print(error)
-        }
-        print("playing \(player.isPlaying)")
+        self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
         
         //set up the audio session and recorder
 //        setupAudio()
-        setupRecorder()
+        setupRecorder(recordingFileName: self.fileName)
 
         
         self.onTick = { (nextTick) in
@@ -87,7 +87,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
     
     func transcribeAudioAndTakeAction() {
-        let url = getFileURL()
+        let url = getFileURL(fileName: fileName)
         // create a new recognizer and point it at our audio
         let recognizer = SFSpeechRecognizer()
         let request = SFSpeechURLRecognitionRequest(url: url)
@@ -118,7 +118,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     }
           
     // function to return the URL for the audio file
-    func getFileURL() -> URL {
+    func getFileURL(fileName: String) -> URL {
         let fileManager = FileManager.default
         let urls = fileManager.urls(for: .documentDirectory, in: .userDomainMask)
         let documentDirectory = urls[0] as URL
@@ -142,8 +142,18 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }
     
+    func setupAudioPlayer(audioFileURL: URL) {
+        do{
+            player = try AVAudioPlayer(contentsOf: audioFileURL)
+            print("loaded file with volume \(player.volume) and \(player.duration)")
+        }catch{
+            print(error)
+        }
+        print("playing \(player.isPlaying)")
+    }
+    
     // function to set up the audio recorder
-    func setupRecorder() {
+    func setupRecorder(recordingFileName: String) {
         let recordSettings = [
             AVFormatIDKey: kAudioFormatAppleLossless,
             AVEncoderAudioQualityKey : AVAudioQuality.max.rawValue,
@@ -152,7 +162,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             AVSampleRateKey : 44100.0
         ] as [String : Any]
                 
-        do { try soundRecorder = AVAudioRecorder(url: getFileURL(), settings: recordSettings) }
+        do { try soundRecorder = AVAudioRecorder(url: getFileURL(fileName: recordingFileName), settings: recordSettings) }
         catch { print("Error initializing audio recorder.") }
         soundRecorder.delegate = self
         soundRecorder.prepareToRecord()
@@ -163,6 +173,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     // function to record/stop recording of audio
     @IBAction func recordSound(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Record"){
+            if self.player.isPlaying {
+                self.player.pause()
+            }
+            
             soundRecorder.record()
             print("Recording")
             sender.setTitle("Stop", for: .normal)
@@ -175,6 +189,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     @IBAction func startStopMetronome(_ sender: UIButton) {
         if (sender.titleLabel?.text == "Start Metronome"){
+            // set up the audio player
+            let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
+            self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
+            
             metronome_enabled = true
             sender.setTitle("Stop Metronome", for: .normal)
         } else {
@@ -207,7 +225,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self?.tick()
         }
 
-        print("Tick")
         player.play()
         onTick?(nextTick)
     }
@@ -239,12 +256,90 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 self.recordButton.sendActions(for: .touchUpInside)
             }
         }
-        else if command.contains("record"){
-            // record loop
+        else if command.contains("record for"){
+            let strArr = command.split(separator: " ")
+            var numBars = 0
+            
+            for item in strArr {
+                let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
+                
+                if let intVal = Int(part) {
+                    numBars = intVal
+                    break
+                }
+                else {
+                    switch item {
+                        case "one":
+                            numBars = 1
+                        case "two":
+                            numBars = 2
+                        case "three":
+                            numBars = 3
+                        case "four":
+                            numBars = 4
+                        case "five":
+                            numBars = 5
+                        case "six":
+                            numBars = 6
+                        case "seven":
+                            numBars = 7
+                        case "eight":
+                            numBars = 8
+                        case "nine":
+                            numBars = 9
+                        default:
+                            continue
+                    }
+                }
+            }
+            
+            if numBars > 0 {
+                self.recordLoopPlayback = true
+                self.numBarsLoopPlayback = numBars
+                
+                let interval: TimeInterval = Double(numBars) / (Double(self.bpm) / 60.0)
+                
+                let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
+                self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
+                self.player.prepareToPlay()
+                
+                let metronomeInterval: TimeInterval = 60.0 / TimeInterval(bpm)
+                
+                self.player.play()
+                let timer = Timer.scheduledTimer(withTimeInterval: metronomeInterval, repeats: true, block: { timer in
+                    self.player.play()
+                })
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + metronomeInterval * 3.9) { [weak self] in
+                    timer.invalidate()
+                    
+                    // start recording
+                    self?.setupRecorder(recordingFileName: self!.loopPlaybackFileName)
+                    self?.recordButton.sendActions(for: .touchUpInside)
+                    self?.recordButton.isEnabled = false
+                    
+                    // stop recording
+                    DispatchQueue.main.asyncAfter(deadline: .now() + interval) { [weak self] in
+                        self?.recordButton.isEnabled = true
+                        self?.recordButton.sendActions(for: .touchUpInside)
+                    }
+                }
+            }
         }
         else if command.contains("start"){
             // start either metronome or loop, depending on mode
         }
+    }
+    
+    func startLoopPlayback() {
+        // set up audio player for loop playback
+        self.setupAudioPlayer(audioFileURL: getFileURL(fileName: self.loopPlaybackFileName))
+        
+        self.player.numberOfLoops = -1
+        self.player.volume = 80.0
+
+        self.player.prepareToPlay()
+        self.player.play()
     }
     
     // AVAudioRecorderDelegate delegate function performed upon completion of audio recording
@@ -257,6 +352,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.bpm = findRecordingTempo()
             // set metronome to new beatsPerMinute
         }
+        else if self.recordLoopPlayback {
+            startLoopPlayback()
+            
+            // reset audio recorder
+            self.recordLoopPlayback = false
+            self.setupRecorder(recordingFileName: self.fileName)
+        }
         else {
             transcribeAudioAndTakeAction()
         }
@@ -264,8 +366,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     // function that reads in the audiofile and transforms it into a float array
     func readAudioFile() -> [Float]{
-        print(getFileURL())
-        let file = try! AVAudioFile(forReading: getFileURL())
+        let file = try! AVAudioFile(forReading: getFileURL(fileName: fileName))
         let format = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: file.fileFormat.sampleRate, channels: 1, interleaved: false)
         
         let buf = AVAudioPCMBuffer(pcmFormat: format!, frameCapacity: AVAudioFrameCount(file.length))
@@ -281,9 +382,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         var peaks : [Int] = []
         let windowSize = 3000
         
-        print(audioData.count)
         for i in 4000..<audioData.count - windowSize {
-            print(i)
             var windowMax = audioData[i]
             var windowMaxPosition = i
             
