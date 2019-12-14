@@ -449,8 +449,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.state = State.playing_metronome
             startMetronome()
         }
-        else if command.contains("set tempo"){
-            if command.contains("to"){
+        else if command.contains("set tempo") || command.contains("set timbre") || command.contains("set temperature") || command.contains("september"){
+            if command.contains("to") || command.contains("temperature"){
                 let strArr = command.split(separator: " ")
                 for item in strArr {
                     let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
@@ -461,14 +461,14 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 }
                 self.state = State.speak
             }
-            else if command == "set tempo"{
+            else if command == "set tempo" || command == "set timbre" {
                 self.recordForTempoAnalysis()
             }
             else {
                 self.state = State.misunderstand
             }
         }
-        else if command.contains("record"){
+        else if command.contains("record") || command.contains("records"){
             let strArr = command.split(separator: " ")
             var numBars = 0
             
