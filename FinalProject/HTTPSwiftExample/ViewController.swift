@@ -283,9 +283,14 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         self.player.play()
         self.flash = true
         
+        var times = 3
+        
         let timer = Timer.scheduledTimer(withTimeInterval: metronomeInterval, repeats: true, block: { timer in
-            self.player.play()
-            self.flash = !self.flash
+            if times > 0{
+                self.player.play()
+                self.flash = !self.flash
+            }
+            times -= 1
         })
         
         DispatchQueue.main.asyncAfter(deadline: .now() + metronomeInterval * 3.9) { [weak self] in
