@@ -236,7 +236,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         recognizer?.recognitionTask(with: request) { [unowned self] (result, error) in
             // abort if we didn't get any transcription back
             guard let result = result else {
-                print("There was an error: \(error!)")
+                DispatchQueue.main.async { [weak self] in
+                    self?.state = State.misunderstand
+                }
+                
                 return
             }
 
