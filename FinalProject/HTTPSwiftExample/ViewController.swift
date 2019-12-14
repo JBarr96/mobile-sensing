@@ -52,7 +52,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     @IBOutlet weak var bpmLabel: UILabel!
     @IBOutlet weak var bpmSubLabel: UILabel!
-    @IBOutlet weak var misunderstoodLabel: UILabel!
+    @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var actionButton: UIButton!
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var modeImage: UIImageView!
@@ -100,39 +100,48 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         switch state {
         case State.speak:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.misunderstoodLabel.isHidden = true
+            self.actionButton.isEnabled = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.listening:
             self.actionButton.setBackgroundImage(images["go"], for: .normal)
-            self.misunderstoodLabel.isHidden = true
+            self.statusLabel.text = "Listening..."
+            self.statusLabel.isHidden = false
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
         
         case State.misunderstand:
+            do {
+                sleep(2)
+            }
+            self.statusLabel.text = "Command not understood Please Try Again"
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.misunderstoodLabel.isHidden = false
+            self.actionButton.isEnabled = true
+            self.statusLabel.isHidden = false
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.recording_tempo:
-            print("State set to recording tempo")
             self.actionButton.setBackgroundImage(images["recording_tempo"], for: .normal)
-            self.misunderstoodLabel.isHidden = true
+            self.actionButton.isEnabled = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.playing_metronome:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
+            self.actionButton.isEnabled = true
             self.mode = Mode.metronome
-            self.misunderstoodLabel.isHidden = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
         case State.stopped_metronome:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.misunderstoodLabel.isHidden = true
+            self.actionButton.isEnabled = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
@@ -140,20 +149,21 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
             self.actionButton.isEnabled = false
             self.mode = Mode.loop
-            self.misunderstoodLabel.isHidden = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
         case State.playing_loop:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
             self.actionButton.isEnabled = true
-            self.misunderstoodLabel.isHidden = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
         case State.stopped_loop:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
-            self.misunderstoodLabel.isHidden = true
+            self.actionButton.isEnabled = true
+            self.statusLabel.isHidden = true
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
@@ -299,6 +309,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             print("Recording command")
             self.state = State.listening
         case State.listening:
+            self.actionButton.isEnabled = false
             soundRecorder.stop()
             print("Stopped recording command")
         case State.misunderstand:
@@ -328,6 +339,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     func startMetronome(){
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
         self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
+        self.player.volume = 80.0
         metronome_enabled = true
         self.state = State.playing_metronome
         flash = true
@@ -504,6 +516,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     // AVAudioRecorderDelegate delegate function performed upon completion of audio recording
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         print("Finished Recording")
+        self.statusLabel.text = "Thinking..."
         
         if self.recordForTempoAnalysisFlag {
             self.recordForTempoAnalysisFlag = false
