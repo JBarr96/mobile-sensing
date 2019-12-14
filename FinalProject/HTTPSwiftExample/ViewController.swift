@@ -113,9 +113,6 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.modeImage.isHidden = true
         
         case State.misunderstand:
-            do {
-                sleep(2)
-            }
             self.statusLabel.text = "Command not understood Please Try Again"
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
             self.actionButton.isEnabled = true
@@ -258,8 +255,11 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     func recordForTempoAnalysis(){
         print("Record for Tempo Analysis")
+        
         self.state = State.recording_tempo
         self.recordForTempoAnalysisFlag = true
+        self.statusLabel.text = "Listening..."
+        self.statusLabel.isHidden = false
         soundRecorder.record()
     }
     
@@ -275,6 +275,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
         self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
+        self.player.volume = 80.0
         self.player.prepareToPlay()
         
         let metronomeInterval: TimeInterval = 60.0 / TimeInterval(bpm)
@@ -292,6 +293,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             
             // start recording
             self?.setupRecorder(recordingFileName: self!.loopPlaybackFileName)
+            self?.statusLabel.text = "Recording..."
+            self?.statusLabel.isHidden = false
             self?.soundRecorder.record()
             
             // stop recording
@@ -317,6 +320,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             print("Recording command")
             self.state = State.listening
         case State.recording_tempo:
+            self.statusLabel.text = "Thinking..."
             soundRecorder.stop()
             print("Stopped recording tempo")
         case State.playing_metronome:
@@ -551,6 +555,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     
     func findRecordingTempo() -> Int {
         print("Analyzing Tempo")
+        self.statusLabel.text = "Thinking..."
         let audioData : Array = readAudioFile()
         
         var peaks : [Int] = []
