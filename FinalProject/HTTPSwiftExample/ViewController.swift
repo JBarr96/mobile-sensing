@@ -309,13 +309,12 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     func recordForLoop(numBars: Int){
         self.state = State.recording_loop
         self.recordLoopPlayback = true
-        
-        
-        self.recordLoopPlayback = true
         self.numBarsLoopPlayback = numBars
         
+        // calculate time duration of recording
         let interval: TimeInterval = Double(numBars) / (Double(self.bpm) / 60.0)
         
+        // set up metronome to count the user before recording starts
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
         self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
         self.player.volume = 80.0
@@ -323,11 +322,11 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         let metronomeInterval: TimeInterval = 60.0 / TimeInterval(bpm)
         
+        // count in the user for 4 bars with metronome tick
         self.player.play()
         self.flash = true
         
         var times = 3
-        
         let timer = Timer.scheduledTimer(withTimeInterval: metronomeInterval, repeats: true, block: { timer in
             if times > 0{
                 self.player.play()
@@ -541,6 +540,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             let strArr = command.split(separator: " ")
             var numBars = 0
             
+            // parse out number of bars to record from string
             for item in strArr {
                 let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
                 
@@ -549,6 +549,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                     break
                 }
                 else {
+                    // check if the number of bars was spelled out
                     switch item {
                         case "one":
                             numBars = 1
@@ -634,10 +635,12 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         var peaks : [Int] = []
         let windowSize = 3000
         
+        // iterate over the audio buffer with a window of size 3000
         for i in 4000..<audioData.count - windowSize {
             var windowMax = audioData[i]
             var windowMaxPosition = i
             
+            // find local maxima inside windoe
             for j in i..<i + windowSize {
                 if(audioData[j] > windowMax) {
                     windowMax = audioData[j]
@@ -645,6 +648,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 }
             }
             
+            // check if local maxima is a peak within the window
             if(windowMaxPosition == i + windowSize / 2 && windowMax > 0.15) {
                 peaks.append(windowMaxPosition)
             }
@@ -653,6 +657,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         var beatsPerMinute = 0.0
         
         if peaks.count > 1 {
+            // calculate BPM
             let timeInterval = Double(peaks.last! - peaks.first!) / 44100.0
             beatsPerMinute = Double(peaks.count - 1) / timeInterval * 60            
         }
