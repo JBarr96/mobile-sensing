@@ -4,8 +4,13 @@
 //
 //  Created by Eric Larson on 3/30/15.
 //  Copyright (c) 2015 Eric Larson. All rights reserved.
-
+//
 // Johnathan Barr and Remus Tumac
+//
+// Metronome logic adapted from here: https://github.com/ekscrypto/Swift-Tutorial-Metronome
+// Image resizing function found here: https://iosdevcenters.blogspot.com/2015/12/how-to-resize-image-in-swift-in-ios.html
+//
+
 
 import UIKit
 import CoreML
@@ -34,6 +39,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     var onTick: ((_ nextTick: DispatchTime) -> Void)?
     var nextTick: DispatchTime = DispatchTime.distantFuture
     
+    // flag that turns the turns the metronome on/off based on value
     var metronome_enabled: Bool = false { didSet {
         if metronome_enabled {
             print("Starting metronome, BPM: \(bpm)")
@@ -41,15 +47,18 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             nextTick = DispatchTime.now()
             tick()
         } else {
-            player.stop()
             print("Stopping metronome")
+            player.stop()
         }
     }}
 
+    // sampling rate for recorder
     let recorderSamplingRate = 44100.0
     
+    // number of bars to play back the recorded loop
     var numBarsLoopPlayback = 0
     
+    // all UI elements (labels and buttons)
     @IBOutlet weak var bpmLabel: UILabel!
     @IBOutlet weak var bpmSubLabel: UILabel!
     @IBOutlet weak var statusLabel: UILabel!
@@ -57,6 +66,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
     @IBOutlet weak var playButton: UIButton!
     @IBOutlet weak var modeImage: UIImageView!
     
+    // dictionary of images that will be used for icons or buttons
     let images:[String:UIImage] = ["speak": UIImage(named: "Tap To Speak")!,
                                     "go": UIImage(named: "Go Button")!,
                                     "stop": UIImage(named: "Stop Button")!,
@@ -68,11 +78,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                                     "metronome_black": UIImage(named: "metronome_black")!,
                                     "metronome_white": UIImage(named: "metronome_white")!]
     
+    // enum to distinguish whether app is in metronome or looping mode
     enum Mode {
         case metronome
         case loop
     }
     
+    // variable with teh app's current mode, changing the mode icon accordingly
     var mode = Mode.metronome { didSet {
         switch mode {
         case Mode.metronome:
@@ -84,6 +96,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }}
 
+    // enum to represent the "state" of the app
     enum State {
         case speak
         case listening
@@ -96,8 +109,10 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         case stopped_loop
     }
     
+    // current state of the app, changing which will change the UI accordingly
     var state = State.speak { didSet {
         switch state {
+        // speak state is the default state of the app with no play or mode icons. Just bpm and action button
         case State.speak:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
             self.actionButton.isEnabled = true
@@ -105,6 +120,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
+        // listening state is what is shown while a verbal command is being issued, changing
+        // the action button to the green "Go" button and displaying "Listening" in the status label
         case State.listening:
             self.actionButton.setBackgroundImage(images["go"], for: .normal)
             self.statusLabel.text = "Listening..."
@@ -112,6 +129,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
         
+        // misunderstood state is when a command is not understood as one of the accepted commands of the app
+        // informs the user the command was not understood and prompts them to try again
         case State.misunderstand:
             self.statusLabel.text = "Command not understood Please Try Again"
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
@@ -120,6 +139,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
+        // recording tempo state for when a tempo is being set dynamically with the audio analysis
+        // shows round red stop button to end recording
         case State.recording_tempo:
             self.actionButton.setBackgroundImage(images["recording_tempo"], for: .normal)
             self.actionButton.isEnabled = true
@@ -127,6 +148,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
+        // playing metronome state for when the metronome is currently running
+        // shows red square stop button to pause recording and metronome mode icon
         case State.playing_metronome:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
             self.actionButton.isEnabled = true
@@ -135,6 +158,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
+        // stopped metronome state for when the metronome has been stopped
+        // shows regular voice command button, mode icon, and play button to resume metronome
         case State.stopped_metronome:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
             self.actionButton.isEnabled = true
@@ -142,6 +167,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
+        // recording loop state for when a loop is currently being recorded
+        // makes action button big red recording circle that you cannot press (don't want to interrupt recording)
         case State.recording_loop:
             self.actionButton.setBackgroundImage(images["recording_loop"], for: .normal)
             self.actionButton.isEnabled = false
@@ -150,6 +177,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = true
             
+        // playing loop state for when a recorded loop is being played back
+        // same as metronome playing with red stop square and mode icon
         case State.playing_loop:
             self.actionButton.setBackgroundImage(images["stop"], for: .normal)
             self.actionButton.isEnabled = true
@@ -157,6 +186,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = true
             self.modeImage.isHidden = false
             
+        // stopped loop state for when recorded loop playback has been stopped
+        // same as stopped metronome with normal action button, mode icon, and play button to resume playback
         case State.stopped_loop:
             self.actionButton.setBackgroundImage(images["speak"], for: .normal)
             self.actionButton.isEnabled = true
@@ -164,12 +195,15 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.playButton.isHidden = false
             self.modeImage.isHidden = false
             
+        // default because swift requires default
         default:
             return
         }
     }}
     
+    // variable that stores the current state of screen flashing, changing which will "flash" the screen
     var flash = false { didSet {
+        // if true, white background with dark icons
         if flash{
             view.backgroundColor = .white
             self.bpmLabel.textColor = .darkGray
@@ -182,7 +216,9 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             default:
                 return
             }
-        }else{
+        }
+        // if false, normal dark background with white icons
+        else{
             view.backgroundColor = .darkGray
             self.bpmLabel.textColor = .white
             self.bpmSubLabel.textColor = .white
@@ -218,12 +254,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         
         setupRecorder(recordingFileName: self.fileName)
 
-        
+        // set up flash functionality for metronome
         self.onTick = { (nextTick) in
             self.flash = !self.flash
         }
     }
     
+    // function to listen to audio command and convert to string using SFSpeechRecognizer
     func transcribeAudioAndTakeAction() {
         let url = getFileURL(fileName: fileName)
         // create a new recognizer and point it at our audio
@@ -248,6 +285,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
                 // pull out the best transcription...
                 transcription = result.bestTranscription.formattedString
                 print("Transcription: \(transcription)")
+                // perform action with command
                 self.interpretCommand(command: transcription.lowercased())
             }
             else{
@@ -256,6 +294,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }
     
+    // function to trigger recording for tempo analysis
     func recordForTempoAnalysis(){
         print("Record for Tempo Analysis")
         
@@ -266,6 +305,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         soundRecorder.record()
     }
     
+    // function to trigger loop recording
     func recordForLoop(numBars: Int){
         self.state = State.recording_loop
         self.recordLoopPlayback = true
@@ -312,42 +352,54 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         }
     }
     
-    // function to record/stop recording of audio
+    // function for when main action button is pressed
+    // functionality depends on the current state of the app
     @IBAction func actionButtonPressed(_ sender: UIButton) {
+        // pressing the button while in...
         switch state {
+        // speak state will trigger the recording of a command
         case State.speak:
             soundRecorder.record()
             print("Recording command")
             self.state = State.listening
+        // listening state will end the recording of the command (and trigger followup action)
         case State.listening:
             self.actionButton.isEnabled = false
             soundRecorder.stop()
             print("Stopped recording command")
+        // misunderstood state will trigger the recording of a command
         case State.misunderstand:
             soundRecorder.record()
             print("Recording command")
             self.state = State.listening
+        // recording tempo state will end the recording of the audio to be processed for tempo analysis
         case State.recording_tempo:
             self.statusLabel.text = "Thinking..."
             soundRecorder.stop()
             print("Stopped recording tempo")
+        // playing metronome state will stop the metronome
         case State.playing_metronome:
             stopMetronome()
+        // stopped metronome state will trigger the recording of a command
         case State.stopped_metronome:
             soundRecorder.record()
-            print("Recording")
+            print("Recording command")
             self.state = State.listening
+        // playing loop state will stop the playback of the loop
         case State.playing_loop:
             stopLoop()
+        // stopped loop state will trigger the recording of a command
         case State.stopped_loop:
             soundRecorder.record()
-            print("Recording")
+            print("Recording command")
             self.state = State.listening
+        // default because swift requires a default
         default:
             return
         }
     }
     
+    // function to initiate the playing of the metronome
     func startMetronome(){
         let sound = Bundle.main.path(forResource: "Click", ofType: "wav")
         self.setupAudioPlayer(audioFileURL: URL(fileURLWithPath: sound!))
@@ -358,6 +410,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Started metronome")
     }
     
+    // function to stop the playing of the metronome
     func stopMetronome(){
         metronome_enabled = false
         self.state = State.stopped_metronome
@@ -366,6 +419,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Stopped metronome")
     }
     
+    // function to initiate the playback of the recorded loop
     func startLoop() {
         // set up audio player for loop playback
         self.setupAudioPlayer(audioFileURL: getFileURL(fileName: self.loopPlaybackFileName))
@@ -378,12 +432,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         self.player.play()
     }
     
+    // function to stop the playback of the recorded loop
     func stopLoop(){
         self.state = State.stopped_loop
         self.player.stop()
     }
         
-        
+    // function when green play button is pressed to resume playback of either metronome or loop
     @IBAction func resume(_ sender: Any) {
         if self.mode == Mode.metronome {
             startMetronome()
@@ -406,6 +461,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         return soundURL
     }
     
+    // function to set up the audio player
     func setupAudioPlayer(audioFileURL: URL) {
         do{
             player = try AVAudioPlayer(contentsOf: audioFileURL)
@@ -434,6 +490,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Recorder set up")
     }
 
+    // function for the metronome 'tick'
     private func tick() {
         guard
             metronome_enabled,
@@ -450,6 +507,8 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         onTick?(nextTick)
     }
     
+    // function to interpret a command
+    // series of conditional tests to determine which function to trigger
     func interpretCommand(command: String) {
         print(command)
         
@@ -457,9 +516,11 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.state = State.playing_metronome
             startMetronome()
         }
+        // accounts for common misunderstandings in pronunciation
         else if command.contains("set tempo") || command.contains("set timbre") || command.contains("set temperature") || command.contains("september"){
             if command.contains("to") || command.contains("temperature"){
                 let strArr = command.split(separator: " ")
+                // parse out integer bpm from string
                 for item in strArr {
                     let part = item.components(separatedBy: CharacterSet.decimalDigits.inverted).joined()
 
@@ -530,11 +591,13 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         print("Finished Recording")
         self.statusLabel.text = "Thinking..."
         
+        // if the recordForTempoAnalysisFlag is set, perform tempo analysis on audio
         if self.recordForTempoAnalysisFlag {
             self.recordForTempoAnalysisFlag = false
             self.bpm = findRecordingTempo()
             self.state = State.speak
         }
+        // if recordLoopPlayback is set, stop the recording and begin looped playback
         else if self.recordLoopPlayback {
             self.flash = false
             self.recordLoopPlayback = false
@@ -544,6 +607,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
             self.recordLoopPlayback = false
             self.setupRecorder(recordingFileName: self.fileName)
         }
+        // otherwise, interpret the recorded command
         else {
             transcribeAudioAndTakeAction()
         }
@@ -561,6 +625,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         return floatArray
     }
     
+    // function for determining tempo from recorded audio
     func findRecordingTempo() -> Int {
         print("Analyzing Tempo")
         self.statusLabel.text = "Thinking..."
@@ -597,6 +662,7 @@ class ViewController: UIViewController, URLSessionDelegate, AVAudioRecorderDeleg
         return Int(beatsPerMinute.rounded())
     }
     
+    // function to resize UIImages
     func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
         let size = image.size
 
